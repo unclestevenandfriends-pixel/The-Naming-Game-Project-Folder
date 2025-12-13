@@ -1,0 +1,1912 @@
+<html lang="en" class="antialiased selection:bg-brand-500/30 selection:text-brand-200">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Naming Game: KS2 Masterclass</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <!-- PDF Export Library (Only jsPDF needed now) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- LZString Compression Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+
+  <!-- EARLY REPORT MODE DETECTION (Runs IMMEDIATELY before any other JS) -->
+  <!-- SYNTHESIZED FIX FROM GEMINI + DEEPSEEK + CHATGPT -->
+  <script>
+    (function () {
+      // Check BOTH normal params (?mode=report) AND hash params (#?mode=report)
+      var params = new URLSearchParams(window.location.search);
+      var hashParams = new URLSearchParams(window.location.hash.split('?')[1] || "");
+
+      var isReportMode = params.get('mode') === 'report' || hashParams.get('mode') === 'report';
+
+      if (isReportMode) {
+        document.documentElement.classList.add('report-mode');
+        console.log('🚀 REPORT MODE DETECTED EARLY - BULLETPROOF FIX ACTIVE');
+
+        // AGGRESSIVE: Try to hide lobby even before DOM is complete
+        // This runs as a DOMContentLoaded fallback
+        document.addEventListener('DOMContentLoaded', function () {
+          var lobby = document.getElementById('lobby-screen');
+          if (lobby) {
+            lobby.style.setProperty('display', 'none', 'important');
+            lobby.style.setProperty('visibility', 'hidden', 'important');
+            lobby.style.setProperty('opacity', '0', 'important');
+            lobby.style.setProperty('pointer-events', 'none', 'important');
+          }
+        });
+      }
+    })();
+  </script>
+  <style>
+    /* Hide lobby IMMEDIATELY if report mode detected - Multiple !important overrides */
+    html.report-mode #lobby-screen {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      z-index: -9999 !important;
+    }
+  </style>
+
+  <!-- BRAND FONT FAMILY: Fredoka (Headings), Quicksand (Body), Caveat Brush (Accents) ONLY -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&amp;family=Nunito+Sans:wght@300;400;600;700&amp;family=Caveat+Brush&amp;display=swap"
+    rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: '#0B0C15',
+            primary: '#FFC69A',
+            secondary: '#D9D9D9',
+            accent: '#FFC69A',
+            // Mapping 'brand' to 'primary' to fix existing references if any remain
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#FFC69A', // Peach (Text)
+              500: '#FF9A5C', // Amber-Orange (Glow/Bg)
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+              950: '#431407',
+            },
+          },
+          fontFamily: {
+            display: ['"Fredoka"', 'sans-serif'],   // HEADINGS ONLY
+            body: ['"Nunito Sans"', 'sans-serif'],    // BODY TEXT ONLY
+            accent: ['"Caveat Brush"', 'cursive'],  // ACCENTS ONLY
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- BIBLE-APPROVED FONTS ONLY: Fredoka, Nunito Sans, Caveat Brush -->
+</head>
+
+<body class="">
+  <!-- Global Background -->
+  <div class="fixed inset-0 z-0 bg-[#0B0C15] pointer-events-none"></div>
+
+  <!-- Draft 3 Grid Pattern -->
+  <div
+    class="fixed inset-0 z-0 bg-[linear-gradient(to_right,rgba(34,211,238,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(34,211,238,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_70%)] pointer-events-none">
+  </div>
+
+  <!-- PARALLAX BACKGROUND SYSTEM (5 Layers) -->
+  <div id="parallax-container" class="fixed inset-0 z-[1] pointer-events-none overflow-hidden">
+
+    <!-- Layer 1: Nebula/Smoke (Slowest - 0.2x) -->
+    <div id="parallax-nebula" class="parallax-layer" data-speed="0.2">
+      <div class="nebula-gradient"></div>
+    </div>
+
+    <!-- Layer 2: Particles/Sparkles (0.4x) -->
+    <div id="parallax-particles" class="parallax-layer" data-speed="0.4">
+      <!-- Particles injected by JS -->
+    </div>
+
+    <!-- Layer 3: Geometric Shapes (0.6x) -->
+    <div id="parallax-shapes" class="parallax-layer" data-speed="0.6">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Layer 4: Ambient Glow Swirls (0.8x) -->
+    <div id="parallax-glow" class="parallax-layer" data-speed="0.8">
+      <div class="glow-swirl glow-1"></div>
+      <div class="glow-swirl glow-2"></div>
+    </div>
+
+  </div>
+
+
+  <!-- Outer Spotlight Removed -->
+
+  <!-- Ambient Blobs Removed to match Draft 3 -->
+
+  <!-- Navigation/Progress -->
+  <nav
+    class="fixed flex w-full z-50 border-b py-2 px-8 top-0 left-0 shadow-sm backdrop-blur-lg items-center justify-between bg-black/5 border-white/5">
+    <!-- Left: Module Number -->
+    <div class="flex items-center gap-3">
+      <div class="w-3 h-3 rounded-full animate-pulse bg-[#FFC69A]"></div>
+      <!-- Reduced size and opacity as requested -->
+      <span class="font-display text-xs font-bold uppercase tracking-[0.35em] text-[#FFC69A] opacity-50"
+        style="opacity: 0.5;">
+        EMSUSF1/1
+      </span>
+    </div>
+
+    <!-- Right: Music Controls + Slide Counter -->
+    <div class="flex items-center gap-6">
+      <!-- Markup Mode Toggle -->
+      <!-- Markup Mode Toggle -->
+      <button id="markup-toggle-btn" onclick="toggleMarkupMode()"
+        class="flex items-center gap-3 bg-black/30 backdrop-blur-sm p-1.5 pr-4 rounded-full border border-white/5 transition-all hover:bg-black/50 group mr-6"
+        title="Toggle Annotations">
+        <div id="markup-indicator"
+          class="w-7 h-7 flex items-center justify-center rounded-full bg-brand-500 text-black transition-all shadow-[0_0_15px_rgba(45,212,191,0.5)]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </div>
+        <span
+          class="hidden md:inline text-xs font-bold uppercase tracking-widest text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Markup
+          Mode</span>
+      </button>
+
+      <!-- Full Screen Toggle -->
+      <button id="fullscreen-btn" onclick="toggleFullScreen()"
+        class="flex items-center gap-3 bg-black/30 backdrop-blur-sm p-1.5 pr-4 rounded-full border border-white/5 transition-all hover:bg-black/50 group mr-6"
+        title="Toggle Full Screen">
+        <div
+          class="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-brand-500 group-hover:text-black text-[#FDFDFD] transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+          </svg>
+        </div>
+        <span
+          class="hidden md:inline text-xs font-bold uppercase tracking-widest text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Full
+          Screen</span>
+      </button>
+
+      <!-- Music Controls (Integrated) -->
+
+      <div id="music-controls"
+        class="flex items-center gap-2 bg-black/30 backdrop-blur-sm p-1.5 rounded-full border border-white/5 transition-all hover:bg-black/50 group">
+        <button id="music-toggle" onclick="toggleMusic()"
+          class="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-[#FDFDFD]/70 hover:text-[#FDFDFD] transition-all">
+          <span id="music-icon" class="text-xs">🎵</span>
+        </button>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5"
+          class="w-16 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-500/80 opacity-50 group-hover:opacity-100 transition-opacity"
+          oninput="setMusicVolume(this.value)">
+      </div>
+
+      <!-- Slide Counter -->
+      <div class="font-body text-xs md:text-sm text-brand-500 opacity-100" id="slide-counter" style="opacity: 1;">
+        01 / 30
+      </div>
+    </div>
+  </nav>
+
+  <!-- LOBBY SCREEN -->
+  <section id="lobby-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0B0C15]">
+    <div
+      class="absolute inset-0 bg-[linear-gradient(to_right,rgba(34,211,238,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(34,211,238,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_70%)] pointer-events-none">
+    </div>
+
+    <div
+      class="glass-panel p-12 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.2)] max-w-2xl w-full relative z-10 text-center">
+      <h1 id="lobby-welcome" class="font-display text-6xl font-bold text-brand-400 mb-2 tracking-tighter text-glow">
+        Welcome</h1>
+      <p class="text-xl text-secondary font-light mb-10">Please enter your details to begin the class.</p>
+
+      <div class="space-y-6 text-left">
+        <div>
+          <label class="block text-brand-400 font-body text-sm uppercase tracking-widest mb-2 font-bold">Student
+            Name</label>
+          <input type="text" id="student-name" placeholder="Enter your name..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-[#FDFDFD] text-xl focus:outline-none focus:border-brand-500 focus:bg-white/10 transition-all placeholder:text-[#FDFDFD]/20">
+        </div>
+
+        <div>
+          <label class="block text-brand-400 font-body text-sm uppercase tracking-widest mb-2 font-bold">Class
+            Date</label>
+          <input type="date" id="class-date"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-[#FDFDFD] text-xl focus:outline-none focus:border-brand-500 focus:bg-white/10 transition-all [color-scheme:dark]">
+        </div>
+
+        <button onclick="startClass()"
+          class="w-full bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-xl py-5 rounded-xl hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] transition-all duration-300 mt-4 uppercase tracking-widest">
+          Start Class
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div id="viewport-frame" class="opacity-0 transition-opacity duration-1000">
+
+    <!-- ANNOTATION CANVAS OVERLAY -->
+    <canvas id="annotation-canvas" class="annotation-canvas"></canvas>
+    <div id="text-comments-layer" class="text-comments-layer"></div>
+    <div id="sticky-notes-layer" class="sticky-notes-layer"></div>
+    <div id="stamps-layer" class="stamps-layer"></div>
+
+    <!-- INVISIBLE TEACHER TRIGGER (Bottom Right) -->
+    <div id="teacher-trigger" onclick="document.getElementById('teacher-modal').showModal()"
+      class="fixed bottom-0 right-0 w-[50px] h-[50px] z-[9999] opacity-0 cursor-pointer" title="Teacher Tools"></div>
+
+    <!-- TEACHER MODAL (Hidden) -->
+    <dialog id="teacher-modal"
+      class="bg-transparent backdrop:bg-black/80 backdrop:backdrop-blur-sm p-0 rounded-[2rem] shadow-2xl open:animate-fade-in">
+      <div class="glass-panel p-10 rounded-[2rem] border border-brand-500/30 max-w-lg w-full bg-[#0B0C15]">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-3xl font-bold text-brand-400 font-display">Teacher Tools</h2>
+          <button onclick="document.getElementById('teacher-modal').close()"
+            class="text-brand-400 hover:text-[#FDFDFD] transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-brand-400 font-body text-sm uppercase tracking-widest mb-2 font-bold">Note for
+            Parent/Student</label>
+          <textarea id="teacher-note-input" rows="4" placeholder="Write a summary or feedback here..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-[#FDFDFD] text-lg focus:outline-none focus:border-brand-500 focus:bg-white/10 transition-all placeholder:text-[#FDFDFD]/20 resize-none"></textarea>
+          <div class="flex justify-between items-center mt-2">
+            <span id="word-count-display" class="text-sm text-secondary font-bold">0 / 8000 words</span>
+            <span id="word-limit-warning" class="text-sm text-red-400 font-bold hidden">Limit Exceeded! Please
+              shorten.</span>
+          </div>
+        </div>
+
+        <div class="mb-8 p-4 rounded-xl border border-white/10 bg-white/5">
+          <h3 class="text-brand-400 font-bold mb-4 font-display text-lg uppercase tracking-widest">Difficulty</h3>
+
+          <label class="flex items-center justify-between cursor-pointer group">
+            <div>
+              <span class="block text-[#FDFDFD] font-bold">Enable Shadow Timer</span>
+              <span class="text-sm text-secondary">Time pressure & Shadow threat.</span>
+            </div>
+            <div class="relative">
+              <input type="checkbox" id="toggle-timer" class="sr-only peer"
+                onchange="GameEngine.toggleTimers(this.checked)">
+              <div
+                class="w-12 h-7 bg-black/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white/30 after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-brand-500">
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <button id="generate-magic-link-btn" onclick="generateMagicLink()"
+          class="w-full bg-gradient-to-r from-purple-500 to-brand-500 text-[#FDFDFD] font-bold text-lg py-4 rounded-xl hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          Generate Magic Link
+        </button>
+        <p id="copy-feedback" class="text-green-400 text-center mt-3 text-sm font-bold opacity-0 transition-opacity">
+          Link Copied to Clipboard!</p>
+
+        <!-- HOMEWORK GENERATOR (Security Update) -->
+        <div class="mt-8 pt-8 border-t border-white/10">
+          <h3 class="text-brand-400 font-bold mb-4 font-display text-xl">Homework Generator</h3>
+          <div class="flex gap-4 mb-6">
+            <input type="date" id="homework-expiry"
+              class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[#FDFDFD] focus:outline-none focus:border-brand-500/50 w-full"
+              placeholder="Leave empty for 10 days">
+            <button onclick="generateHomeworkLink()"
+              class="bg-white/10 hover:bg-white/20 text-[#FDFDFD] px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap border border-white/10">Generate
+              Link</button>
+          </div>
+
+
+
+          <!-- PDF EXPORT (ROBOTIC AGENT) -->
+          <h3 class="text-brand-400 font-bold mb-4 font-display text-xl">Export Presentation</h3>
+          <button onclick="startCaptureRobot()" id="export-btn"
+            class="w-full bg-white/5 hover:bg-white/10 text-[#FDFDFD] font-bold text-lg py-4 rounded-xl border border-white/10 transition-all flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            Start Capture Robot (Pixel Perfect)
+          </button>
+          <p id="export-status" class="text-center text-brand-400 mt-2 text-sm font-body hidden">Waiting for stream...
+          </p>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- MARKING TOOLBAR (Global - Right Side) -->
+    <div id="marking-toolbar" class="marking-toolbar" data-expanded="false">
+      <button id="toolbar-toggle" class="toolbar-toggle" onclick="toggleToolbar()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+      </button>
+
+      <div id="stamp-palette">
+        <button class="stamp-btn" onclick="setStamp('✓', '#22c55e')" title="Correct">✅</button>
+        <button class="stamp-btn" onclick="setStamp('✗', '#ef4444')" title="Incorrect">❌</button>
+        <button class="stamp-btn" onclick="setStamp('★', '#fbbf24')" title="Star">⭐</button>
+        <button class="stamp-btn" onclick="setStamp('?', '#3b82f6')" title="Question">❓</button>
+        <button class="stamp-btn" onclick="setStamp('!', '#f59e0b')" title="Alert">❗</button>
+      </div>
+
+      <div class="toolbar-content">
+        <button class="tool-btn active" data-tool="cursor" title="Cursor (Interact)"
+          onclick="UIManager.setTool('cursor')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
+          </svg>
+          <span class="tool-label">Cursor</span>
+        </button>
+
+        <button class="tool-btn" data-tool="pen" title="Pen" onclick="UIManager.setTool('pen')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+          </svg>
+          <span class="tool-label">Pen</span>
+        </button>
+
+        <button class="tool-btn" data-tool="highlighter" title="Highlight" onclick="UIManager.setTool('highlighter')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 11-6 6v3h9l3-3" />
+            <path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
+          </svg>
+          <span class="tool-label">Highlight</span>
+        </button>
+
+        <button class="tool-btn" data-tool="stamp" title="Stamp" onclick="UIManager.toggleStampPalette()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+          </svg>
+          <span class="tool-label">Stamp</span>
+        </button>
+
+        <button class="tool-btn" data-tool="note" title="Sticky Note"
+          onclick="UIManager.setTool('note'); StickyNotesSystem.createNote(AnnotationSystem.getCurrentSlideIndex())">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
+            <path d="M15 3v4a2 2 0 0 0 2 2h4" />
+          </svg>
+          <span class="tool-label">Note</span>
+        </button>
+
+        <div class="toolbar-divider"></div>
+
+        <button class="tool-btn" onclick="AnnotationSystem.undo()"><span class="tool-label">Undo</span></button>
+        <button class="tool-btn" onclick="AnnotationSystem.clearCurrentSlide()"><span
+            class="tool-label">Clear</span></button>
+      </div>
+    </div>
+
+    <div class="bg-grid"></div>
+
+
+
+    <!-- Spotlight Effect (Draft 3 Exact) -->
+    <div id="mouse-glow"
+      style="position: absolute; width: 40rem; height: 40rem; background: radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%); transform: translate(-50%, -50%); pointer-events: none; z-index: 1; mix-blend-mode: screen; opacity: 0.6;">
+    </div>
+
+    <!-- Main Scroll Container -->
+    <main
+      class="slides-container relative z-20 w-full h-full flex flex-row overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth"
+      id="slider">
+      <!-- 
+         ████████████████████████████████████████████████████████████████████████████████
+         🔒 CRITICAL GUARDRAIL: SLIDES STRUCTURE IS LOCKED
+         DO NOT ADD BUTTONS, RESIZE CONTENT, OR CHANGE LAYOUT WITHOUT PERMISSION.
+         ████████████████████████████████████████████████████████████████████████████████
+      -->
+      <!-- Slide 1: Title -->
+      <!-- Slide 0: CERTIFICATE / REPORT (Hidden by default) -->
+      <section class="slide hidden" id="slide-zero">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-5xl">
+
+          <!-- Interaction Overlay (Fix for Autoplay) -->
+          <div id="report-overlay"
+            class="absolute inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-8 backdrop-blur-xl transition-opacity duration-500">
+            <div
+              class="border-4 border-red-500/50 p-12 rounded-[2rem] text-center transform -rotate-2 shadow-[0_0_100px_rgba(239,68,68,0.2)] bg-black/50">
+              <h2 class="text-6xl font-black text-red-500 tracking-widest mb-4 uppercase font-display">
+                Top Secret
+              </h2>
+              <p class="text-red-400/80 font-body text-xl mb-8 tracking-widest uppercase">Classified Mission Report</p>
+              <button onclick="SoundFX.init(); SoundFX.unlock(); initJukebox(); revealReport()"
+                class="bg-red-600 hover:bg-red-500 text-[#FDFDFD] text-2xl font-bold py-4 px-12 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 uppercase tracking-widest">
+                Open Report
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="glass-panel p-12 rounded-[3rem] border-2 border-brand-500/30 shadow-[0_0_100px_rgba(34,211,238,0.15)] w-full text-center relative overflow-y-auto flex flex-col max-h-[90vh]">
+            <!-- Background Decoration -->
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-500 via-purple-500 to-brand-500">
+            </div>
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+
+            <!-- Header -->
+            <div class="flex items-center justify-center gap-4 mb-8">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-award text-yellow-400 drop-shadow-lg">
+                <circle cx="12" cy="8" r="7" />
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+              </svg>
+              <h1 class="font-display text-5xl lg:text-7xl font-bold text-brand-400 tracking-tighter text-glow">Mission
+                Report</h1>
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-award text-yellow-400 drop-shadow-lg">
+                <circle cx="12" cy="8" r="7" />
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+              </svg>
+            </div>
+
+            <!-- Student Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+              <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <span class="block text-brand-400 font-body text-sm uppercase tracking-widest mb-2">Student
+                  Agent</span>
+                <span id="report-name" class="block text-3xl font-bold text-[#FDFDFD]">Unknown</span>
+              </div>
+              <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <span class="block text-brand-400 font-body text-sm uppercase tracking-widest mb-2">Mission Date</span>
+                <span id="report-date" class="block text-3xl font-bold text-[#FDFDFD]">Unknown</span>
+              </div>
+            </div>
+
+            <!-- Score Badge -->
+            <div class="mb-10">
+              <div
+                class="inline-flex flex-col items-center justify-center w-48 h-48 rounded-full border-4 border-brand-500/50 bg-brand-500/10 shadow-[0_0_50px_rgba(34,211,238,0.2)] relative">
+                <span class="text-secondary font-body text-sm uppercase tracking-widest absolute top-8">Score</span>
+                <span id="report-score" class="text-6xl font-bold text-[#FDFDFD]">0/0</span>
+                <div id="report-badge-icon"
+                  class="absolute -bottom-4 bg-black border border-brand-500 px-4 py-1 rounded-full text-brand-400 font-bold uppercase text-sm">
+                  Rank: Cadet
+                </div>
+              </div>
+            </div>
+
+            <!-- Teacher Note (Expanded & Scrollable) -->
+            <div id="teacher-note-display-container"
+              class="hidden flex-grow bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-brand-500/50 relative overflow-y-auto flex flex-col min-h-[40vh] max-h-[50vh]">
+              <div
+                class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent">
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-quote text-brand-500 absolute top-4 left-4 opacity-30">
+                <path
+                  d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
+                <path
+                  d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
+              </svg>
+
+              <div class="overflow-y-auto flex-grow pr-2 custom-scrollbar">
+                <p id="teacher-note-text"
+                  class="text-xl lg:text-2xl text-secondary font-medium italic pl-8 leading-relaxed whitespace-pre-wrap">
+                  "Great job today!"
+                </p>
+              </div>
+
+              <div class="mt-4 text-right shrink-0">
+                <span class="text-xs font-body text-brand-400 uppercase tracking-widest">- Teacher's Note</span>
+              </div>
+            </div>
+
+            <p class="mt-8 text-brand-400/50 text-sm font-body">
+              Scroll down to review mission evidence.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 1: Title -->
+      <!-- 0. HERO -->
+      <section class="slide" id="slide-0">
+        <div class="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div class="pl-8 lg:pl-24 z-20 text-center lg:text-left flex flex-col justify-center h-full">
+            <div class="flex items-center justify-center lg:justify-start gap-3 mb-8 anim-entry">
+              <span class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_1rem_#22d3ee]"></span>
+              <span class="font-accent text-sm font-bold tracking-widest uppercase text-secondary">KS2
+                Presentation</span>
+            </div>
+            <h1
+              class="font-display text-7xl lg:text-9xl font-bold tracking-tighter leading-[0.85] text-[#FDFDFD] mb-8 text-glow anim-entry">
+              The<br>Naming<br>Game</h1>
+            <h2
+              class="font-display text-3xl lg:text-4xl text-primary font-medium tracking-wide border-l-0 lg:border-l-4 border-primary lg:pl-8 anim-entry">
+              Common and Proper Nouns</h2>
+          </div>
+          <div
+            class="relative w-full h-[40vh] lg:h-full flex items-center justify-center float-anim anim-entry lg:pr-32">
+            <div
+              class="absolute inset-0 bg-yellow-500/20 blur-[8rem] rounded-full pointer-events-none mix-blend-screen">
+            </div>
+            <div
+              class="glass-card w-[90%] lg:w-[30rem] h-[80%] rounded-[2rem] flex flex-col items-center justify-center relative z-10 overflow-hidden border-white/20 p-3">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-hero-page.jpeg"
+                loading="eager" decoding="async" class="w-full h-full object-cover rounded-[1.5rem]"
+                style="opacity: 0; transition: opacity 0.5s ease-in;" onload="this.style.opacity='1'">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 2: A World Without Names -->
+      <!-- Slide 2: A World Without Names -->
+      <!-- Slide 2: A World Without Names -->
+      <!-- 1. WORLD WITHOUT NAMES -->
+      <section class="slide" id="slide-1">
+        <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div class="order-1 lg:order-1 flex justify-center anim-entry">
+            <div
+              class="glass-card w-[30rem] h-[30rem] rounded-[2rem] p-3 border-white/20 overflow-hidden relative flex flex-col items-center justify-center">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/pointing-finger.jpeg"
+                class="w-full h-full object-cover rounded-[1.5rem]">
+            </div>
+          </div>
+          <div class="order-2 lg:order-2 text-center lg:text-left">
+            <h2 class="font-display text-4xl lg:text-6xl font-bold text-brand-400 mb-6 tracking-tight anim-entry">A
+              World
+              Without <span class="text-primary">Names?</span></h2>
+            <p class="font-body text-xl text-secondary mb-2 font-medium anim-entry">Let's imagine something together.
+            </p>
+            <p class="font-body text-2xl text-[#FDFDFD] mb-8 anim-entry">If you woke up tomorrow and nothing had a
+              name...
+            </p>
+            <div class="space-y-4 anim-entry">
+              <div class="glass-card p-4 rounded-2xl flex items-center gap-4">
+                <div
+                  class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-primary font-bold font-flair text-lg">
+                  ?</div>
+                <p class="font-body text-lg text-[#FDFDFD]">How would you ask for an <strong
+                    class="text-primary">orange</strong> for breakfast?</p>
+              </div>
+              <div class="glass-card p-4 rounded-2xl flex items-center gap-4">
+                <div
+                  class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-primary font-bold font-flair text-lg">
+                  ?</div>
+                <p class="font-body text-lg text-[#FDFDFD]">How would you call your <strong
+                    class="text-primary">mate</strong> to play?</p>
+              </div>
+            </div>
+            <p class="font-body text-xl text-[#FDFDFD] font-bold mt-8 border-l-4 border-primary pl-4 anim-entry">You
+              would
+              just have to point and make noises!</p>
+            <div
+              class="mt-8 p-6 rounded-2xl border border-white/10 bg-gradient-to-r from-primary/10 to-transparent anim-entry">
+              <h3 class="font-display text-xl font-bold text-brand-400 mb-2 flex items-center gap-3"><i
+                  class="fa-solid fa-comments text-primary"></i> Turn and Talk</h3>
+              <p class="font-body text-secondary text-lg">What is the hardest thing to ask for if you can't use names?
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 3: Meet Norah Noun -->
+      <!-- Slide 3: Meet Norah Noun -->
+      <!-- Slide 3: Meet Norah Noun -->
+      <!-- Slide 3: Meet Norah Noun -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl h-full">
+          <div class="relative flex justify-center items-center h-full">
+            <div class="absolute inset-0 bg-brand-500 blur-[100px] opacity-40 rounded-full animate-pulse"></div>
+            <div
+              class="glass-panel p-3 rounded-[3rem] relative z-10 border-2 border-white/20 shadow-[0_0_60px_rgba(34,211,238,0.4)]">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/meet-norah-noun.jpeg"
+                class="w-full max-w-[30rem] aspect-square rounded-[2.5rem] object-cover" alt="Norah Noun Waving">
+            </div>
+          </div>
+
+          <div class="flex flex-col justify-center">
+            <h2
+              class="text-6xl md:text-8xl font-display font-bold mb-10 text-[#FDFDFD] drop-shadow-[0_0_20px_rgba(34,211,238,0.5)] leading-tight">
+              Meet<br>Norah Noun!
+            </h2>
+
+            <div
+              class="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden border-l-8 border-brand-500 shadow-2xl">
+              <div
+                class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-brand-500/5 to-transparent pointer-events-none">
+              </div>
+              <p class="text-2xl md:text-3xl font-light italic leading-relaxed text-[#FDFDFD]">
+                "Hi, my name is Norah Noun! My job is super important: I make sure
+                that people, places, animals, things, and ideas have a name. In
+                grammar, these labels are called Nouns."
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 4: What is a Noun? -->
+      <!-- Slide 4: What is a Noun? -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div class="order-1 lg:order-1 relative group">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-20"></div>
+            <div
+              class="glass-panel p-3 rounded-[3rem] relative z-10 border-2 border-white/20 shadow-2xl flex items-center justify-center">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-naming-things.jpeg"
+                class="w-full max-w-[30rem] aspect-square object-cover rounded-[2.5rem]"
+                style="clip-path: inset(0 round 2.5rem);">
+            </div>
+          </div>
+
+          <div class="order-2 lg:order-2 flex flex-col justify-center">
+            <h2 class="text-6xl font-display font-bold mb-8 text-brand-400 tracking-tight">
+              What is a Noun?
+            </h2>
+            <p class="text-3xl font-medium text-brand-400 mb-10">
+              A Noun is a Naming Word. It names a person, a place, or a thing.
+            </p>
+
+            <div class="space-y-4 mb-10">
+              <div class="glass-panel p-4 rounded-2xl flex items-center gap-6 hover:bg-white/5 transition-colors">
+                <span
+                  class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold text-2xl border border-brand-500/30">1</span>
+                <span class="text-3xl font-bold text-[#FDFDFD]">👤 Person</span>
+              </div>
+              <div class="glass-panel p-4 rounded-2xl flex items-center gap-6 hover:bg-white/5 transition-colors">
+                <span
+                  class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold text-2xl border border-brand-500/30">2</span>
+                <span class="text-3xl font-bold text-[#FDFDFD]">📍 Place</span>
+              </div>
+              <div class="glass-panel p-4 rounded-2xl flex items-center gap-6 hover:bg-white/5 transition-colors">
+                <span
+                  class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold text-2xl border border-brand-500/30">3</span>
+                <span class="text-3xl font-bold text-[#FDFDFD]">🎁 Thing</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 5: Nouns Name People -->
+      <!-- Slide 5: Nouns Name People -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div class="order-2 lg:order-1" style="margin-top: -3rem;">
+            <div class="flex items-center gap-3 mb-8">
+              <div class="p-2 bg-brand-500/10 rounded-lg border border-brand-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  data-lucide="users" class="lucide lucide-users w-6 h-6 text-brand-400">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <circle cx="16" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <span class="text-sm font-body uppercase tracking-widest text-brand-400">
+                Category 01
+              </span>
+            </div>
+            <h2 class="text-5xl md:text-6xl font-display font-bold mb-6 text-brand-400">
+              Nouns Name People
+            </h2>
+            <p class="text-xl mb-10 text-secondary font-light">
+              Nouns can be used to label people.
+            </p>
+            <div class="flex flex-wrap gap-4">
+              <span class="glass-panel px-6 py-3 rounded-full border border-white/10 bg-white/5">
+                <span class="text-[#FDFDFD] font-body">nurse</span>
+              </span>
+              <span class="glass-panel px-6 py-3 rounded-full border border-white/10 bg-white/5">
+                <span class="text-[#FDFDFD] font-body">chef</span>
+              </span>
+              <span class="glass-panel px-6 py-3 rounded-full border border-white/10 bg-white/5">
+                <span class="text-[#FDFDFD] font-body">girl</span>
+              </span>
+              <span class="glass-panel px-6 py-3 rounded-full border border-white/10 bg-white/5">
+                <span class="text-[#FDFDFD] font-body">boy</span>
+              </span>
+            </div>
+            <p class="text-xl text-secondary leading-relaxed border-l-4 border-white/20 pl-6 mt-10">
+              Look around your room right now: everything you can see or touch is a noun.
+              <strong class="text-[#FDFDFD] block mt-2">If you can take a picture of it with a camera, it is a
+                Noun.</strong>
+            </p>
+          </div>
+
+          <div class="order-1 lg:order-2 relative group" style="margin-top: -3rem;">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-20"></div>
+            <div
+              class="glass-card p-3 border-white/20 rounded-[2rem] rotate-2 transition-transform duration-500 group-hover:rotate-0">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/people-nouns.jpeg"
+                class="w-full h-auto object-cover rounded-[2rem]" alt="People Nouns">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 6: Nouns Name Places -->
+
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div class="order-2 lg:order-1 relative group">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-20"></div>
+            <div
+              class="glass-panel p-2 rounded-[2rem] -rotate-1 transition-transform duration-500 group-hover:rotate-0">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/place-nouns.jpeg"
+                class="w-full h-[28rem] object-cover rounded-[1.5rem] opacity-100" alt="Place Nouns">
+            </div>
+          </div>
+
+          <div class="order-1 lg:order-2">
+            <div class="flex items-center gap-3 mb-8">
+              <div class="p-2 bg-brand-500/10 rounded-lg border border-brand-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  data-lucide="map" class="lucide lucide-map w-6 h-6 text-brand-400">
+                  <path
+                    d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z">
+                  </path>
+                  <path d="M15 5.764v15"></path>
+                  <path d="M9 3.236v15"></path>
+                </svg>
+              </div>
+              <span class="text-sm font-body uppercase tracking-widest text-brand-400">
+                Category 02
+              </span>
+            </div>
+            <h2 class="text-5xl md:text-6xl font-display font-bold mb-6 text-brand-400">
+              Nouns Name Places
+            </h2>
+            <p class="text-xl mb-10 text-secondary font-light">
+              Nouns can also be used to name places.
+            </p>
+
+            <div class="space-y-4">
+              <div class="glass-panel p-4 rounded-xl flex items-center gap-4 hover:bg-white/5 transition-colors">
+                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                <span class="text-xl text-[#FDFDFD] font-body">library, garden, bathroom</span>
+              </div>
+              <div class="glass-panel p-4 rounded-xl flex items-center gap-4 hover:bg-white/5 transition-colors">
+                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                <span class="text-xl text-[#FDFDFD] font-body">lounge, market</span>
+              </div>
+              <div class="glass-panel p-4 rounded-xl flex items-center gap-4 hover:bg-white/5 transition-colors">
+                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                <span class="text-xl text-[#FDFDFD] font-body">shop, coast, town</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 7: Nouns Name Things & Animals -->
+      <!-- Slide 7: Nouns Name Things & Animals -->
+      <section class="slide">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-6xl gap-8">
+
+          <!-- Top: Image & Title Group -->
+          <div class="flex flex-col md:flex-row items-center gap-12 w-full">
+            <!-- Mute Button -->
+            <button id="mute-btn"
+              class="fixed top-4 right-4 bg-gray-800/60 text-[#FDFDFD] rounded-full p-2 hover:bg-gray-700 transition"
+              onclick="SoundFX.toggleMute(); this.innerText = SoundFX.muted ? '🔈' : '🔊';">
+              🔊
+            </button>
+            <!-- Image -->
+            <div class="relative group w-full md:w-1/2 flex justify-center order-2 md:order-1">
+              <div class="absolute inset-0 bg-pink-500 blur-[80px] opacity-20"></div>
+              <div
+                class="glass-panel p-2 rounded-[2rem] rotate-2 transition-transform duration-500 group-hover:rotate-0 w-full max-w-[28rem]">
+                <img
+                  src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/thing-nouns.jpeg"
+                  class="w-full h-[20rem] object-cover rounded-[1.5rem]" alt="Things Nouns">
+              </div>
+            </div>
+
+            <!-- Text Content -->
+            <div class="w-full md:w-1/2 order-1 md:order-2">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="p-2 bg-pink-500/10 rounded-lg border border-pink-500/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    data-lucide="paw-print" class="lucide lucide-paw-print w-6 h-6 text-brand-400">
+                    <circle cx="11" cy="4" r="2"></circle>
+                    <circle cx="18" cy="8" r="2"></circle>
+                    <circle cx="20" cy="16" r="2"></circle>
+                    <path
+                      d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z">
+                    </path>
+                  </svg>
+                </div>
+                <span class="text-sm font-body uppercase tracking-widest text-brand-400">
+                  Category 03
+                </span>
+              </div>
+              <h2 class="text-5xl md:text-6xl font-display font-bold mb-4 text-brand-400">
+                Things &amp; Animals
+              </h2>
+              <p class="text-xl mb-6 text-secondary font-light">
+                Nouns name things and animals.
+              </p>
+
+              <div class="glass-panel p-6 rounded-2xl border-l-4 border-pink-400">
+                <p class="text-lg leading-relaxed text-brand-200 font-body">
+                  <span class="text-[#FDFDFD] font-bold">Examples:</span> bat, sandwich, tablet, bus, mouse, fox, eagle,
+                  parrot.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom: Interactive Game -->
+          <div class="w-full mt-4">
+            <p class="text-2xl text-secondary font-light text-center mb-6">
+              Look at the words below. Can you find and click on the nouns?
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 w-full" id="spot-noun-grid">
+              <!-- JS Injected -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 9: Detecting Nouns in Sentences -->
+      <!-- Slide 9: Detecting Nouns in Sentences -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-7xl h-full">
+          <div class="order-1 lg:order-1 relative group flex justify-center items-center">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-20"></div>
+            <!-- Redesign: Image without glass container for clean look -->
+            <img
+              src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-detective-1.jpeg"
+              class="w-full max-w-[25rem] aspect-square object-cover rounded-[3rem] shadow-2xl border-4 border-white/10 rotate-2 hover:rotate-0 transition-transform duration-500 relative z-10"
+              alt="Norah Detective">
+          </div>
+
+          <div class="order-2 lg:order-2 flex flex-col justify-center">
+            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6 text-brand-400 leading-tight">
+              Can you help Norah <span class="text-brand-400">spot the nouns?</span>
+            </h2>
+
+            <div class="glass-panel p-6 rounded-3xl bg-black/40 border border-white/5 shadow-xl backdrop-blur-xl">
+              <div id="slide-9-sentences"
+                class="space-y-3 font-accent text-2xl lg:text-3xl text-brand-400 leading-relaxed">
+                <!-- JS Injected -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 10: Common Nouns Title -->
+      <!-- Slide 10: Common Nouns Title -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div class="order-1 lg:order-1 relative group">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-20"></div>
+            <div
+              class="glass-panel p-3 rounded-[3rem] relative z-10 border-2 border-white/20 shadow-2xl flex items-center justify-center">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/icons.jpeg"
+                class="w-full max-w-[30rem] aspect-square object-cover rounded-[2.5rem]"
+                style="clip-path: inset(0 round 2.5rem);">
+            </div>
+          </div>
+
+          <div class="order-2 lg:order-2 flex flex-col justify-center">
+            <div class="inline-flex items-center gap-3 mb-6">
+              <span class="w-3 h-3 rounded-full bg-brand-500 animate-pulse"></span>
+              <span class="font-body text-sm uppercase tracking-widest text-brand-400">Part 01</span>
+            </div>
+            <h1 class="font-display text-7xl lg:text-9xl font-bold text-brand-400 mb-6 tracking-tighter leading-none">
+              Common<br><span class="text-brand-400">Nouns</span>
+            </h1>
+            <p class="font-body text-3xl lg:text-4xl text-secondary font-light tracking-wide">
+              General names for everyday things.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 11: What is a Common Noun? -->
+      <!-- Slide 11: What is a Common Noun? -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div class="relative flex justify-center">
+            <div class="absolute inset-0 bg-brand-500 blur-[100px] opacity-10"></div>
+            <div
+              class="glass-panel p-4 rounded-[2.5rem] relative z-10 border border-white/10 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-notice-board.jpeg"
+                class="w-full h-auto object-cover rounded-[2rem]" alt="Foxes">
+            </div>
+          </div>
+          <div>
+            <h2 class="text-5xl md:text-6xl font-display font-bold mb-8 text-brand-400">
+              What is a <span class="text-brand-400">Common Noun?</span>
+            </h2>
+            <p class="text-2xl leading-relaxed mb-10 text-secondary font-light">
+              Common Nouns are the regular names for regular things. They are
+              the general names for people, places, things, or animals.
+            </p>
+            <div class="glass-panel p-8 rounded-2xl border-l-8 border-brand-500 bg-brand-500/5">
+              <p class="text-xl italic text-[#FDFDFD] leading-relaxed">
+                "Imagine a big room full of foxes—if I say 'fox,' I mean any
+                fox."
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 12: Common Noun Examples -->
+      <!-- Slide 12: Common Noun Examples -->
+      <section class="slide">
+        <div class="slide-content max-w-6xl flex flex-col justify-center h-full">
+          <div style="margin-top: -2rem;">
+            <h2 class="text-5xl md:text-7xl font-display font-bold mb-12 text-center text-brand-400">
+              Common Nouns are <span class="text-brand-400">General Labels</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div
+                class="glass-panel p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-white/10 hover:bg-white/5 group">
+                <span
+                  class="text-4xl font-body font-bold block mb-4 text-[#FDFDFD] group-hover:text-brand-400 transition-colors">girl</span>
+                <span class="text-base text-brand-400 uppercase tracking-widest font-bold">
+                  Any girl in the world
+                </span>
+              </div>
+              <div
+                class="glass-panel p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-white/10 hover:bg-white/5 group">
+                <span
+                  class="text-4xl font-body font-bold block mb-4 text-[#FDFDFD] group-hover:text-brand-400 transition-colors">town</span>
+                <span class="text-base text-brand-400 uppercase tracking-widest font-bold">
+                  Any town in the world
+                </span>
+              </div>
+              <div
+                class="glass-panel p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-white/10 hover:bg-white/5 group">
+                <span
+                  class="text-4xl font-body font-bold block mb-4 text-[#FDFDFD] group-hover:text-brand-400 transition-colors">
+                  library
+                </span>
+                <span class="text-base text-brand-400 uppercase tracking-widest font-bold">
+                  Any library in the world
+                </span>
+              </div>
+              <div
+                class="glass-panel p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-white/10 hover:bg-white/5 group">
+                <span
+                  class="text-4xl font-body font-bold block mb-4 text-[#FDFDFD] group-hover:text-brand-400 transition-colors">
+                  nation
+                </span>
+                <span class="text-base text-brand-400 uppercase tracking-widest font-bold">
+                  General Place
+                </span>
+              </div>
+              <div
+                class="glass-panel p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-white/10 hover:bg-white/5 group">
+                <span
+                  class="text-4xl font-body font-bold block mb-4 text-[#FDFDFD] group-hover:text-brand-400 transition-colors">
+                  animated hero
+                </span>
+                <span class="text-base text-brand-400 uppercase tracking-widest font-bold">
+                  General Character
+                </span>
+              </div>
+              <div
+                class="glass-panel p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-white/10 hover:bg-white/5 group">
+                <span
+                  class="text-4xl font-body font-bold block mb-4 text-[#FDFDFD] group-hover:text-brand-400 transition-colors">
+                  teacher</span>
+                <span class="text-base text-brand-400 uppercase tracking-widest font-bold">
+                  Any teacher in the world
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 13: The Common Noun Rule -->
+      <!-- Slide 13: The Common Noun Rule -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div style="margin-top: -2rem;">
+            <h2 class="text-6xl md:text-7xl font-display font-bold mb-8 text-brand-400">
+              The Common Noun Rule
+            </h2>
+            <p class="text-3xl mb-10 text-secondary font-light leading-relaxed">
+              Because these words are regular names, we write them with a
+              <span class="font-bold text-brand-400 bg-brand-500/10 px-3 py-2 rounded-lg">
+                small letter (lowercase)
+              </span>.
+            </p>
+            <div class="glass-panel p-8 rounded-2xl border-l-8 border-brand-500">
+              <p class="text-2xl text-secondary">
+                We do not need to make them stand out.
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-center" style="margin-top: -2rem;">
+            <div
+              class="glass-panel w-[28rem] h-[28rem] rounded-full flex items-center justify-center border-4 border-white/10 shadow-[0_0_80px_rgba(99,102,241,0.3)] animate-pulse">
+              <span class="text-[13rem] font-display font-bold text-brand-500 tracking-tighter">abc</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 14: Check: Are these Common Nouns? -->
+      <!-- Slide 14: Check: Are these Common Nouns? -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div class="order-1 lg:order-1 relative group">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-20"></div>
+            <div
+              class="glass-panel p-3 rounded-[3rem] relative z-10 border-2 border-white/20 shadow-2xl flex items-center justify-center">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/foxes-common-nouns.png"
+                class="w-full max-w-[30rem] aspect-square object-cover rounded-[2.5rem]"
+                style="clip-path: inset(0 round 2.5rem);">
+            </div>
+          </div>
+
+          <div class="order-2 lg:order-2 flex flex-col justify-center">
+            <h2 class="text-5xl lg:text-6xl font-display font-bold mb-10 text-brand-400 leading-tight">
+              Which are <span class="text-brand-400">Common Nouns?</span>
+            </h2>
+
+            <div class="grid grid-cols-2 gap-6 w-full" id="common-check-container">
+              <!-- JS Injected -->
+            </div>
+
+            <div id="common-check-hint"
+              class="mt-10 glass-panel inline-block px-6 py-4 rounded-2xl border border-red-500/30 bg-red-500/10 hidden transition-opacity duration-500">
+              <p class="text-red-300 italic text-lg font-medium">
+                (Hint: Paris and Mrs. Johnson are NOT Common Nouns!)
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 15: Proper Nouns Intro -->
+      <!-- Slide 15: Proper Nouns Intro -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div class="order-1 lg:order-1 relative group">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-20"></div>
+            <div
+              class="glass-panel p-3 rounded-[3rem] relative z-10 border-2 border-white/20 shadow-2xl flex items-center justify-center">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/fox-proper-noun.jpeg"
+                class="w-full max-w-[30rem] aspect-square object-cover rounded-[2.5rem]"
+                style="clip-path: inset(0 round 2.5rem);">
+            </div>
+          </div>
+
+          <div class="order-2 lg:order-2 flex flex-col justify-center">
+            <div
+              class="inline-flex items-center gap-3 mb-6 px-6 py-3 rounded-full border border-brand-500/20 bg-brand-500/5 backdrop-blur-md">
+              <span class="text-base font-body uppercase tracking-widest text-brand-400 font-bold">
+                Part 2
+              </span>
+            </div>
+            <h1
+              class="text-7xl lg:text-9xl font-display font-bold text-[#FDFDFD] drop-shadow-[0_0_40px_rgba(59,130,246,0.4)] tracking-tighter mb-8 leading-none">
+              Proper<br>Nouns
+            </h1>
+            <p class="text-3xl lg:text-4xl mt-6 font-light text-secondary tracking-wide">
+              Special names for <span class="text-[#FDFDFD] font-medium">specific things</span>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 16: What is a Proper Noun? -->
+      <!-- Slide 16: What is a Proper Noun? -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div style="margin-top: -2rem;">
+            <h2 class="text-6xl md:text-7xl font-display font-bold mb-8 text-brand-400">
+              What is a <span class="text-brand-400">Proper Noun?</span>
+            </h2>
+            <p class="text-3xl leading-relaxed mb-10 text-secondary font-light">
+              Proper Nouns are special names for specific things. They name a
+              specific person, place, or thing.
+            </p>
+            <div class="glass-panel p-8 rounded-2xl border-l-8 border-brand-500 bg-brand-500/5">
+              <p class="text-2xl text-[#FDFDFD] leading-relaxed">
+                Example: If a fox runs over to you, and his name is
+                <span class="font-bold text-brand-400 bg-brand-500/10 px-2 py-1 rounded-lg">Max</span>,
+                "Max" is a Proper Noun because he is special and specific.
+              </p>
+            </div>
+          </div>
+          <div class="relative flex justify-center">
+            <div class="absolute inset-0 bg-brand-500 blur-[100px] opacity-20"></div>
+            <div
+              class="glass-panel w-[35rem] h-[35rem] p-3 rounded-[3rem] relative z-10 border-2 border-white/20 overflow-hidden shadow-2xl flex items-center justify-center">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-meets-fox.jpeg"
+                class="w-full h-full object-cover rounded-[2.5rem]" alt="Max the Fox">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 17: Capital Letter Rule -->
+      <!-- Slide 17: Capital Letter Rule -->
+      <section class="slide">
+        <div class="slide-content text-center flex flex-col justify-center h-full">
+          <div style="margin-top: -3rem;">
+            <div
+              class="w-48 h-48 mx-auto bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-full flex items-center justify-center mb-10 border border-yellow-400/30 shadow-[0_0_80px_rgba(234,179,8,0.3)] animate-bounce duration-[3000ms]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                data-lucide="crown" class="lucide lucide-crown w-24 h-24 text-yellow-400 drop-shadow-lg">
+                <path
+                  d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z">
+                </path>
+                <path d="M5 21h14"></path>
+              </svg>
+            </div>
+            <h2 class="text-7xl md:text-8xl font-display font-bold mb-8 text-brand-400 drop-shadow-md">
+              The Shiny Crown!
+            </h2>
+            <p class="text-4xl max-w-4xl mx-auto mb-12 text-secondary font-light leading-relaxed">
+              Because Proper Nouns are special, they must always start with a
+              <span class="text-[#FDFDFD] font-bold border-b-4 border-yellow-400">Capital Letter</span>.
+            </p>
+            <div class="glass-panel inline-block px-12 py-6 rounded-full border border-yellow-400/20 bg-yellow-400/5">
+              <span class="font-accent text-3xl text-gold">
+                Think of the Capital Letter like a crown—special things wear a crown!
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 18: Power Specific People -->
+      <!-- Slide 18: Power Specific People -->
+      <section class="slide">
+        <div class="slide-content max-w-6xl flex flex-col justify-center h-full">
+          <div style="margin-top: -2rem;">
+            <div class="flex items-center gap-4 mb-10 justify-center">
+              <div class="h-px w-20 bg-white/20"></div>
+              <span class="text-base font-body text-brand-400 uppercase tracking-widest font-bold">
+                Specific People
+              </span>
+              <div class="h-px w-20 bg-white/20"></div>
+            </div>
+            <h2 class="text-6xl md:text-7xl font-display font-bold text-center mb-16 text-brand-400">
+              Proper Nouns specify <span class="text-brand-400">who.</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center max-w-6xl mx-auto w-full">
+              <!-- Headers -->
+              <div
+                class="text-center font-body text-brand-400 uppercase tracking-widest font-bold text-2xl mb-4 md:mb-0">
+                Common Noun
+              </div>
+              <div
+                class="text-center font-body text-brand-400 uppercase tracking-widest font-bold text-2xl mb-4 md:mb-0">
+                Proper Noun
+              </div>
+
+              <!-- Row 1 -->
+              <div class="glass-panel p-8 rounded-3xl text-center border border-white/10">
+                <span class="text-4xl text-[#FDFDFD] font-bold">girl</span>
+              </div>
+              <div
+                class="glass-panel p-8 rounded-3xl border-l-8 border-brand-500 flex items-center justify-center gap-4 hover:translate-x-2 transition-transform duration-300">
+                <span class="text-4xl text-[#FDFDFD] font-bold">Emily</span>
+              </div>
+
+              <!-- Row 2 -->
+              <div class="glass-panel p-8 rounded-3xl text-center border border-white/10">
+                <span class="text-4xl text-[#FDFDFD] font-bold">man</span>
+              </div>
+              <div
+                class="glass-panel p-8 rounded-3xl border-l-8 border-brand-500 flex items-center justify-center gap-4 hover:translate-x-2 transition-transform duration-300">
+                <span class="text-4xl text-[#FDFDFD] font-bold">Mr. Davis</span>
+              </div>
+
+              <!-- Row 3 -->
+              <div class="glass-panel p-8 rounded-3xl text-center border border-white/10">
+                <span class="text-4xl text-[#FDFDFD] font-bold">author</span>
+              </div>
+              <div
+                class="glass-panel p-8 rounded-3xl border-l-8 border-brand-500 flex items-center justify-center gap-4 hover:translate-x-2 transition-transform duration-300">
+                <span class="text-4xl text-[#FDFDFD] font-bold">J.K. Rowling</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 19: Power Specific Places -->
+      <!-- Slide 19: Power Specific Places -->
+      <section class="slide">
+        <div class="slide-content max-w-6xl flex flex-col justify-center h-full">
+          <div style="margin-top: -2rem;">
+            <h2 class="text-6xl md:text-7xl font-display font-bold text-center mb-8 text-brand-400">
+              Proper Nouns specify <span class="text-brand-400">where.</span>
+            </h2>
+            <p class="text-center mb-12 text-3xl text-secondary font-light">
+              Your Town. Specific locations.
+            </p>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+              <div
+                class="glass-panel aspect-square flex flex-col items-center justify-center rounded-3xl transition-all duration-300 group hover:bg-white/10 hover:-translate-y-2 border border-white/10">
+                <span class="text-7xl mb-6 group-hover:scale-110 transition-transform drop-shadow-lg">🇫🇷</span>
+                <span class="text-3xl font-bold text-[#FDFDFD]">Paris</span>
+              </div>
+              <div
+                class="glass-panel aspect-square flex flex-col items-center justify-center rounded-3xl transition-all duration-300 group hover:bg-white/10 hover:-translate-y-2 border border-white/10">
+                <span class="text-7xl mb-6 group-hover:scale-110 transition-transform drop-shadow-lg">🇩🇪</span>
+                <span class="text-3xl font-bold text-[#FDFDFD]">Berlin</span>
+              </div>
+              <div
+                class="glass-panel aspect-square flex flex-col items-center justify-center rounded-3xl transition-all duration-300 group hover:bg-white/10 hover:-translate-y-2 border border-white/10">
+                <span class="text-7xl mb-6 group-hover:scale-110 transition-transform drop-shadow-lg">🇸🇬</span>
+                <span class="text-3xl font-bold text-[#FDFDFD]">Singapore</span>
+              </div>
+              <div
+                class="glass-panel aspect-square flex flex-col items-center justify-center rounded-3xl transition-all duration-300 group hover:bg-white/10 hover:-translate-y-2 border border-white/10">
+                <span class="text-7xl mb-6 group-hover:scale-110 transition-transform drop-shadow-lg">🇮🇹</span>
+                <span class="text-3xl font-bold text-[#FDFDFD]">Rome</span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-6">
+              <div class="glass-panel px-8 py-4 rounded-full border border-white/10 bg-white/5">
+                <span class="text-[#FDFDFD] font-body text-xl">Manchester</span>
+              </div>
+              <div class="glass-panel px-8 py-4 rounded-full border border-white/10 bg-white/5">
+                <span class="text-[#FDFDFD] font-body text-xl">Brazil</span>
+              </div>
+              <div class="glass-panel px-8 py-4 rounded-full border border-white/10 bg-white/5">
+                <span class="text-[#FDFDFD] font-body text-xl">The Eiffel Tower</span>
+              </div>
+              <div class="glass-panel px-8 py-4 rounded-full border border-white/10 bg-white/5">
+                <span class="text-[#FDFDFD] font-body text-xl">Big Ben</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 20: Power Specific Dates -->
+      <!-- Slide 20: Power Specific Dates -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div
+            class="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden border border-white/10 shadow-2xl group hover:border-white/20 transition-colors">
+            <div
+              class="absolute top-0 right-0 p-6 opacity-10 text-[12rem] font-display font-bold text-[#FDFDFD] leading-none select-none group-hover:opacity-20 transition-opacity">
+              7
+            </div>
+            <h3 class="text-3xl font-bold mb-8 relative z-10 text-brand-400 border-b border-white/10 pb-4">
+              Days of the Week
+            </h3>
+            <ul class="space-y-4 relative z-10">
+              <li class="flex items-center gap-4 text-xl text-secondary">
+                <span
+                  class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold border border-brand-500/30">M</span>
+                Monday
+              </li>
+              <li class="flex items-center gap-4 text-xl text-secondary">
+                <span
+                  class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold border border-brand-500/30">T</span>
+                Tuesday
+              </li>
+              <li class="flex items-center gap-4 text-xl text-secondary">
+                <span
+                  class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold border border-brand-500/30">W</span>
+                Wednesday
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="text-5xl md:text-6xl font-display font-bold mb-8 text-brand-400">
+              Specific <span class="text-brand-400">Dates</span>
+            </h2>
+            <p class="text-2xl text-secondary font-light mb-10 leading-relaxed">
+              Proper Nouns also include Days of the Week and Months of the Year.
+            </p>
+
+            <div class="flex flex-wrap gap-4">
+              <div
+                class="glass-panel px-6 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                <span class="text-[#FDFDFD] font-body text-lg">February</span>
+              </div>
+              <div
+                class="glass-panel px-6 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                <span class="text-[#FDFDFD] font-body text-lg">October</span>
+              </div>
+              <div
+                class="glass-panel px-6 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                <span class="text-[#FDFDFD] font-body text-lg">December</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 21: Brands and Events -->
+      <!-- Slide 21: Brands and Events -->
+      <section class="slide">
+        <div class="slide-content text-center flex flex-col justify-center h-full">
+          <h2 class="text-5xl md:text-6xl font-display font-bold mb-16 text-brand-400">
+            Brands and <span class="text-brand-400">Events</span>
+          </h2>
+          <div class="flex flex-wrap justify-center gap-12 items-center mb-16">
+            <div
+              class="glass-panel px-16 py-10 rounded-3xl border border-white/10 shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform duration-300">
+              <span class="text-4xl md:text-5xl font-bold tracking-tighter text-[#FDFDFD] drop-shadow-lg">
+                DreamWorks
+              </span>
+            </div>
+            <div
+              class="glass-panel px-16 py-10 rounded-3xl border border-brand-500/30 shadow-[0_0_40px_rgba(34,211,238,0.2)] hover:scale-105 transition-transform duration-300">
+              <span class="text-4xl md:text-5xl font-bold tracking-tighter text-brand-400 drop-shadow-lg">
+                ValueMart
+              </span>
+            </div>
+          </div>
+          <p class="text-2xl text-secondary font-light max-w-2xl mx-auto leading-relaxed">
+            Specific religious events and company names also get the crown.
+          </p>
+        </div>
+      </section>
+
+      <!-- Slide 22: Common vs Proper Quick Check -->
+      <!-- Slide 22: Common vs Proper Quick Check -->
+      <section class="slide">
+        <div class="slide-content max-w-5xl flex flex-col justify-center h-full">
+          <h2 class="text-5xl md:text-6xl font-display font-bold mb-12 text-center text-brand-400">
+            Quick Check
+          </h2>
+          <div class="glass-panel rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div class="grid grid-cols-2 border-b border-white/10 bg-white/5">
+              <div class="p-6 text-center font-body text-brand-400 uppercase tracking-widest font-bold text-xl">
+                Common
+              </div>
+              <div
+                class="p-6 text-center font-body uppercase tracking-widest pl-4 border-l border-white/10 text-brand-400 font-bold text-xl">
+                Proper
+              </div>
+            </div>
+            <div class="grid grid-cols-2 border-b border-white/5 hover:bg-white/5 transition-colors group">
+              <div class="p-8 text-center text-2xl text-secondary group-hover:text-[#FDFDFD] transition-colors">
+                nurse</div>
+              <div class="p-8 text-center pl-4 border-l border-white/5 text-[#FDFDFD] font-bold text-2xl">
+                Mrs. Johnson
+              </div>
+            </div>
+            <div class="grid grid-cols-2 border-b border-white/5 hover:bg-white/5 transition-colors group">
+              <div class="p-8 text-center text-2xl text-secondary group-hover:text-[#FDFDFD] transition-colors">
+                mouse</div>
+              <div class="p-8 text-center pl-4 border-l border-white/5 text-[#FDFDFD] font-bold text-2xl">
+                Whiskers
+              </div>
+            </div>
+            <div class="grid grid-cols-2 border-b border-white/5 hover:bg-white/5 transition-colors group">
+              <div class="p-8 text-center text-2xl text-secondary group-hover:text-[#FDFDFD] transition-colors">
+                nation
+              </div>
+              <div class="p-8 text-center pl-4 border-l border-white/5 text-[#FDFDFD] font-bold text-2xl">Japan
+              </div>
+            </div>
+            <div class="grid grid-cols-2 hover:bg-white/5 transition-colors group">
+              <div class="p-8 text-center text-2xl text-secondary group-hover:text-[#FDFDFD] transition-colors"
+                id="qc-city">
+                city</div>
+              <div class="p-8 text-center pl-4 border-l border-white/5 text-[#FDFDFD] font-bold text-2xl" id="qc-paris">
+                Paris / Dublin
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        // Inline script for Slide 20 interactivity (Quick Check)
+        // We attach this logic here or in the main script.
+        // For cleanliness, we will add the logic in the main script block below,
+        // but we need to ensure these elements have IDs or are selectable.
+        // I added IDs to the last row as an example, but let's use a class-based approach in the main script.
+        // Actually, let's just add the IDs to all of them now for safety.
+      </script>
+
+      <!-- Slide 23: The Golden Rule -->
+      <!-- Slide 23: The Golden Rule -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <!-- Left Column: Image -->
+          <div class="order-1 lg:order-1 flex justify-center relative">
+            <div class="absolute inset-0 bg-yellow-500 blur-[90px] opacity-20"></div>
+            <div
+              class="glass-panel w-[35rem] aspect-video p-3 rounded-[2.5rem] relative z-10 border-yellow-500/30 shadow-2xl flex items-center justify-center -rotate-2 hover:rotate-0 transition-transform duration-500">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-erasing-whiteboard.jpeg"
+                class="w-full h-full object-cover rounded-[2rem]">
+            </div>
+          </div>
+
+          <!-- Right Column: Content -->
+          <div class="order-2 lg:order-2 flex flex-col justify-center">
+            <!-- Header -->
+            <div class="mb-8 text-left">
+              <div
+                class="inline-flex items-center gap-3 mb-4 px-6 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-crown text-yellow-400">
+                  <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+                </svg>
+                <span class="text-yellow-400 font-body uppercase tracking-widest font-bold text-sm">Important</span>
+              </div>
+              <h2 class="text-5xl lg:text-6xl font-display font-bold text-brand-400 tracking-tight">
+                The <span class="text-yellow-400">Golden Rule</span>
+              </h2>
+            </div>
+
+            <!-- Main Comparison Card -->
+            <div class="w-full glass-panel rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl">
+              <div class="grid grid-cols-1">
+                <!-- Wrong Side -->
+                <div
+                  class="p-8 flex flex-row items-center justify-between bg-red-500/5 border-b border-white/5 relative overflow-hidden group">
+                  <div class="flex flex-col">
+                    <span class="text-red-400 font-body uppercase tracking-widest mb-2 text-xs">Incorrect</span>
+                    <h3
+                      class="text-2xl lg:text-3xl text-red-200/50 line-through decoration-2 decoration-red-500/50 font-display">
+                      "i live in paris"
+                    </h3>
+                  </div>
+                  <div class="p-2 bg-red-500/20 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-x text-red-500">
+                      <path d="M18 6 6 18" />
+                      <path d="m6 6 12 12" />
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Right Side -->
+                <div
+                  class="p-8 flex flex-row items-center justify-between bg-brand-500/5 relative overflow-hidden group">
+                  <div class="flex flex-col">
+                    <span class="text-brand-400 font-body uppercase tracking-widest mb-2 text-xs">Correct</span>
+                    <h3 class="text-3xl lg:text-4xl text-brand-400 font-bold font-display drop-shadow-lg">
+                      "I live in Paris."
+                    </h3>
+                  </div>
+                  <div class="p-2 bg-brand-500/20 rounded-full shadow-[0_0_20px_rgba(45,212,191,0.4)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-check text-brand-400">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Explanation Footer -->
+              <div class="p-6 bg-white/5 border-t border-white/10 text-center">
+                <p class="text-xl text-secondary font-light">
+                  Special names always need a <span class="text-yellow-400 font-bold">Capital Letter</span>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 24: Mr Muddle Intro (Detective Game) -->
+      <!-- Slide 24: Mr Muddle Intro (Detective Game) -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-7xl">
+          <div class="order-1 lg:order-1 relative group">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-20"></div>
+            <div
+              class="glass-panel p-3 rounded-[3rem] relative z-10 border-2 border-white/20 shadow-2xl flex items-center justify-center">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-detective-2.jpeg"
+                class="w-full max-w-[40rem] aspect-square object-cover rounded-[2.5rem] object-top"
+                style="clip-path: inset(0 round 2.5rem);">
+            </div>
+          </div>
+
+          <div class="order-2 lg:order-2 flex flex-col justify-center">
+            <h2 class="text-5xl lg:text-6xl font-display font-bold mb-8 text-brand-400 leading-tight">
+              The Case of <span class="text-brand-400">Miss Muddle</span>
+            </h2>
+            <p class="text-xl leading-relaxed mb-10 text-secondary font-light">
+              Today, I want you to look at the world like a detective. Can you
+              spot the missing capital letters for the proper nouns in Miss
+              Muddle's letter?
+            </p>
+            <div
+              class="glass-panel p-16 rounded-[3rem] min-h-[350px] relative bg-black/40 border border-white/5 flex flex-col justify-center items-center">
+              <div class="max-w-3xl mx-auto w-full text-center p-4">
+                <div id="detective-sentences" class="space-y-6 font-accent text-3xl leading-loose text-brand-400 p-4">
+                  <!-- JS Injected -->
+                </div>
+                <button id="next-sentence-btn"
+                  class="mt-8 px-8 py-4 rounded-full bg-brand-500 text-black font-bold hover:bg-brand-400 hover:scale-105 transition-all inline-flex items-center gap-3 text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(45,212,191,0.3)]">
+                  Next Sentence <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-arrow-right">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 25: Mr Muddle Places (Interactive) -->
+      <!-- Slide 25: Mr Muddle Places (Interactive) -->
+      <section class="slide">
+        <div class="slide-content max-w-7xl w-full flex flex-col justify-center h-full">
+          <div class="flex items-center gap-6 mb-12">
+            <div
+              class="p-4 bg-brand-500/10 rounded-2xl border border-brand-500/20 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-map-pin text-brand-400">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </div>
+            <h3 class="text-4xl font-display text-brand-400 uppercase tracking-widest font-bold drop-shadow-lg">
+              Evidence A: Locations
+            </h3>
+          </div>
+
+          <div
+            class="glass-panel p-16 rounded-[3rem] font-accent text-5xl lg:text-6xl leading-loose text-secondary relative border border-white/10 shadow-2xl bg-black/40 min-h-[400px] flex items-center justify-center">
+            <div id="muddle-evidence-a" class="w-full"></div>
+          </div>
+
+          <div class="mt-12 flex justify-end">
+            <span
+              class="px-8 py-4 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center gap-4 text-lg font-bold uppercase tracking-widest animate-pulse shadow-[0_0_20px_rgba(45,212,191,0.2)]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-mouse-pointer-click">
+                <path d="m14 4.1 2.5 2.5" />
+                <path d="m20 9 2.5 2.5" />
+                <path d="M22 22H2v-4l6.8-6.8 6.1 6.1 7.1-7.1V22Z" />
+              </svg>
+              Click the lowercase names to fix them!
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 26: Mr Muddle People & Dates (Interactive) -->
+      <!-- Slide 26: Mr Muddle People & Dates (Interactive) -->
+      <section class="slide">
+        <div class="slide-content max-w-7xl w-full flex flex-col justify-center h-full">
+          <div class="flex items-center gap-6 mb-12">
+            <div
+              class="p-4 bg-pink-500/10 rounded-2xl border border-pink-500/20 shadow-[0_0_30px_rgba(236,72,153,0.15)]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-users-2 text-brand-400">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <h3 class="text-4xl font-display text-brand-400 uppercase tracking-widest font-bold drop-shadow-lg">
+              Evidence B: People &amp; Dates
+            </h3>
+          </div>
+          <div
+            class="glass-panel p-16 rounded-[3rem] font-accent text-5xl lg:text-6xl leading-loose text-secondary relative border border-white/10 shadow-2xl bg-black/40 min-h-[400px] flex items-center justify-center">
+            <div id="muddle-evidence-b" class="w-full"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 27: Quiz - People and 'I' -->
+      <!-- Slide 27: Quiz - People and 'I' -->
+      <section class="slide">
+        <div class="slide-content max-w-5xl flex flex-col justify-center h-full">
+          <div class="text-center mb-10">
+            <span
+              class="inline-block px-4 py-2 rounded-full bg-brand-500/10 text-brand-400 text-xs font-body uppercase tracking-widest mb-4 border border-brand-500/20">
+              Quiz Section 1
+            </span>
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 text-brand-400">
+              People and 'I': Which needs a capital?
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6" id="quiz-1-container">
+            <!-- JS Injected -->
+          </div>
+          <div id="quiz-1-hint"
+            class="mt-10 glass-panel inline-block px-8 py-4 rounded-full border border-brand-500/30 bg-brand-500/10 cursor-pointer hover:bg-brand-500/20 transition-colors"
+            onclick="this.querySelector('p').classList.remove('opacity-0', 'blur-sm'); this.querySelector('.hint-label').style.display='none'">
+            <span class="hint-label text-brand-400 font-bold uppercase tracking-widest">Click for Hint</span>
+            <p class="text-lg text-secondary italic opacity-0 blur-sm transition-all duration-500">
+              Hint: 'I' is always capitalized when used as a singular pronoun.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 28: Quiz - Places and Streets -->
+      <!-- Slide 28: Quiz - Places and Streets -->
+      <section class="slide">
+        <div class="slide-content max-w-5xl flex flex-col justify-center h-full">
+          <div class="text-center mb-10">
+            <span
+              class="inline-block px-4 py-2 rounded-full bg-brand-500/10 text-brand-400 text-xs font-body uppercase tracking-widest mb-4 border border-brand-500/20">
+              Quiz Section 2
+            </span>
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 text-brand-400">
+              Places and Streets
+            </h2>
+            <p class="text-xl text-secondary">Which word needs a capital letter?</p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6" id="quiz-2-container">
+            <!-- JS Injected -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 29: Quiz - Specific Dates -->
+      <!-- Slide 29: Quiz - Specific Dates -->
+      <section class="slide">
+        <div class="slide-content max-w-5xl flex flex-col justify-center h-full">
+          <div class="text-center mb-10">
+            <span
+              class="inline-block px-4 py-2 rounded-full bg-pink-500/10 text-brand-400 text-xs font-body uppercase tracking-widest mb-4 border border-pink-500/20">
+              Quiz Section 3
+            </span>
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 text-brand-400">
+              Specific Days and Dates
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6" id="quiz-3-container">
+            <!-- JS Injected -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 30: Exit Ticket Riddle Match -->
+      <!-- Slide 30: Exit Ticket Riddle Match -->
+      <section class="slide">
+        <div class="slide-content max-w-6xl flex flex-col justify-center h-full">
+          <h2 class="text-5xl md:text-6xl font-display font-bold text-center mb-16 text-brand-400">
+            Exit Ticket <span class="text-brand-400">Riddle Match</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-12 h-full items-center">
+            <!-- Questions Column -->
+            <div class="flex flex-col gap-6" id="riddle-questions">
+              <!-- JS Injected -->
+            </div>
+
+            <!-- Answers Column -->
+            <div class="flex flex-col gap-6" id="riddle-answers">
+              <!-- JS Injected -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 31: Mission Complete -->
+      <!-- Slide 31: Mission Complete -->
+      <section class="slide">
+        <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-7xl h-full">
+          <!-- Left Column: Big Image -->
+          <div class="order-1 flex justify-center relative">
+            <div class="absolute inset-0 bg-brand-500 blur-[80px] opacity-30"></div>
+            <div
+              class="glass-panel w-[28rem] h-[28rem] p-3 rounded-full relative z-10 border-brand-500/30 shadow-[0_0_80px_rgba(45,212,191,0.3)] flex items-center justify-center">
+              <img
+                src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-good-bye.jpeg"
+                class="w-full h-full rounded-full object-cover border-4 border-white/20">
+            </div>
+          </div>
+
+          <!-- Right Column: Content -->
+          <div class="order-2 flex flex-col justify-center text-left">
+            <h1 class="text-5xl lg:text-7xl font-display font-bold mb-6 text-brand-400 drop-shadow-2xl leading-none">
+              Mission <br><span class="text-brand-400">Complete!</span>
+            </h1>
+
+            <div class="glass-panel p-8 rounded-[2rem] border border-white/10 bg-white/5 mb-8 backdrop-blur-xl">
+              <p class="text-xl leading-relaxed text-secondary font-light mb-4">
+                <span class="text-brand-400 font-bold text-2xl block mb-2 font-display">"Goodbye, friends!"</span>
+                A Noun is a naming word. Common Nouns are general. Proper Nouns wear
+                the Crown.
+              </p>
+              <div class="p-4 bg-brand-500/10 rounded-xl border border-brand-500/20">
+                <span class="text-[#FDFDFD] font-bold text-lg block mb-1">
+                  Don't just see a "woman," see Aunt Emily.
+                </span>
+                <span class="text-brand-400 font-bold uppercase tracking-widest text-xs block">
+                  Common Nouns are everywhere. Proper Nouns are special.
+                </span>
+              </div>
+            </div>
+
+
+
+            <button onclick="document.getElementById('slider').scrollTo({left:0, behavior:'smooth'})"
+              class="self-start px-10 py-5 bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-lg rounded-full hover:scale-105 hover:shadow-[0_0_60px_rgba(45,212,191,0.6)] transition-all duration-300 shadow-[0_0_30px_rgba(45,212,191,0.3)] uppercase tracking-widest flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-rotate-ccw">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74-2.74L3 12" />
+                <path d="M3 5v7h7" />
+              </svg>
+              Restart Experience
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 32: Session Notes Summary -->
+      <section class="slide" id="slide-summary">
+        <div class="slide-content max-w-7xl w-full flex flex-col h-full">
+          <div class="text-center mb-8">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 text-brand-400 font-display">
+              Session Notes Summary
+            </h2>
+            <p class="text-xl text-secondary mb-4">Overview of all sticky notes and comments.</p>
+
+            <div class="flex gap-4 justify-center">
+              <button onclick="generateNotesSummary()"
+                class="px-6 py-3 bg-brand-500/20 text-brand-400 rounded-xl hover:bg-brand-500/30 transition-colors border border-brand-500/30 font-bold uppercase tracking-widest text-sm flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 12" />
+                  <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 12" />
+                  <path d="M3 5v14" />
+                  <path d="M21 5v14" />
+                  <path d="m3 12 2.25 2.25" />
+                  <path d="m21 12-2.25-2.25" />
+                </svg>
+                Refresh Notes
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="glass-panel p-8 rounded-[2rem] border border-white/10 bg-black/40 flex-1 overflow-hidden flex flex-col relative">
+            <div id="summary-container" class="summary-grid custom-scrollbar h-full overflow-y-auto pr-4">
+              <div class="summary-empty flex flex-col items-center justify-center h-full opacity-50">
+                <div class="text-4xl mb-4">📝</div>
+                <p class="text-xl text-secondary">No notes added yet.</p>
+                <p class="text-sm text-brand-400 mt-2">Use the "Note" tool to add notes.</p>
+              </div>
+            </div>
+          </div>
+      </section>
+      <!-- Whiteboard Layer (Projector Style - Final) -->
+
+
+    </main>
+
+
+
+    <!-- SECURITY UI LAYERS -->
+    <section id="piracy-screen"
+      class="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center hidden">
+      <div class="text-center p-12 border-4 border-red-600 rounded-[3rem] bg-red-900/20 max-w-2xl mx-4">
+        <h1 class="text-6xl font-black text-red-600 mb-6 uppercase tracking-widest font-display">Security Alert</h1>
+        <p class="text-2xl text-red-400 font-body mb-4">Unauthorized Access Detected</p>
+        <p class="text-red-500/80 text-lg">This software is unauthorized for offline use or hosting on this domain.</p>
+      </div>
+    </section>
+
+    <section id="expired-screen"
+      class="fixed inset-0 z-[9999] bg-zinc-900 flex flex-col items-center justify-center hidden">
+      <div class="text-center p-12 border-4 border-yellow-600 rounded-[3rem] bg-yellow-900/20 max-w-2xl mx-4">
+        <h1 class="text-6xl font-black text-yellow-600 mb-6 uppercase tracking-widest font-display">Assignment Expired
+        </h1>
+        <p class="text-2xl text-yellow-400 font-body">Please contact Teacher Steven.</p>
+      </div>
+    </section>
+
+    <section id="teacher-lock-screen"
+      class="fixed inset-0 z-[9999] bg-[#0B0C15] flex flex-col items-center justify-center hidden">
+      <div
+        class="glass-panel p-12 rounded-[3rem] border border-white/10 shadow-2xl text-center max-w-md w-full mx-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-brand-500/5"></div>
+        <div class="relative z-10">
+          <div
+            class="mb-8 p-6 bg-brand-500/10 rounded-full inline-block border border-brand-500/20 shadow-[0_0_30px_rgba(45,212,191,0.2)]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-lock text-brand-400">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold text-brand-400 mb-2 font-display">Teacher Access Only</h2>
+          <p class="text-secondary mb-8 font-light">Enter PIN to unlock the system</p>
+
+          <input type="password" id="teacher-pin-input" placeholder="Enter PIN"
+            class="w-full bg-black/30 border border-white/10 rounded-xl px-6 py-4 text-center text-[#FDFDFD] text-xl tracking-[0.5em] mb-6 focus:outline-none focus:border-brand-500/50 transition-all placeholder:tracking-normal placeholder:text-base placeholder:text-[#FDFDFD]/20">
+
+          <button onclick="unlockSystem()"
+            class="w-full bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-lg py-4 rounded-xl hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(45,212,191,0.4)] transition-all uppercase tracking-widest">
+            Unlock System
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <script src="js/core.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/games.js"></script>
+    <script src="js/gamification.js"></script>
+    <script src="js/reporting.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+      // Initialize Icons immediately
+      lucide.createIcons();
+    </script>
+</body>
+
+</html>
