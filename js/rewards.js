@@ -66,7 +66,7 @@ const RewardsEngine = {
                     tracker.found.add(context);
 
                     // VISUAL: Pop at mouse location
-                    this.triggerTinyPop(this.lastX, this.lastY);
+                    this.fireDualConfetti(this.lastX, this.lastY);
 
                     // COMPLETION CHECK
                     const target = this.targets[slideIndex];
