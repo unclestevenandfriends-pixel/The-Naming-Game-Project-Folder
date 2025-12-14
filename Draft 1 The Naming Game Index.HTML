@@ -211,32 +211,8 @@
       class="absolute inset-0 bg-[linear-gradient(to_right,rgba(34,211,238,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(34,211,238,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_70%)] pointer-events-none">
     </div>
 
-    <div
-      class="glass-panel p-12 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.2)] max-w-2xl w-full relative z-10 text-center">
-      <h1 id="lobby-welcome" class="font-display text-6xl font-bold text-brand-400 mb-2 tracking-tighter text-glow">
-        Welcome</h1>
-      <p class="text-xl text-secondary font-light mb-10">Please enter your details to begin the class.</p>
-
-      <div class="space-y-6 text-left">
-        <div>
-          <label class="block text-brand-400 font-body text-sm uppercase tracking-widest mb-2 font-bold">Student
-            Name</label>
-          <input type="text" id="student-name" placeholder="Enter your name..."
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-[#FDFDFD] text-xl focus:outline-none focus:border-brand-500 focus:bg-white/10 transition-all placeholder:text-[#FDFDFD]/20">
-        </div>
-
-        <div>
-          <label class="block text-brand-400 font-body text-sm uppercase tracking-widest mb-2 font-bold">Class
-            Date</label>
-          <input type="date" id="class-date"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-[#FDFDFD] text-xl focus:outline-none focus:border-brand-500 focus:bg-white/10 transition-all [color-scheme:dark]">
-        </div>
-
-        <button onclick="startClass()"
-          class="w-full bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-xl py-5 rounded-xl hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] transition-all duration-300 mt-4 uppercase tracking-widest">
-          Start Class
-        </button>
-      </div>
+    <div id="lobby-content" class="relative z-10 w-full h-full flex items-center justify-center">
+      <div class="animate-pulse text-brand-400 font-display text-xl">Loading System...</div>
     </div>
   </section>
 
@@ -414,6 +390,7 @@
     <div class="bg-grid"></div>
 
 
+    <!-- MAP SYSTEM NOTE: The #world-map-overlay is injected dynamically by js/map.js -->
 
     <!-- Spotlight Effect (Draft 3 Exact) -->
     <div id="mouse-glow"
@@ -704,6 +681,17 @@
         </div>
       </section>
 
+      <!-- PLACEHOLDER: Slide 5 - Node 1 Exit Ticket (Map System) -->
+      <section class="slide" data-type="challenge" id="slide-5-placeholder">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-5xl">
+          <div class="glass-panel p-12 rounded-[3rem] text-center border border-brand-500/30">
+            <h2 class="font-display text-5xl font-bold text-brand-400 mb-4">🎯 Exit Ticket</h2>
+            <p class="text-2xl text-secondary mb-8">Node 1 Challenge - Coming Soon</p>
+            <p class="text-lg text-secondary/70 italic">This slide will contain the first checkpoint challenge.</p>
+          </div>
+        </div>
+      </section>
+
       <!-- Slide 5: Nouns Name People -->
       <!-- Slide 5: Nouns Name People -->
       <section class="slide">
@@ -890,6 +878,17 @@
         </div>
       </section>
 
+      <!-- PLACEHOLDER: Slide 9 - Node 2 Exit Ticket (Map System) -->
+      <section class="slide" data-type="challenge" id="slide-9-placeholder">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-5xl">
+          <div class="glass-panel p-12 rounded-[3rem] text-center border border-brand-500/30">
+            <h2 class="font-display text-5xl font-bold text-brand-400 mb-4">🎯 Exit Ticket</h2>
+            <p class="text-2xl text-secondary mb-8">Node 2 Challenge - Coming Soon</p>
+            <p class="text-lg text-secondary/70 italic">This slide will contain the second checkpoint challenge.</p>
+          </div>
+        </div>
+      </section>
+
       <!-- Slide 9: Detecting Nouns in Sentences -->
       <!-- Slide 9: Detecting Nouns in Sentences -->
       <section class="slide">
@@ -914,6 +913,17 @@
                 <!-- JS Injected -->
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PLACEHOLDER: Slide 12 - Things Hunt (Map System) -->
+      <section class="slide" data-type="challenge" id="slide-12-placeholder">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-5xl">
+          <div class="glass-panel p-12 rounded-[3rem] text-center border border-pink-500/30">
+            <h2 class="font-display text-5xl font-bold text-brand-400 mb-4">🔍 Things Hunt</h2>
+            <p class="text-2xl text-secondary mb-8">Interactive Scavenger Hunt - Coming Soon</p>
+            <p class="text-lg text-secondary/70 italic">Find and identify nouns in your environment!</p>
           </div>
         </div>
       </section>
@@ -1044,6 +1054,18 @@
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PLACEHOLDER: Slide 13 - Mega-Mix Boss (Map System) -->
+      <section class="slide" data-type="boss" id="slide-13-placeholder">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-5xl">
+          <div
+            class="glass-panel p-12 rounded-[3rem] text-center border border-yellow-500/30 bg-gradient-to-br from-yellow-500/5 to-orange-500/5">
+            <h2 class="font-display text-5xl font-bold text-yellow-400 mb-4">👑 MEGA-MIX BOSS</h2>
+            <p class="text-2xl text-secondary mb-8">Ultimate Challenge - Coming Soon</p>
+            <p class="text-lg text-secondary/70 italic">Prove your mastery of all noun types!</p>
           </div>
         </div>
       </section>
@@ -1204,6 +1226,17 @@
                 Think of the Capital Letter like a crown—special things wear a crown!
               </span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PLACEHOLDER: Slide 22 - Proper Quick Check 1 (Map System) -->
+      <section class="slide" data-type="check" id="slide-22-placeholder">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-5xl">
+          <div class="glass-panel p-12 rounded-[3rem] text-center border border-brand-500/30">
+            <h2 class="font-display text-5xl font-bold text-brand-400 mb-4">✅ Quick Check</h2>
+            <p class="text-2xl text-secondary mb-8">Proper Nouns Review - Coming Soon</p>
+            <p class="text-lg text-secondary/70 italic">Test your knowledge of proper noun rules!</p>
           </div>
         </div>
       </section>
@@ -1901,6 +1934,7 @@
     <script src="js/canvas.js"></script>
     <script src="js/games.js"></script>
     <script src="js/gamification.js"></script>
+    <script src="js/map.js"></script>
     <script src="js/rewards.js"></script>
     <script src="js/pressure.js"></script>
     <script src="js/reporting.js"></script>

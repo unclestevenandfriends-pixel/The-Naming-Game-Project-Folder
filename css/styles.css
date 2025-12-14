@@ -100,7 +100,9 @@ li,
 /* Slide Container */
 .slides-container {
   display: flex;
-  overflow-x: auto;
+  /* CHANGED: Hidden prevents free-roam scrolling by user */
+  overflow-x: hidden;
+  /* We keep snap-type for the JS scrollIntoView to land perfectly */
   scroll-snap-type: x mandatory;
   height: 100vh;
   width: 100vw;
@@ -1770,4 +1772,206 @@ body.markup-hidden #stamps-layer {
 #timer-container.frozen #timer-fill {
   background: #22d3ee;
   /* Ice Blue */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════ */
+/* MAP SYSTEM */
+/* ═══════════════════════════════════════════════════════════════════════════════ */
+#map-canvas {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+.map-node {
+  transform: translate(-50%, -50%);
+  /* Center on coords */
+}
+
+/* Map Return Button Animation */
+.map-return-btn {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 40px rgba(34, 211, 238, 0.6);
+  }
+
+  50% {
+    box-shadow: 0 0 60px rgba(34, 211, 238, 0.9);
+  }
+}
+
+/* Player Token Animation */
+#player-token {
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.5));
+}
+
+#player-token-ring {
+  animation: token-float 3s ease-in-out infinite;
+}
+
+@keyframes token-float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Map Button Hover Effect */
+#map-nav-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Map Overlay Scrollbar */
+#world-map-overlay .custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+#world-map-overlay .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+#world-map-overlay .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.5);
+  border-radius: 4px;
+}
+
+#world-map-overlay .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.8);
+}
+
+/* ========================================
+   MAP SYSTEM - Unified Overlay (Batch 1 Fix)
+   ======================================== */
+
+/* 
+ * The #world-map-overlay is injected by map.js
+ * This provides the main interactive map layer
+ */
+#world-map-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #0b0c15;
+  z-index: 8000;
+  overflow: hidden;
+}
+
+/* Map canvas with 16:9 aspect ratio and background image */
+#map-canvas {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  background-image: url('https://github.com/unclestevenandfriends-pixel/The-naming-game-noun-presentation-assets/blob/main/assets/characters/Final%20Map.jpg?raw=true');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Remove grid/cubes background override */
+#world-map-overlay .flex-1 {
+  background: none !important;
+}
+
+/* Player token - smooth gliding with centered transform */
+#player-token {
+  transition: all 0.5s ease-in-out;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Locked node state - grayed out, non-interactive */
+.node-locked {
+  filter: grayscale(100%) opacity(0.5);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Active node state - pulsing glow, interactive */
+.node-active {
+  animation: pulse-glow 2s infinite;
+  cursor: pointer;
+}
+
+/* Pulse-glow animation for active nodes */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6));
+    transform: scale(1);
+  }
+
+  50% {
+    filter: drop-shadow(0 0 20px rgba(34, 211, 238, 1));
+    transform: scale(1.05);
+  }
+}
+
+/* Completed node state - green glow, fully visible */
+.node-completed {
+  filter: none;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.node-completed::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.3) 0%, transparent 70%);
+  animation: completed-glow 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes completed-glow {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* --- DEBUG FIX: NAV BAR LAYERING --- */
+nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 2rem;
+  z-index: 100 !important;
+  /* Above slides (20) but below map overlay (8000) */
+  pointer-events: none;
+  /* Let clicks pass through empty areas */
+  display: flex !important;
+  justify-content: flex-end;
+}
+
+nav>* {
+  pointer-events: auto !important;
+  /* Re-enable clicks on buttons */
 }

@@ -101,18 +101,20 @@ function initClassMode() {
 
   // Check for Saved Data (Resume Logic)
   const savedData = localStorage.getItem('nameGame_data');
+  const hasCharacter = localStorage.getItem('nameGame_character');
+  const lobbyContent = document.getElementById('lobby-content');
 
-  if (savedData) {
+  if (savedData && lobbyContent) {
+    // User has session data - show Resume / New Class options
     try {
       const data = JSON.parse(savedData);
-      const lobbyContent = document.querySelector('#lobby-screen .glass-panel .space-y-6');
-      if (lobbyContent) {
-        lobbyContent.innerHTML = `
-          <div class="text-center">
-            <p class="text-brand-400 font-body text-sm uppercase tracking-widest mb-4">Session Found</p>
-            <h3 class="text-3xl text-brand-400 font-bold mb-8">Welcome back, ${data.studentName}!</h3>
+      lobbyContent.innerHTML = `
+        <div class="glass-panel p-12 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.2)] max-w-2xl w-full text-center">
+          <p class="text-brand-400 font-body text-sm uppercase tracking-widest mb-4">Session Found</p>
+          <h3 class="text-3xl text-brand-400 font-bold mb-8 font-display">Welcome back, ${data.studentName}!</h3>
+          <div class="space-y-4">
             <button onclick="window.resumeSessionWithSound()" 
-              class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-xl py-5 rounded-xl hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] transition-all duration-300 mb-4 uppercase tracking-widest">
+              class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-xl py-5 rounded-xl hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] transition-all duration-300 uppercase tracking-widest">
               Resume Session
             </button>
             <button onclick="startNewClass()" 
@@ -120,11 +122,21 @@ function initClassMode() {
               Start New Class
             </button>
           </div>
-        `;
-      }
+        </div>
+      `;
+      console.log("🎮 Resume screen shown");
     } catch (e) {
       console.error("Resume data corrupt", e);
+      // Fallback to character select
+      if (typeof GameEngine !== 'undefined') GameEngine.showCharacterSelect();
     }
+  } else if (typeof GameEngine !== 'undefined') {
+    // No saved session - show Character Select
+    console.log("🎮 No session - showing Character Select");
+    if (hasCharacter) {
+      GameEngine.restoreSession();
+    }
+    setTimeout(() => GameEngine.showCharacterSelect(), 100);
   }
 
   // Show Lobby, Hide Report
@@ -133,26 +145,6 @@ function initClassMode() {
   if (lobby) lobby.style.display = 'flex';
   if (slideZero) slideZero.classList.add('hidden');
 
-  // 🎮 GAMIFICATION INIT
-  // DO NOT auto-show character select here - let the Resume/New flow handle it
-  // Character select is triggered by: startClass() if no character exists
-  if (typeof GameEngine !== 'undefined') {
-    const hasGameData = localStorage.getItem('nameGame_data');
-    const hasCharacter = localStorage.getItem('nameGame_character');
-
-    // Only show character select if this is a BRAND NEW user (no data at all)
-    if (!hasGameData && !hasCharacter) {
-      console.log("🎮 Brand new user - showing Character Select");
-      setTimeout(() => GameEngine.showCharacterSelect(), 100);
-    } else if (hasCharacter) {
-      // Silently restore character data (HUD will show when startClass runs)
-      console.log("🎮 Existing character found - restoring session data silently");
-      GameEngine.restoreSession();
-    }
-    // If hasGameData but !hasCharacter: User will see Resume/New dialog
-    // If they click Resume: resumeSession handles it
-    // If they click Start New: clears data, reloads, then shows Character Select
-  }
 
 
   // Auto-Save on Scroll & GHOST BUSTING TRANSITIONS
@@ -193,6 +185,23 @@ function initClassMode() {
 
         const slideWidth = slider.clientWidth;
         const index = Math.round(slider.scrollLeft / slideWidth);
+
+        // --- MAP SYSTEM HOOK ---
+        if (typeof MapSystem !== 'undefined') {
+          MapSystem.updateButtonState(index); // Update button text based on slide
+          MapSystem.checkSlidePosition(index);
+
+          // Also update current node if not already set or if slide moved to different node
+          const nodeForSlide = MapSystem.findNodeBySlide(index);
+          if (nodeForSlide && MapSystem.state.currentNode !== nodeForSlide.id) {
+            // Only auto-update if the slide belongs to an unlocked node
+            if (MapSystem.isNodeUnlocked(nodeForSlide.id)) {
+              MapSystem.state.currentNode = nodeForSlide.id;
+              MapSystem.saveProgress();
+            }
+          }
+        }
+        // --------------------
 
         // Update State
         const currentSaved = localStorage.getItem('nameGame_slide');
@@ -382,10 +391,15 @@ function startClass() {
             { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "back.out(1.2)", overwrite: true }
           );
         } else {
-          // Fallback if GSAP fails
-          elements.forEach(el => el.style.opacity = 1);
+          elements.forEach((el, index) => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          });
         }
       }
+
+      // --- MAP SYSTEM INTRO DISABLED ---
+      // The map should NOT auto-trigger. User must click "START JOURNEY" button.
     }
   });
 }
@@ -394,7 +408,7 @@ window.startClass = startClass;
 // === SLIDER LOGIC ===
 const slider = document.getElementById('slider');
 const counter = document.getElementById('slide-counter');
-const totalSlides = 30;
+const totalSlides = 37; // Updated for Canonical Master Plan v1.0
 
 function updateCounter() {
   if (!slider || !counter) return;
@@ -443,29 +457,274 @@ if (document.readyState === 'loading') {
 }
 window.addEventListener('load', restoreSlideFromHash);
 
-function nextSlide() {
-  if (slider) {
-    slider.scrollBy({ left: window.innerWidth, behavior: 'smooth' });
-    if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playSlide);
+// === NAVIGATION GUARD SYSTEM (Map Integration - Batch 3) ===
+
+/**
+ * Get the current slide index
+ */
+function getCurrentSlideIndex() {
+  const slider = document.getElementById('slider');
+  if (!slider) return 0;
+  return Math.round(slider.scrollLeft / slider.clientWidth);
+}
+
+/**
+ * Get the maximum unlocked slide index based on MapSystem state
+ */
+function getMaxUnlockedSlide() {
+  if (typeof MapSystem === 'undefined') return Infinity;
+
+  let maxSlide = 0;
+
+  // Find the highest slide index among all unlocked nodes
+  Object.values(MapSystem.mapNodes).forEach(node => {
+    const isUnlocked = MapSystem.isNodeUnlocked(node.id);
+    const isCompleted = MapSystem.state.completedNodes.includes(node.id);
+
+    if ((isUnlocked || isCompleted) && node.slides && node.slides.length > 0) {
+      const nodeMaxSlide = Math.max(...node.slides);
+      if (nodeMaxSlide > maxSlide) {
+        maxSlide = nodeMaxSlide;
+      }
+    }
+  });
+
+  return maxSlide;
+}
+
+/**
+ * Check if navigation to a target slide is allowed
+ * @param {number} targetIndex - The slide index we want to navigate to
+ * @returns {object} - { allowed: boolean, reason: string }
+ */
+function canNavigateTo(targetIndex) {
+  const currentIndex = getCurrentSlideIndex();
+
+  // BACKWARD FREE ROAM: Always allow going backward
+  if (targetIndex < currentIndex) {
+    return { allowed: true, reason: 'backward' };
   }
+
+  // If MapSystem not available, allow all navigation
+  if (typeof MapSystem === 'undefined') {
+    return { allowed: true, reason: 'no-map-system' };
+  }
+
+  // Check if target is beyond max unlocked slide
+  const maxUnlocked = getMaxUnlockedSlide();
+  if (targetIndex > maxUnlocked) {
+    return { allowed: false, reason: 'locked', maxUnlocked };
+  }
+
+  // Check if we're at the last slide of current node
+  const currentNodeId = MapSystem.state.currentNode;
+  if (currentNodeId) {
+    const currentNode = MapSystem.mapNodes[currentNodeId];
+    if (currentNode && currentNode.slides && currentNode.slides.length > 0) {
+      const lastSlideOfNode = currentNode.slides[currentNode.slides.length - 1];
+
+      // If trying to go past the last slide of current node
+      if (currentIndex === lastSlideOfNode && targetIndex > lastSlideOfNode) {
+        return { allowed: false, reason: 'node-exit', nodeId: currentNodeId, node: currentNode };
+      }
+    }
+  }
+
+  return { allowed: true, reason: 'ok' };
+}
+
+/**
+ * Show a "locked" notification to the user
+ */
+function showLockedAlert() {
+  // Create floating alert
+  const alert = document.createElement('div');
+  alert.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] transition-all duration-300 opacity-0 scale-90';
+  alert.innerHTML = `
+    <div class="bg-black/90 backdrop-blur-xl px-8 py-6 rounded-2xl border border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.4)] text-center">
+      <div class="text-4xl mb-3">🔒</div>
+      <p class="text-xl font-bold text-red-400 mb-1">Area Locked</p>
+      <p class="text-sm text-white/70">Complete the current zone first!</p>
+    </div>
+  `;
+  document.body.appendChild(alert);
+
+  // Animate in
+  requestAnimationFrame(() => {
+    alert.style.opacity = '1';
+    alert.style.transform = 'translate(-50%, -50%) scale(1)';
+  });
+
+  // Play error sound
+  if (typeof SoundFX !== 'undefined' && SoundFX.playError) {
+    SoundFX.playError();
+  }
+
+  // Remove after delay
+  setTimeout(() => {
+    alert.style.opacity = '0';
+    alert.style.transform = 'translate(-50%, -50%) scale(0.9)';
+    setTimeout(() => alert.remove(), 300);
+  }, 1500);
+}
+
+/**
+ * Return to the map view - called when completing a node
+ */
+function returnToMap(completedNodeId) {
+  console.log(`🗺️ Returning to map after completing: ${completedNodeId}`);
+
+  // Mark node as complete in MapSystem
+  if (typeof MapSystem !== 'undefined' && completedNodeId) {
+    MapSystem.completeNode(completedNodeId);
+  }
+
+  // Fade viewport and show map via MapSystem API
+  const viewport = document.getElementById('viewport-frame');
+
+  if (viewport && typeof gsap !== 'undefined') {
+    gsap.to(viewport, {
+      opacity: 0.3,
+      duration: 0.5
+    });
+  }
+
+  // Use MapSystem API to show map (handles #world-map-overlay)
+  if (typeof MapSystem !== 'undefined') {
+    MapSystem.show();
+
+    // Animate token to completed node after map is visible
+    setTimeout(() => {
+      MapSystem.movePlayerToNode(completedNodeId, true);
+      MapSystem.updateMapToken();
+
+      // If next is a hub, animate to hub after short delay
+      const node = MapSystem.mapNodes[completedNodeId];
+      if (node) {
+        Object.values(MapSystem.mapNodes).forEach(childNode => {
+          if (childNode.parents && childNode.parents.includes(completedNodeId)) {
+            if (childNode.type === 'hub') {
+              setTimeout(() => {
+                MapSystem.movePlayerToNode(childNode.id, true);
+              }, 1200);
+            }
+          }
+        });
+      }
+    }, 500);
+  }
+
+  // Play map sound
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) {
+    SoundFX.playPop();
+  }
+}
+window.returnToMap = returnToMap;
+
+/**
+ * Hide map and return to slides
+ */
+function returnToSlides() {
+  const viewport = document.getElementById('viewport-frame');
+
+  // Use MapSystem API to hide map (handles #world-map-overlay)
+  if (typeof MapSystem !== 'undefined') {
+    MapSystem.hide();
+  }
+
+  // Restore viewport opacity
+  if (viewport && typeof gsap !== 'undefined') {
+    gsap.to(viewport, {
+      opacity: 1,
+      duration: 0.3
+    });
+  }
+}
+window.returnToSlides = returnToSlides;
+
+/**
+ * Navigate to next slide with MAP PROGRESSION LOGIC
+ */
+function nextSlide() {
+  const slider = document.getElementById('slider');
+  if (!slider) return;
+
+  const currentIndex = getCurrentSlideIndex();
+  const targetIndex = currentIndex + 1;
+
+  // 1. CHECK GUARD: Is the user allowed to go here?
+  const navCheck = canNavigateTo(targetIndex);
+
+  if (!navCheck.allowed) {
+    if (navCheck.reason === 'locked') {
+      showLockedAlert();
+      return;
+    }
+
+    // 2. END OF NODE DETECTION: The user hit the "invisible wall" at the end of a level
+    if (navCheck.reason === 'node-exit') {
+      console.log("🛑 End of Node Reached. Triggering Map Progression...");
+
+      // A. Open Map
+      returnToMap(navCheck.nodeId);
+
+      // B. Wait for Map to Open, then Animate Token to Next Node
+      setTimeout(() => {
+        // Identify the NEXT node based on the current one
+        const currentNode = MapSystem.mapNodes[navCheck.nodeId];
+        // Find a node that lists the current one as a parent
+        const nextNodeEntry = Object.values(MapSystem.mapNodes).find(n => n.parents.includes(navCheck.nodeId));
+
+        if (nextNodeEntry) {
+          console.log(`🚀 Animating Token: ${navCheck.nodeId} -> ${nextNodeEntry.id}`);
+          MapSystem.movePlayerToNode(nextNodeEntry.id, true);
+
+          // C. After Animation, Enter the Next Node's Slides
+          setTimeout(() => {
+            MapSystem.enterNode(nextNodeEntry.id);
+          }, 2500); // Wait for token animation
+        }
+      }, 1000); // Wait for map to open
+      return;
+    }
+  }
+
+  // 3. NORMAL NAVIGATION (Within the same level)
+  const slideWidth = slider.clientWidth;
+  slider.scrollTo({ left: targetIndex * slideWidth, behavior: 'smooth' });
+
+  if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playSlide);
 }
 window.nextSlide = nextSlide;
 
-// === KEYBOARD NAVIGATION ===
+/**
+ * Navigate to previous slide (always allowed - free roam backward)
+ */
+function prevSlide() {
+  const slider = document.getElementById('slider');
+  if (!slider) return;
+
+  slider.scrollBy({ left: -window.innerWidth, behavior: 'smooth' });
+  if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playSlide);
+}
+window.prevSlide = prevSlide;
+
+// Updated Keydown Listener
 document.addEventListener('keydown', (e) => {
+  // Ignore inputs
   if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
   if (document.activeElement.getAttribute('contenteditable') === 'true') return;
 
-  if (e.key === 'ArrowRight') {
-    if (slider) {
-      slider.scrollBy({ left: window.innerWidth, behavior: 'smooth' });
-      if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playSlide);
-    }
+  // Check if map is open
+  const isMapOpen = document.getElementById('world-map-overlay') &&
+    !document.getElementById('world-map-overlay').classList.contains('translate-y-full');
+
+  if (isMapOpen) return; // Block keys while map is doing its thing
+
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+    nextSlide(); // Uses the new Guard Logic
   } else if (e.key === 'ArrowLeft') {
-    if (slider) {
-      slider.scrollBy({ left: -window.innerWidth, behavior: 'smooth' });
-      if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playSlide);
-    }
+    prevSlide(); // Backward is always free
   }
 });
 

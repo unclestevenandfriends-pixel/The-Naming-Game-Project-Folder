@@ -406,12 +406,26 @@ const GameEngine = {
 
     beginMission() {
         if (!this.config.characterId) return;
+
         const nameInput = document.getElementById('student-name');
         const dateInput = document.getElementById('class-date');
         const playerName = nameInput?.value?.trim();
-        if (!playerName) { nameInput?.focus(); nameInput?.classList.add('border-red-500/50', 'shake-screen'); setTimeout(() => nameInput?.classList.remove('border-red-500/50', 'shake-screen'), 1000); return; }
-        if (typeof classData !== 'undefined') { classData.studentName = playerName; classData.classDate = dateInput?.value || new Date().toISOString().split('T')[0]; }
+
+        if (!playerName) {
+            nameInput?.focus();
+            nameInput?.classList.add('border-red-500/50', 'shake-screen');
+            setTimeout(() => nameInput?.classList.remove('border-red-500/50', 'shake-screen'), 1000);
+            return;
+        }
+
+        if (typeof classData !== 'undefined') {
+            classData.studentName = playerName;
+            classData.classDate = dateInput?.value || new Date().toISOString().split('T')[0];
+        }
+
         const char = this.characters[this.config.characterId];
+
+        // Stats Setup
         this.config.maxHealth = char.health;
         this.config.currentHealth = char.health;
         this.config.crystals = 0;
@@ -419,10 +433,40 @@ const GameEngine = {
         this.config.crystalMultiplier = char.crystalMultiplier || 1;
         this.config.powerups = { ...char.startingPowerups };
         this.slideProgress = {};
+
         this.active = true;
         this.saveGameState();
         this.injectHUD();
-        if (typeof startClass === 'function') { startClass(); }
+
+        // --- HIDE LOBBY & SHOW APP ---
+        const lobby = document.getElementById('lobby-screen');
+        if (lobby) lobby.style.display = 'none';
+
+        document.getElementById('viewport-frame').classList.remove('opacity-0');
+        document.querySelector('nav').classList.remove('opacity-0');
+
+        // --- FORCE START AT SLIDE 0 (HERO SLIDE) ---
+        const slider = document.getElementById('slider');
+        if (slider) {
+            slider.scrollLeft = 0; // Force to start
+        }
+
+        // --- MAP INTRO SEQUENCE DISABLED ---
+        // The map should NOT auto-trigger. User must click "START JOURNEY" button.
+        // MapSystem.init() is called on DOMContentLoaded in map.js
+        if (typeof MapSystem !== 'undefined' && !MapSystem.initialized) {
+            MapSystem.init(); // Just ensure it's ready, don't play intro
+        }
+
+        // --- AUDIO START ---
+        if (typeof SoundFX !== 'undefined') {
+            SoundFX.init();
+            SoundFX.unlock(); // Attempt unlock
+        }
+        if (typeof initJukebox === 'function') {
+            initJukebox(); // Force music start
+        }
+
         console.log(`🚀 Mission started! Player: ${playerName}, Character: ${char.name}`);
     },
 

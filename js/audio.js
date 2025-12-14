@@ -16,10 +16,19 @@ const SoundFX = {
   },
 
   unlock() {
+    // 1. Wake up the Sound Effects Engine
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume().then(() => console.log("🔊 Audio Context Resumed"));
     }
     this.isUnlocked = true;
+
+    // 2. Wake up the Jukebox (The Fix)
+    // This piggybacks on the user's click to bypass the browser's autoplay block
+    if (typeof initJukebox === 'function') {
+      console.log("🎵 User interaction detected: Starting Jukebox...");
+      initJukebox();
+      if (typeof musicPlayer !== 'undefined' && musicPlayer.paused) musicPlayer.play();
+    }
   },
 
   _play(fn) {
@@ -187,8 +196,10 @@ musicPlayer.crossOrigin = "anonymous";
 let isMusicPlaying = false;
 
 function initJukebox() {
-  if (isMusicPlaying) return;
+  if (isMusicPlaying && !musicPlayer.paused) return; // Only return if actually playing
   isMusicPlaying = true;
+
+  console.log("🎵 Initializing Jukebox...");
 
   // Initial Volume with fallback
   const volElem = document.getElementById('volume-slider');
@@ -196,25 +207,30 @@ function initJukebox() {
   musicPlayer.volume = isNaN(vol) ? 0.5 : vol;
 
   // Ensure audio is loaded before playing
-  musicPlayer.load();
-
   playNextTrack();
 }
 
 function playNextTrack() {
   if (musicIndex >= BACKGROUND_MUSIC.length) musicIndex = 0;
 
+  console.log(`🎵 Playing track ${musicIndex + 1}: ${BACKGROUND_MUSIC[musicIndex]}`);
   musicPlayer.src = BACKGROUND_MUSIC[musicIndex];
-  musicPlayer.preload = "auto"; // Slick Preloading
+  musicPlayer.preload = "auto";
 
-  musicPlayer.play().catch(e => {
-    console.log("Autoplay blocked until interaction");
-    // Reset flag so user can retry after interaction
-    isMusicPlaying = false;
-  });
+  const playPromise = musicPlayer.play();
+
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      console.log("🎵 Music playback started successfully");
+    }).catch(e => {
+      console.log("⚠️ Autoplay blocked or failed:", e);
+      isMusicPlaying = false; // Reset so we can try again
+    });
+  }
 
   // Gapless Loop Logic
   musicPlayer.onended = () => {
+    console.log("🎵 Track ended, playing next...");
     musicIndex++;
     playNextTrack();
   };
