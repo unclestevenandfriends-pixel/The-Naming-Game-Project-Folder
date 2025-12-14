@@ -1975,3 +1975,158 @@ nav>* {
   pointer-events: auto !important;
   /* Re-enable clicks on buttons */
 }
+
+/* Map Button Flash Animation - Indicates gate point */
+.map-btn-flash {
+  animation: map-pulse 1s ease-in-out infinite;
+  background: linear-gradient(to right, #FF9A5C, #FFC69A) !important;
+  color: #000 !important;
+}
+
+@keyframes map-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 154, 92, 0.4);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(255, 154, 92, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MAP NODE ANIMATIONS - Used by MapSystem v4.0
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Node States */
+.node-locked .node-icon {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+.node-active .node-icon {
+  opacity: 1;
+  filter: none;
+  animation: node-glow 2s ease-in-out infinite;
+}
+
+.node-completed .node-icon {
+  opacity: 1;
+  filter: none;
+}
+
+/* Node Glow Animation */
+@keyframes node-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.6);
+  }
+}
+
+/* Node Unlocking Animation */
+.node-unlocking {
+  animation: node-unlock 1s ease-out forwards;
+}
+
+@keyframes node-unlock {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  30% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Lock Icon Opening Animation */
+.lock-opening {
+  animation: lock-shake 0.5s ease-in-out;
+}
+
+@keyframes lock-shake {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-15deg);
+  }
+
+  50% {
+    transform: rotate(15deg);
+  }
+
+  75% {
+    transform: rotate(-10deg);
+  }
+}
+
+.lock-opened {
+  animation: lock-burst 0.3s ease-out forwards;
+}
+
+@keyframes lock-burst {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Player Token Floating Animation */
+#player-token {
+  animation: token-float 3s ease-in-out infinite;
+}
+
+@keyframes token-float {
+
+  0%,
+  100% {
+    transform: translate(-50%, -50%);
+  }
+
+  50% {
+    transform: translate(-50%, calc(-50% - 5px));
+  }
+}
+
+#token-pulse {
+  animation: token-pulse 2s ease-in-out infinite;
+}
+
+@keyframes token-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}

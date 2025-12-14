@@ -502,12 +502,21 @@ function canNavigateTo(targetIndex) {
 
   // BACKWARD FREE ROAM: Always allow going backward
   if (targetIndex < currentIndex) {
+    // Stop flash when going backward
+    if (typeof MapSystem !== 'undefined') MapSystem.stopFlashMapButton();
     return { allowed: true, reason: 'backward' };
   }
 
   // If MapSystem not available, allow all navigation
   if (typeof MapSystem === 'undefined') {
     return { allowed: true, reason: 'no-map-system' };
+  }
+
+  // GATED SLIDE CHECK: Is the user on a gate slide (Exit Ticket, Boss, etc)?
+  if (MapSystem.isGatedSlide(currentIndex)) {
+    // Flash the map button to indicate that's the only way forward
+    MapSystem.flashMapButton();
+    return { allowed: false, reason: 'gated', slideIndex: currentIndex };
   }
 
   // Check if target is beyond max unlocked slide
@@ -525,6 +534,7 @@ function canNavigateTo(targetIndex) {
 
       // If trying to go past the last slide of current node
       if (currentIndex === lastSlideOfNode && targetIndex > lastSlideOfNode) {
+        MapSystem.flashMapButton();
         return { allowed: false, reason: 'node-exit', nodeId: currentNodeId, node: currentNode };
       }
     }
