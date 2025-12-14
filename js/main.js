@@ -189,7 +189,6 @@ function initClassMode() {
         // --- MAP SYSTEM HOOK ---
         if (typeof MapSystem !== 'undefined') {
           MapSystem.updateButtonState(index); // Update button text based on slide
-          MapSystem.checkSlidePosition(index);
 
           // Also update current node if not already set or if slide moved to different node
           const nodeForSlide = MapSystem.findNodeBySlide(index);
@@ -299,12 +298,26 @@ window.resumeSession = resumeSession;
 // === START NEW CLASS ===
 function startNewClass() {
   if (confirm("Are you sure? This will delete all progress.")) {
+    // Clear all game data
     localStorage.removeItem('nameGame_data');
     localStorage.removeItem('nameGame_slide');
-    localStorage.removeItem('nameGame_character'); // Clear gamification data too
+    localStorage.removeItem('nameGame_character');
+
+    // ✅ Clear map progress (both old and new keys)
+    localStorage.removeItem('map_data');
+    localStorage.removeItem('naming_game_map_v4');
+    localStorage.removeItem('naming_game_map_v2');
+
+    // Clear markup data
     if (typeof MarkupCoordinator !== 'undefined') MarkupCoordinator.clearAll();
     localStorage.removeItem('stickyNotes');
     localStorage.removeItem('annotations');
+
+    // Reset MapSystem if it exists
+    if (typeof MapSystem !== 'undefined') {
+      MapSystem.resetProgress();
+    }
+
     location.reload();
   }
 }
@@ -543,39 +556,94 @@ function canNavigateTo(targetIndex) {
   return { allowed: true, reason: 'ok' };
 }
 
+// === NAVIGATION GUARD: LOCKED ALERT (V2 - Softer Feedback) ===
+
+// Debounce flag to prevent multiple triggers
+let lockedAlertCooldown = false;
+
 /**
- * Show a "locked" notification to the user
+ * Show a subtle "locked" feedback - red flash + shake
+ * Debounced to prevent stacking from rapid swipes
  */
 function showLockedAlert() {
-  // Create floating alert
-  const alert = document.createElement('div');
-  alert.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] transition-all duration-300 opacity-0 scale-90';
-  alert.innerHTML = `
-    <div class="bg-black/90 backdrop-blur-xl px-8 py-6 rounded-2xl border border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.4)] text-center">
-      <div class="text-4xl mb-3">🔒</div>
-      <p class="text-xl font-bold text-red-400 mb-1">Area Locked</p>
-      <p class="text-sm text-white/70">Complete the current zone first!</p>
-    </div>
-  `;
-  document.body.appendChild(alert);
+  // DEBOUNCE: Ignore if we triggered recently
+  if (lockedAlertCooldown) return;
+  lockedAlertCooldown = true;
 
-  // Animate in
+  // Reset cooldown after 800ms
+  setTimeout(() => {
+    lockedAlertCooldown = false;
+  }, 800);
+
+  // 1. RED FLASH (like damage feedback)
+  const flashOverlay = document.createElement('div');
+  flashOverlay.className = 'locked-flash-overlay';
+  flashOverlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(239, 68, 68, 0.3), transparent 70%);
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+  `;
+  document.body.appendChild(flashOverlay);
+
+  // Trigger flash
   requestAnimationFrame(() => {
-    alert.style.opacity = '1';
-    alert.style.transform = 'translate(-50%, -50%) scale(1)';
+    flashOverlay.style.opacity = '1';
   });
 
-  // Play error sound
-  if (typeof SoundFX !== 'undefined' && SoundFX.playError) {
-    SoundFX.playError();
+  // Fade out and remove
+  setTimeout(() => {
+    flashOverlay.style.opacity = '0';
+    setTimeout(() => flashOverlay.remove(), 150);
+  }, 200);
+
+  // 2. HAPTIC SHAKE (CSS animation on viewport)
+  const viewport = document.getElementById('viewport-frame');
+  if (viewport) {
+    viewport.classList.add('shake-locked');
+    setTimeout(() => {
+      viewport.classList.remove('shake-locked');
+    }, 400);
   }
 
-  // Remove after delay
+  // 3. SOFT SOUND (quieter, single play)
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) {
+    // Use pop instead of harsh error sound
+    SoundFX.playPop();
+  }
+
+  // 4. SMALL TEXT INDICATOR (non-intrusive)
+  const indicator = document.createElement('div');
+  indicator.style.cssText = `
+    position: fixed;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: #f87171;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+    pointer-events: none;
+  `;
+  indicator.textContent = '🔒 Complete current zone first';
+  document.body.appendChild(indicator);
+
+  requestAnimationFrame(() => {
+    indicator.style.opacity = '1';
+  });
+
   setTimeout(() => {
-    alert.style.opacity = '0';
-    alert.style.transform = 'translate(-50%, -50%) scale(0.9)';
-    setTimeout(() => alert.remove(), 300);
-  }, 1500);
+    indicator.style.opacity = '0';
+    setTimeout(() => indicator.remove(), 200);
+  }, 1200);
 }
 
 /**

@@ -18,233 +18,233 @@ const MapSystem = {
     // - "gate": Requires ALL parents complete, then unlocks child
     mapNodes: {
         // Phase 1: The Awakening (slides 1-5)
-        "N1": { 
-            id: "N1", 
-            left: 4, top: 52, 
-            label: "The Village", 
+        "N1": {
+            id: "N1",
+            left: 4, top: 52,
+            label: "The Village",
             type: "linear",
             slides: [1, 2, 3, 4, 5], // Ends on Exit Ticket
             exitSlide: 5, // The slide where Map button triggers completion
             parents: [],
             children: ["N2"]
         },
-        
+
         // Phase 2: The Hunt (slides 6-8, then branches)
-        "N2": { 
-            id: "N2", 
-            left: 12, top: 52, 
-            label: "Three Noun Families", 
+        "N2": {
+            id: "N2",
+            left: 12, top: 52,
+            label: "Three Noun Families",
             type: "linear",
-            slides: [6, 7, 8], 
+            slides: [6, 7, 8],
             exitSlide: 8,
             parents: ["N1"],
             children: ["HubA"]
         },
-        
+
         // Hub A: Central Hub Camp (3-way branch)
-        "HubA": { 
-            id: "HubA", 
-            left: 21, top: 52, 
-            type: "hub", 
+        "HubA": {
+            id: "HubA",
+            left: 21, top: 52,
+            type: "hub",
             label: "Central Hub Camp",
             parents: ["N2"],
             children: ["N3A", "N3B", "N3C"],
             gate: "N4" // After all branches complete, this gate opens
         },
-        
+
         // Branch A nodes
-        "N3A": { 
-            id: "N3A", 
-            left: 21, top: 22, 
-            label: "People Hunt", 
+        "N3A": {
+            id: "N3A",
+            left: 21, top: 22,
+            label: "People Hunt",
             type: "branch",
-            slides: [9], 
+            slides: [9],
             exitSlide: 9,
             parents: ["HubA"],
             returnTo: "HubA", // Branch nodes return to their hub
             branch: "A"
         },
-        "N3B": { 
-            id: "N3B", 
-            left: 16, top: 82, 
-            label: "Places Hunt", 
+        "N3B": {
+            id: "N3B",
+            left: 16, top: 82,
+            label: "Places Hunt",
             type: "branch",
-            slides: [10], 
+            slides: [10],
             exitSlide: 10,
             parents: ["HubA"],
             returnTo: "HubA",
             branch: "A"
         },
-        "N3C": { 
-            id: "N3C", 
-            left: 26, top: 82, 
-            label: "Things Hunt", 
+        "N3C": {
+            id: "N3C",
+            left: 26, top: 82,
+            label: "Things Hunt",
             type: "branch",
-            slides: [11], 
+            slides: [11],
             exitSlide: 11,
             parents: ["HubA"],
             returnTo: "HubA",
             branch: "A"
         },
-        
+
         // Gate after Branch A
-        "N4": { 
-            id: "N4", 
-            left: 30, top: 52, 
-            label: "Mega-Mix Boss", 
+        "N4": {
+            id: "N4",
+            left: 30, top: 52,
+            label: "Mega-Mix Boss",
             type: "gate",
-            slides: [12], 
+            slides: [12],
             exitSlide: 12,
             parents: ["N3A", "N3B", "N3C"], // ALL must be complete
             children: ["N5"]
         },
-        
+
         // Phase 3: The Kingdom (Common Nouns)
-        "N5": { 
-            id: "N5", 
-            left: 38, top: 52, 
-            label: "Common Nouns", 
+        "N5": {
+            id: "N5",
+            left: 38, top: 52,
+            label: "Common Nouns",
             type: "linear",
-            slides: [13, 14, 15, 16, 17], 
+            slides: [13, 14, 15, 16, 17],
             exitSlide: 17,
             parents: ["N4"],
             children: ["N6"]
         },
-        "N6": { 
-            id: "N6", 
-            left: 45, top: 52, 
-            label: "Crown Rule", 
+        "N6": {
+            id: "N6",
+            left: 45, top: 52,
+            label: "Crown Rule",
             type: "linear",
-            slides: [18, 19, 20, 21], 
+            slides: [18, 19, 20, 21],
             exitSlide: 21,
             parents: ["N5"],
             children: ["N7"]
         },
-        "N7": { 
-            id: "N7", 
-            left: 52, top: 52, 
-            label: "Proper Categories", 
+        "N7": {
+            id: "N7",
+            left: 52, top: 52,
+            label: "Proper Categories",
             type: "linear",
-            slides: [22, 23, 24, 25, 26, 27], 
+            slides: [22, 23, 24, 25, 26, 27],
             exitSlide: 27,
             parents: ["N6"],
             children: ["N8"]
         },
-        
+
         // Phase 4: The Investigation
-        "N8": { 
-            id: "N8", 
-            left: 59, top: 52, 
-            label: "Case Briefing", 
+        "N8": {
+            id: "N8",
+            left: 59, top: 52,
+            label: "Case Briefing",
             type: "linear",
-            slides: [28], 
+            slides: [28],
             exitSlide: 28,
             parents: ["N7"],
             children: ["HubB"]
         },
-        
+
         // Hub B: Detective's Hub (2-way branch)
-        "HubB": { 
-            id: "HubB", 
-            left: 66, top: 52, 
-            type: "hub", 
+        "HubB": {
+            id: "HubB",
+            left: 66, top: 52,
+            type: "hub",
             label: "Detective's Hub",
             parents: ["N8"],
             children: ["N9A", "N9B"],
             gate: "GateB"
         },
-        "N9A": { 
-            id: "N9A", 
-            left: 66, top: 23, 
-            label: "Evidence A", 
+        "N9A": {
+            id: "N9A",
+            left: 66, top: 23,
+            label: "Evidence A",
             type: "branch",
-            slides: [29], 
+            slides: [29],
             exitSlide: 29,
             parents: ["HubB"],
             returnTo: "HubB",
             branch: "B"
         },
-        "N9B": { 
-            id: "N9B", 
-            left: 66, top: 81, 
-            label: "Evidence B", 
+        "N9B": {
+            id: "N9B",
+            left: 66, top: 81,
+            label: "Evidence B",
             type: "branch",
-            slides: [30], 
+            slides: [30],
             exitSlide: 30,
             parents: ["HubB"],
             returnTo: "HubB",
             branch: "B"
         },
-        "GateB": { 
-            id: "GateB", 
-            left: 72, top: 52, 
-            type: "gate", 
+        "GateB": {
+            id: "GateB",
+            left: 72, top: 52,
+            type: "gate",
             label: "Case Closed",
             parents: ["N9A", "N9B"],
             children: ["HubC"]
         },
-        
+
         // Phase 5: The Trials (3-way branch)
-        "HubC": { 
-            id: "HubC", 
-            left: 79, top: 52, 
-            type: "hub", 
+        "HubC": {
+            id: "HubC",
+            left: 79, top: 52,
+            type: "hub",
             label: "Trial Hub",
             parents: ["GateB"],
             children: ["N10A", "N10B", "N10C"],
             gate: "N11"
         },
-        "N10A": { 
-            id: "N10A", 
-            left: 79, top: 22, 
-            label: "Quiz 1", 
+        "N10A": {
+            id: "N10A",
+            left: 79, top: 22,
+            label: "Quiz 1",
             type: "branch",
-            slides: [31], 
+            slides: [31],
             exitSlide: 31,
             parents: ["HubC"],
             returnTo: "HubC",
             branch: "C"
         },
-        "N10B": { 
-            id: "N10B", 
-            left: 74, top: 82, 
-            label: "Quiz 2", 
+        "N10B": {
+            id: "N10B",
+            left: 74, top: 82,
+            label: "Quiz 2",
             type: "branch",
-            slides: [32], 
+            slides: [32],
             exitSlide: 32,
             parents: ["HubC"],
             returnTo: "HubC",
             branch: "C"
         },
-        "N10C": { 
-            id: "N10C", 
-            left: 84, top: 82, 
-            label: "Quiz 3", 
+        "N10C": {
+            id: "N10C",
+            left: 84, top: 82,
+            label: "Quiz 3",
             type: "branch",
-            slides: [33], 
+            slides: [33],
             exitSlide: 33,
             parents: ["HubC"],
             returnTo: "HubC",
             branch: "C"
         },
-        
+
         // Phase 6: The Finale
-        "N11": { 
-            id: "N11", 
-            left: 93, top: 52, 
-            label: "Exit Ticket Boss", 
+        "N11": {
+            id: "N11",
+            left: 93, top: 52,
+            label: "Exit Ticket Boss",
             type: "gate",
-            slides: [34], 
+            slides: [34],
             exitSlide: 34,
             parents: ["N10A", "N10B", "N10C"],
             children: ["N12"]
         },
-        "N12": { 
-            id: "N12", 
-            left: 98, top: 45, 
-            label: "Mission Complete", 
+        "N12": {
+            id: "N12",
+            left: 98, top: 45,
+            label: "Mission Complete",
             type: "linear",
-            slides: [35, 36], 
+            slides: [35, 36],
             exitSlide: 36,
             parents: ["N11"],
             children: []
@@ -262,7 +262,7 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // INITIALIZATION
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     init() {
         if (this.initialized && document.getElementById('world-map-overlay')) return;
         console.log("🗺️ MapSystem v4.0 Initializing...");
@@ -274,7 +274,7 @@ const MapSystem = {
 
     injectMapUI() {
         if (document.getElementById('world-map-overlay')) return;
-        
+
         const mapHTML = `
         <div id="world-map-overlay" class="fixed inset-0 z-[8000] bg-[#0B0C15] transition-transform duration-700 translate-y-full flex flex-col">
             <!-- Header -->
@@ -313,7 +313,7 @@ const MapSystem = {
                 </div>
             </div>
         </div>`;
-        
+
         document.body.insertAdjacentHTML('beforeend', mapHTML);
     },
 
@@ -321,7 +321,7 @@ const MapSystem = {
         const nav = document.querySelector('nav');
         if (nav && !document.getElementById('map-nav-btn')) {
             const counter = document.getElementById('slide-counter');
-            
+
             const btnHTML = `
             <button id="map-nav-btn" onclick="MapSystem.handleMapButtonClick()" 
                 class="ml-4 px-6 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50">
@@ -337,25 +337,25 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // MAP BUTTON LOGIC (Context-Aware)
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     handleMapButtonClick() {
         if (this.isAnimating) return;
-        
+
         const currentSlide = this.getCurrentSlideIndex();
-        
+
         // CASE 1: Hero slide, intro not played → Start Journey
         if (currentSlide === 0 && !this.introPlayed) {
             this.playIntro();
             return;
         }
-        
+
         // CASE 2: On an exit slide → Trigger completion sequence
         const currentNode = this.findNodeBySlide(currentSlide);
         if (currentNode && currentNode.exitSlide === currentSlide) {
             this.triggerNodeCompletion(currentNode.id);
             return;
         }
-        
+
         // CASE 3: On any other slide → Just view the map (no progression)
         this.showMapForViewing();
     },
@@ -379,7 +379,7 @@ const MapSystem = {
             // Check if we're on an exit slide
             const node = this.findNodeBySlide(slideIndex);
             const isExitSlide = node && node.exitSlide === slideIndex;
-            
+
             if (isExitSlide && !this.state.completedNodes.includes(node.id)) {
                 // On exit slide, not yet completed → Flash and show "Continue"
                 btnIcon.innerText = '🗺️';
@@ -398,32 +398,32 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // NODE COMPLETION SEQUENCE
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     triggerNodeCompletion(nodeId) {
         if (this.isAnimating) return;
         this.isAnimating = true;
-        
+
         const node = this.mapNodes[nodeId];
         if (!node) {
             this.isAnimating = false;
             return;
         }
-        
+
         console.log(`🎯 Completing node: ${nodeId} (${node.label})`);
-        
+
         // 1. Mark node as completed
         if (!this.state.completedNodes.includes(nodeId)) {
             this.state.completedNodes.push(nodeId);
         }
-        
+
         // 2. Show the map
         this.show();
-        
+
         // 3. After map is visible, run the completion sequence
         setTimeout(() => {
             // Position token on the completed node
             this.positionTokenOnNode(nodeId, false);
-            
+
             // 4. Determine what to unlock based on node type
             if (node.type === 'branch' && node.returnTo) {
                 // Branch node → return to hub
@@ -432,7 +432,7 @@ const MapSystem = {
                 // Linear/Gate → unlock children
                 this.handleLinearCompletion(node);
             }
-            
+
             this.saveProgress();
         }, 800);
     },
@@ -440,23 +440,25 @@ const MapSystem = {
     handleBranchReturn(node) {
         const hubId = node.returnTo;
         const hub = this.mapNodes[hubId];
-        
+
         // Check if all branches of this hub are complete
-        const allBranchesComplete = hub.children.every(childId => 
+        const allBranchesComplete = hub.children.every(childId =>
             this.state.completedNodes.includes(childId)
         );
-        
+
         // Animate token back to hub
         setTimeout(() => {
             this.animateTokenToNode(hubId);
             this.state.currentNode = hubId;
-            
+
             setTimeout(() => {
                 if (allBranchesComplete) {
                     // All branches done → unlock the gate
                     const gateId = hub.gate;
                     this.showInstruction(`All challenges complete! ${this.mapNodes[gateId].label} unlocked!`);
                     this.unlockNodeWithAnimation(gateId);
+                    this.renderMap(); // Re-render to show unlocked gate
+                    this.isAnimating = false; // ✅ Allow next click
                 } else {
                     // Still have branches to do
                     const remaining = hub.children.filter(id => !this.state.completedNodes.includes(id));
@@ -473,18 +475,18 @@ const MapSystem = {
         if (node.children && node.children.length > 0) {
             const nextNodeId = node.children[0];
             const nextNode = this.mapNodes[nextNodeId];
-            
+
             // Check if next is a hub (unlocks multiple) or single node
             if (nextNode.type === 'hub') {
                 // Animate to hub, then unlock its branches
                 setTimeout(() => {
                     this.showInstruction(`Entering ${nextNode.label}...`);
                     this.unlockNodeWithAnimation(nextNodeId);
-                    
+
                     setTimeout(() => {
                         this.animateTokenToNode(nextNodeId);
                         this.state.currentNode = nextNodeId;
-                        
+
                         // After arriving at hub, unlock all its children
                         setTimeout(() => {
                             nextNode.children.forEach((childId, index) => {
@@ -492,7 +494,7 @@ const MapSystem = {
                                     this.unlockNodeWithAnimation(childId);
                                 }, index * 400);
                             });
-                            
+
                             setTimeout(() => {
                                 this.showInstruction('Choose your path!');
                                 this.isAnimating = false;
@@ -518,18 +520,18 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // UNLOCK ANIMATION
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     unlockNodeWithAnimation(nodeId) {
         if (!this.state.unlockedNodes.includes(nodeId)) {
             this.state.unlockedNodes.push(nodeId);
         }
-        
+
         // Find the node element
         const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
         if (nodeEl) {
             // Add unlock animation class
             nodeEl.classList.add('node-unlocking');
-            
+
             // Find the lock icon and animate it
             const lockIcon = nodeEl.querySelector('.node-icon');
             if (lockIcon) {
@@ -541,12 +543,12 @@ const MapSystem = {
                     lockIcon.classList.add('lock-opened');
                 }, 500);
             }
-            
+
             // Play unlock sound
             if (typeof SoundFX !== 'undefined') {
                 SoundFX.playCorrect();
             }
-            
+
             setTimeout(() => {
                 nodeEl.classList.remove('node-unlocking', 'node-locked');
                 nodeEl.classList.add('node-active');
@@ -556,28 +558,28 @@ const MapSystem = {
             // Fallback: just re-render
             this.renderMap();
         }
-        
+
         this.saveProgress();
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
     // TOKEN ANIMATIONS
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     positionTokenOnNode(nodeId, animate = false) {
         const token = document.getElementById('player-token');
         const node = this.mapNodes[nodeId];
         if (!token || !node) return;
-        
+
         if (!animate) {
             token.style.transition = 'opacity 0.5s ease';
         }
-        
+
         token.style.left = `${node.left}%`;
         token.style.top = `${node.top}%`;
         token.style.transform = 'translate(-50%, -50%)';
         token.style.opacity = '1';
-        
+
         // Update avatar
         this.updateTokenAvatar();
     },
@@ -586,11 +588,11 @@ const MapSystem = {
         const token = document.getElementById('player-token');
         const node = this.mapNodes[nodeId];
         if (!token || !node) return;
-        
+
         token.style.transition = 'left 2s ease-in-out, top 2s ease-in-out';
         token.style.left = `${node.left}%`;
         token.style.top = `${node.top}%`;
-        
+
         // Play movement sound
         if (typeof SoundFX !== 'undefined') {
             SoundFX.playSlide();
@@ -600,7 +602,7 @@ const MapSystem = {
     updateTokenAvatar() {
         const img = document.getElementById('player-token-img');
         if (!img) return;
-        
+
         if (typeof GameEngine !== 'undefined' && GameEngine.config.characterId) {
             const char = GameEngine.characters[GameEngine.config.characterId];
             if (char && GameEngine.getAssetUrl) {
@@ -614,14 +616,14 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // MAP RENDERING
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     renderMap() {
         const container = document.getElementById('map-nodes');
         if (!container) return;
-        
+
         // Clear existing nodes (but keep background and token)
         container.querySelectorAll('.map-node').forEach(n => n.remove());
-        
+
         // Render each node
         Object.values(this.mapNodes).forEach(node => {
             const isUnlocked = this.isNodeUnlocked(node.id);
@@ -629,19 +631,19 @@ const MapSystem = {
             const isCurrent = this.state.currentNode === node.id;
             const isHub = node.type === 'hub';
             const isGate = node.type === 'gate';
-            
+
             // Determine icon
             let icon = '🔒';
             if (isHub) icon = '◆';
             else if (isGate && !isUnlocked) icon = '🔒';
             else if (isCompleted) icon = '✅';
             else if (isUnlocked) icon = '⚔️';
-            
+
             // Determine state class
             let stateClass = 'node-locked';
             if (isCompleted) stateClass = 'node-completed';
             else if (isUnlocked) stateClass = 'node-active';
-            
+
             const el = document.createElement('div');
             el.className = `map-node absolute flex flex-col items-center gap-2 transition-all duration-300 pointer-events-auto ${stateClass}`;
             el.style.left = `${node.left}%`;
@@ -649,14 +651,14 @@ const MapSystem = {
             el.style.transform = 'translate(-50%, -50%)';
             el.style.zIndex = isCurrent ? '20' : '10';
             el.dataset.nodeId = node.id;
-            
+
             el.innerHTML = `
                 <div class="node-icon w-14 h-14 rounded-full bg-gray-800/90 border-2 ${isCurrent ? 'border-brand-400 shadow-[0_0_20px_rgba(34,211,238,0.6)]' : 'border-white/20'} flex items-center justify-center text-xl shadow-xl cursor-pointer hover:scale-110 transition-all duration-300">
                     ${icon}
                 </div>
                 ${!isHub ? `<div class="node-label bg-black/80 px-2 py-1 rounded text-xs text-white border border-white/10 shadow-lg whitespace-nowrap">${node.label}</div>` : ''}
             `;
-            
+
             // Click handler - only for unlocked, non-hub nodes that aren't completed
             // OR for unlocked branch nodes that are ready to play
             if (isUnlocked && !isHub && (!isCompleted || node.type === 'branch')) {
@@ -671,34 +673,34 @@ const MapSystem = {
                     this.showLockedMessage();
                 };
             }
-            
+
             container.appendChild(el);
         });
-        
+
         // Update token position
         this.positionTokenOnNode(this.state.currentNode, false);
     },
 
     onNodeClick(nodeId) {
         if (this.isAnimating) return;
-        
+
         const node = this.mapNodes[nodeId];
         if (!node || !node.slides || node.slides.length === 0) return;
-        
+
         // Don't allow re-entry to completed linear nodes (but allow branch re-entry for review)
         if (this.state.completedNodes.includes(nodeId) && node.type !== 'branch') {
             // Could allow review here if desired
             return;
         }
-        
+
         this.isAnimating = true;
-        
+
         // If clicking from a different node, animate token first
         if (this.state.currentNode !== nodeId) {
             this.animateTokenToNode(nodeId);
             this.state.currentNode = nodeId;
             this.saveProgress();
-            
+
             setTimeout(() => {
                 this.enterNodeSlides(nodeId);
             }, 2200);
@@ -710,25 +712,25 @@ const MapSystem = {
     enterNodeSlides(nodeId) {
         const node = this.mapNodes[nodeId];
         if (!node || !node.slides) return;
-        
+
         this.hide();
-        
+
         // Navigate to first slide of this node
         const slider = document.getElementById('slider');
         if (slider) {
             const firstSlide = node.slides[0];
-            slider.scrollTo({ 
-                left: firstSlide * slider.clientWidth, 
-                behavior: 'smooth' 
+            slider.scrollTo({
+                left: firstSlide * slider.clientWidth,
+                behavior: 'smooth'
             });
         }
-        
+
         // Restore viewport opacity
         const viewport = document.getElementById('viewport-frame');
         if (viewport && typeof gsap !== 'undefined') {
             gsap.to(viewport, { opacity: 1, duration: 0.3 });
         }
-        
+
         setTimeout(() => {
             this.isAnimating = false;
             this.updateButtonState(node.slides[0]);
@@ -738,23 +740,23 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // MAP VISIBILITY
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     show() {
         if (!document.getElementById('world-map-overlay')) this.init();
         this.renderMap();
-        
+
         const map = document.getElementById('world-map-overlay');
         if (map) {
             map.classList.remove('translate-y-full');
             this.active = true;
         }
-        
+
         // Dim the viewport
         const viewport = document.getElementById('viewport-frame');
         if (viewport && typeof gsap !== 'undefined') {
             gsap.to(viewport, { opacity: 0.3, duration: 0.5 });
         }
-        
+
         if (typeof SoundFX !== 'undefined') SoundFX.playPop();
     },
 
@@ -776,7 +778,7 @@ const MapSystem = {
     // Hide map without affecting viewport opacity
     hideMapOnly() {
         this.hide();
-        
+
         const viewport = document.getElementById('viewport-frame');
         if (viewport && typeof gsap !== 'undefined') {
             gsap.to(viewport, { opacity: 1, duration: 0.3 });
@@ -786,14 +788,14 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // INTRO SEQUENCE
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     playIntro() {
         if (this.introPlayed) return;
         this.introPlayed = true;
         this.isAnimating = true;
-        
+
         this.show();
-        
+
         const token = document.getElementById('player-token');
         if (token) {
             // Start above the first node
@@ -801,24 +803,24 @@ const MapSystem = {
             token.style.opacity = '0';
             token.style.left = '4%';
             token.style.top = '30%';
-            
+
             // Animate down to N1
             setTimeout(() => {
                 token.style.transition = 'opacity 1s ease-out, top 2s ease-in-out';
                 token.style.opacity = '1';
                 token.style.top = '52%';
-                
+
                 if (typeof SoundFX !== 'undefined' && SoundFX.playSuccess) {
                     SoundFX.playSuccess();
                 }
             }, 500);
         }
-        
+
         // Show instruction
         setTimeout(() => {
             this.showInstruction('Your adventure begins! Click "The Village" to start.');
         }, 2000);
-        
+
         // Don't auto-enter - wait for player to click the node
         setTimeout(() => {
             this.isAnimating = false;
@@ -828,7 +830,7 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // INSTRUCTION BANNER
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     showInstruction(text) {
         const banner = document.getElementById('map-instruction');
         const textEl = document.getElementById('map-instruction-text');
@@ -846,17 +848,59 @@ const MapSystem = {
     },
 
     showLockedMessage() {
-        this.showInstruction('🔒 This area is locked. Complete the current challenge first!');
-        if (typeof SoundFX !== 'undefined' && SoundFX.playIncorrect) {
-            SoundFX.playIncorrect();
+        // Remove any existing warning
+        const existing = document.getElementById('locked-node-warning');
+        if (existing) existing.remove();
+
+        // Create warning element
+        const warning = document.createElement('div');
+        warning.id = 'locked-node-warning';
+        warning.style.cssText = `
+            position: fixed;
+            bottom: 28%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(0, 0, 0, 0.95);
+            color: #fbbf24;
+            padding: 14px 28px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 600;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.3s ease-out;
+            pointer-events: none;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+        `;
+        warning.innerHTML = '<span style="margin-right: 8px;">🔒</span>Complete the previous mission first';
+        document.body.appendChild(warning);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            warning.style.opacity = '1';
+            warning.style.transform = 'translateX(-50%) translateY(0)';
+        });
+
+        // Soft pop sound
+        if (typeof SoundFX !== 'undefined' && SoundFX.playPop) {
+            SoundFX.playPop();
         }
-        setTimeout(() => this.hideInstruction(), 2000);
+
+        // Remove after 3.5 seconds (readable duration)
+        setTimeout(() => {
+            warning.style.opacity = '0';
+            warning.style.transform = 'translateX(-50%) translateY(10px)';
+            setTimeout(() => warning.remove(), 300);
+        }, 3500);
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
     // NAVIGATION HELPERS
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     getCurrentSlideIndex() {
         const slider = document.getElementById('slider');
         if (!slider) return 0;
@@ -864,7 +908,7 @@ const MapSystem = {
     },
 
     findNodeBySlide(slideIndex) {
-        return Object.values(this.mapNodes).find(n => 
+        return Object.values(this.mapNodes).find(n =>
             n.slides && n.slides.includes(slideIndex)
         );
     },
@@ -872,16 +916,16 @@ const MapSystem = {
     isNodeUnlocked(nodeId) {
         if (nodeId === 'N1') return true;
         if (this.state.unlockedNodes.includes(nodeId)) return true;
-        
+
         // Check parent requirements
         const node = this.mapNodes[nodeId];
         if (!node || !node.parents || node.parents.length === 0) return false;
-        
+
         // For gates, ALL parents must be complete
         if (node.type === 'gate') {
             return node.parents.every(p => this.state.completedNodes.includes(p));
         }
-        
+
         // For others, at least one parent must be complete
         return node.parents.some(p => this.state.completedNodes.includes(p));
     },
@@ -889,17 +933,17 @@ const MapSystem = {
     // Check if swiping forward from this slide is allowed
     canSwipeForward(currentSlide) {
         const node = this.findNodeBySlide(currentSlide);
-        
+
         // If on exit slide, block forward swipe
         if (node && node.exitSlide === currentSlide) {
             return false;
         }
-        
+
         // If slide isn't part of any unlocked node, block
         if (!node || !this.isNodeUnlocked(node.id)) {
             return false;
         }
-        
+
         // Check if trying to go beyond the node's slides
         const nextSlide = currentSlide + 1;
         if (!node.slides.includes(nextSlide)) {
@@ -909,28 +953,28 @@ const MapSystem = {
                 return false;
             }
         }
-        
+
         return true;
     },
 
     // Get the maximum slide the player can access
     getMaxAccessibleSlide() {
         let maxSlide = 0;
-        
+
         Object.values(this.mapNodes).forEach(node => {
             if (this.isNodeUnlocked(node.id) && node.slides) {
                 const nodeMax = Math.max(...node.slides);
                 if (nodeMax > maxSlide) maxSlide = nodeMax;
             }
         });
-        
+
         return maxSlide;
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
     // PERSISTENCE
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     saveProgress() {
         const data = {
             completedNodes: this.state.completedNodes,
@@ -946,9 +990,10 @@ const MapSystem = {
         if (saved) {
             try {
                 const data = JSON.parse(saved);
-                this.state.completedNodes = data.completedNodes || [];
-                this.state.unlockedNodes = data.unlockedNodes || ['N1'];
-                this.state.currentNode = data.currentNode || 'N1';
+                // MIGRATION: Ensure all node IDs are uppercase (fixes old lowercase data)
+                this.state.completedNodes = (data.completedNodes || []).map(id => id.toUpperCase());
+                this.state.unlockedNodes = (data.unlockedNodes || ['N1']).map(id => id.toUpperCase());
+                this.state.currentNode = (data.currentNode || 'N1').toUpperCase();
                 this.introPlayed = data.introPlayed || false;
                 console.log("🗺️ Progress loaded:", this.state);
             } catch (e) {

@@ -2130,3 +2130,98 @@ nav>* {
     opacity: 0;
   }
 }
+
+/* Locked navigation shake effect */
+@keyframes shake-locked {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.shake-locked {
+  animation: shake-locked 0.4s ease-in-out;
+}
+
+/* Red flash overlay (added via JS) */
+.locked-flash-overlay {
+  animation: flash-fade 0.35s ease-out forwards;
+}
+
+@keyframes flash-fade {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Viewport shake for boundary violation */
+@keyframes shakeViewport {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  12% {
+    transform: translateX(-6px);
+  }
+
+  25% {
+    transform: translateX(5px);
+  }
+
+  37% {
+    transform: translateX(-4px);
+  }
+
+  50% {
+    transform: translateX(3px);
+  }
+
+  62% {
+    transform: translateX(-2px);
+  }
+
+  75% {
+    transform: translateX(1px);
+  }
+}
+
+/* Map button pulse animation */
+@keyframes mapBtnPulse {
+
+  0%,
+  100% {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.9), 0 0 60px rgba(34, 211, 238, 0.5);
+  }
+
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 50px rgba(34, 211, 238, 1), 0 0 80px rgba(34, 211, 238, 0.7);
+  }
+}
