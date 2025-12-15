@@ -550,6 +550,234 @@ function initQuickCheck() {
   });
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// 9. HUNT GAMES - 10-Card Noun Identification Challenges
+// Each game has: 5 correct nouns + 3 wrong parts of speech + 2 wrong noun types
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * THINGS & ANIMALS HUNT (Node N3C)
+ */
+function initThingsHuntGrid() {
+  const grid = document.getElementById('things-hunt-grid');
+  if (!grid || grid.dataset.init) return;
+  grid.dataset.init = 'true';
+
+  const cards = [
+    // CORRECT: Things & Animals (5)
+    { word: 'fox', correct: true },
+    { word: 'eagle', correct: true },
+    { word: 'bus', correct: true },
+    { word: 'sandwich', correct: true },
+    { word: 'parrot', correct: true },
+    // WRONG: Parts of speech (3)
+    { word: 'quickly', correct: false, hint: 'adverb' },
+    { word: 'beautiful', correct: false, hint: 'adjective' },
+    { word: 'jumping', correct: false, hint: 'verb' },
+    // WRONG: Other noun types (2)
+    { word: 'doctor', correct: false, hint: 'person noun' },
+    { word: 'library', correct: false, hint: 'place noun' }
+  ].sort(() => Math.random() - 0.5);
+
+  let found = 0;
+  const target = 5;
+
+  cards.forEach(card => {
+    const btn = document.createElement('button');
+    btn.className = 'hunt-card glass-panel h-20 md:h-24 flex items-center justify-center text-white/90 hover:bg-white/10 transition-all rounded-xl text-lg md:text-xl font-medium border border-white/10';
+    btn.textContent = card.word;
+
+    btn.onclick = () => {
+      if (btn.dataset.clicked) return;
+      btn.dataset.clicked = 'true';
+
+      if (card.correct) {
+        btn.className = 'hunt-card bg-green-500 text-black h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl font-bold shadow-[0_0_25px_rgba(34,197,94,0.6)] transform scale-105';
+        found++;
+        const scoreEl = document.getElementById('things-hunt-score');
+        if (scoreEl) scoreEl.textContent = found;
+        if (typeof SoundFX !== 'undefined') SoundFX.playCorrect();
+        recordAnswer(true, `Things Hunt: ${card.word}`);
+
+        if (found >= target) {
+          setTimeout(() => huntGameComplete('things'), 600);
+        }
+      } else {
+        btn.className = 'hunt-card bg-red-500/30 text-red-300 h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl border-2 border-red-500/50';
+        if (typeof gsap !== 'undefined') gsap.to(btn, { x: 4, duration: 0.04, yoyo: true, repeat: 4 });
+        if (typeof SoundFX !== 'undefined') SoundFX.playIncorrect();
+        recordAnswer(false, `Things Hunt: ${card.word} (${card.hint})`);
+      }
+    };
+
+    grid.appendChild(btn);
+  });
+}
+
+/**
+ * PEOPLE HUNT (Node N3A)
+ */
+function initPeopleHuntGrid() {
+  const grid = document.getElementById('people-hunt-grid');
+  if (!grid || grid.dataset.init) return;
+  grid.dataset.init = 'true';
+
+  const cards = [
+    // CORRECT: People nouns (5)
+    { word: 'teacher', correct: true },
+    { word: 'nurse', correct: true },
+    { word: 'girl', correct: true },
+    { word: 'chef', correct: true },
+    { word: 'firefighter', correct: true },
+    // WRONG: Parts of speech (3)
+    { word: 'helpful', correct: false, hint: 'adjective' },
+    { word: 'quickly', correct: false, hint: 'adverb' },
+    { word: 'singing', correct: false, hint: 'verb' },
+    // WRONG: Other noun types (2)
+    { word: 'zoo', correct: false, hint: 'place noun' },
+    { word: 'elephant', correct: false, hint: 'animal noun' }
+  ].sort(() => Math.random() - 0.5);
+
+  let found = 0;
+  const target = 5;
+
+  cards.forEach(card => {
+    const btn = document.createElement('button');
+    btn.className = 'hunt-card glass-panel h-20 md:h-24 flex items-center justify-center text-white/90 hover:bg-white/10 transition-all rounded-xl text-lg md:text-xl font-medium border border-white/10';
+    btn.textContent = card.word;
+
+    btn.onclick = () => {
+      if (btn.dataset.clicked) return;
+      btn.dataset.clicked = 'true';
+
+      if (card.correct) {
+        btn.className = 'hunt-card bg-green-500 text-black h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl font-bold shadow-[0_0_25px_rgba(34,197,94,0.6)] transform scale-105';
+        found++;
+        const scoreEl = document.getElementById('people-hunt-score');
+        if (scoreEl) scoreEl.textContent = found;
+        if (typeof SoundFX !== 'undefined') SoundFX.playCorrect();
+        recordAnswer(true, `People Hunt: ${card.word}`);
+
+        if (found >= target) {
+          setTimeout(() => huntGameComplete('people'), 600);
+        }
+      } else {
+        btn.className = 'hunt-card bg-red-500/30 text-red-300 h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl border-2 border-red-500/50';
+        if (typeof gsap !== 'undefined') gsap.to(btn, { x: 4, duration: 0.04, yoyo: true, repeat: 4 });
+        if (typeof SoundFX !== 'undefined') SoundFX.playIncorrect();
+        recordAnswer(false, `People Hunt: ${card.word} (${card.hint})`);
+      }
+    };
+
+    grid.appendChild(btn);
+  });
+}
+
+/**
+ * PLACES HUNT (Node N3B)
+ */
+function initPlacesHuntGrid() {
+  const grid = document.getElementById('places-hunt-grid');
+  if (!grid || grid.dataset.init) return;
+  grid.dataset.init = 'true';
+
+  const cards = [
+    // CORRECT: Place nouns (5)
+    { word: 'school', correct: true },
+    { word: 'library', correct: true },
+    { word: 'park', correct: true },
+    { word: 'museum', correct: true },
+    { word: 'beach', correct: true },
+    // WRONG: Parts of speech (3)
+    { word: 'above', correct: false, hint: 'preposition' },
+    { word: 'spacious', correct: false, hint: 'adjective' },
+    { word: 'running', correct: false, hint: 'verb' },
+    // WRONG: Other noun types (2)
+    { word: 'penguin', correct: false, hint: 'animal noun' },
+    { word: 'builder', correct: false, hint: 'person noun' }
+  ].sort(() => Math.random() - 0.5);
+
+  let found = 0;
+  const target = 5;
+
+  cards.forEach(card => {
+    const btn = document.createElement('button');
+    btn.className = 'hunt-card glass-panel h-20 md:h-24 flex items-center justify-center text-white/90 hover:bg-white/10 transition-all rounded-xl text-lg md:text-xl font-medium border border-white/10';
+    btn.textContent = card.word;
+
+    btn.onclick = () => {
+      if (btn.dataset.clicked) return;
+      btn.dataset.clicked = 'true';
+
+      if (card.correct) {
+        btn.className = 'hunt-card bg-green-500 text-black h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl font-bold shadow-[0_0_25px_rgba(34,197,94,0.6)] transform scale-105';
+        found++;
+        const scoreEl = document.getElementById('places-hunt-score');
+        if (scoreEl) scoreEl.textContent = found;
+        if (typeof SoundFX !== 'undefined') SoundFX.playCorrect();
+        recordAnswer(true, `Places Hunt: ${card.word}`);
+
+        if (found >= target) {
+          setTimeout(() => huntGameComplete('places'), 600);
+        }
+      } else {
+        btn.className = 'hunt-card bg-red-500/30 text-red-300 h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl border-2 border-red-500/50';
+        if (typeof gsap !== 'undefined') gsap.to(btn, { x: 4, duration: 0.04, yoyo: true, repeat: 4 });
+        if (typeof SoundFX !== 'undefined') SoundFX.playIncorrect();
+        recordAnswer(false, `Places Hunt: ${card.word} (${card.hint})`);
+      }
+    };
+
+    grid.appendChild(btn);
+  });
+}
+
+/**
+ * Called when a hunt game is completed - flash map button
+ */
+function huntGameComplete(huntType) {
+  console.log(`🎉 ${huntType} Hunt Complete!`);
+
+  // Play celebration sound
+  if (typeof SoundFX !== 'undefined' && SoundFX.playChime) {
+    SoundFX.playChime();
+  } else if (typeof SoundFX !== 'undefined' && SoundFX.playCorrect) {
+    SoundFX.playCorrect();
+  }
+
+  // Flash the map button
+  if (typeof MapSystem !== 'undefined' && MapSystem.flashMapButton) {
+    MapSystem.flashMapButton();
+  }
+
+  // Show completion overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none';
+  overlay.innerHTML = `
+        <div class="bg-black/90 backdrop-blur-xl px-12 py-10 rounded-3xl border border-green-500/50 shadow-[0_0_80px_rgba(34,197,94,0.5)] text-center transform scale-90 opacity-0" id="hunt-complete-box">
+            <div class="text-7xl mb-4">🎉</div>
+            <h3 class="text-3xl font-display text-green-400 mb-3">Hunt Complete!</h3>
+            <p class="text-lg text-white/70">Press the <span class="text-brand-400 font-bold animate-pulse">Map</span> button to continue</p>
+        </div>
+    `;
+  document.body.appendChild(overlay);
+
+  // Animate in
+  const box = document.getElementById('hunt-complete-box');
+  requestAnimationFrame(() => {
+    box.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    box.style.transform = 'scale(1)';
+    box.style.opacity = '1';
+  });
+
+  // Remove after delay
+  setTimeout(() => {
+    box.style.transform = 'scale(0.9)';
+    box.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 400);
+  }, 3000);
+}
+
 // ═════════════════════════════════════════════════════════════════════
 // INITIALIZATION (On Load)
 // ═════════════════════════════════════════════════════════════════════
@@ -563,6 +791,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initAllQuizzes();
   initRiddles();
   initQuickCheck();
+  // Hunt games (slide-based initialization)
+  initThingsHuntGrid();
+  initPeopleHuntGrid();
+  initPlacesHuntGrid();
   console.log('✅ Games Initialized');
 });
 // Slide 8 Game Logic
@@ -1147,49 +1379,49 @@ initQuickCheck();
 // POWER-UP HANDLER (Phase 2)
 // ═════════════════════════════════════════════════════════════════════
 document.addEventListener('game:powerup', (e) => {
-    handlePowerUp(e.detail.type);
+  handlePowerUp(e.detail.type);
 });
 
 function handlePowerUp(type) {
-    if (type === 'clue') {
-      // Logic: Find all interactive elements on the CURRENT visible slide
-      // 1. Identify "Wrong" buttons that haven't been clicked yet.
-      // 2. Visually disable/fade 1 or 2 of them (50/50 style).
-      // 3. If no wrong options, highlight the Correct one with a 'ring-4 ring-cyan-400' class.
-      
-      const activeSlide = document.querySelector('.slide:not(.hidden)');
-      if (!activeSlide) return;
+  if (type === 'clue') {
+    // Logic: Find all interactive elements on the CURRENT visible slide
+    // 1. Identify "Wrong" buttons that haven't been clicked yet.
+    // 2. Visually disable/fade 1 or 2 of them (50/50 style).
+    // 3. If no wrong options, highlight the Correct one with a 'ring-4 ring-cyan-400' class.
 
-      // Attempt to find wrong answers (this requires specific knowledge of the game structure)
-      // For Phase 2, let's implement a visual "Scanner" effect that highlights the Correct answer.
-      
-      const correctElements = Array.from(activeSlide.querySelectorAll('[onclick]')).filter(el => {
-         // Heuristic: If we click it, does it trigger a win? 
-         // For now, let's apply a "Hint Glow" to interactive elements.
-         return el.classList.contains('interactive-word') || el.tagName === 'BUTTON' || el.style.cursor === 'pointer';
-      });
-      
-      if (correctElements.length > 0) {
-        // Pick one random element to highlight
-        const target = correctElements[Math.floor(Math.random() * correctElements.length)];
-        target.classList.add('ring-4', 'ring-cyan-400', 'shadow-[0_0_30px_rgba(34,211,238,0.6)]');
-        setTimeout(() => target.classList.remove('ring-4', 'ring-cyan-400', 'shadow-[0_0_30px_rgba(34,211,238,0.6)]'), 3000);
-      }
+    const activeSlide = document.querySelector('.slide:not(.hidden)');
+    if (!activeSlide) return;
+
+    // Attempt to find wrong answers (this requires specific knowledge of the game structure)
+    // For Phase 2, let's implement a visual "Scanner" effect that highlights the Correct answer.
+
+    const correctElements = Array.from(activeSlide.querySelectorAll('[onclick]')).filter(el => {
+      // Heuristic: If we click it, does it trigger a win? 
+      // For now, let's apply a "Hint Glow" to interactive elements.
+      return el.classList.contains('interactive-word') || el.tagName === 'BUTTON' || el.style.cursor === 'pointer';
+    });
+
+    if (correctElements.length > 0) {
+      // Pick one random element to highlight
+      const target = correctElements[Math.floor(Math.random() * correctElements.length)];
+      target.classList.add('ring-4', 'ring-cyan-400', 'shadow-[0_0_30px_rgba(34,211,238,0.6)]');
+      setTimeout(() => target.classList.remove('ring-4', 'ring-cyan-400', 'shadow-[0_0_30px_rgba(34,211,238,0.6)]'), 3000);
     }
-    
-    if (type === 'shield') {
-      // Logic: Auto-solve the current interaction
-      // For Phase 1, just trigger a "Free Win" visual
-      const activeSlide = document.querySelector('.slide:not(.hidden)');
-      if (activeSlide) {
-         const shieldOverlay = document.createElement('div');
-         shieldOverlay.className = "absolute inset-0 z-50 flex items-center justify-center pointer-events-none";
-         shieldOverlay.innerHTML = `<div class="text-9xl animate-ping">🛡️</div>`;
-         activeSlide.appendChild(shieldOverlay);
-         setTimeout(() => shieldOverlay.remove(), 1000);
-         
-         // Grant points immediately
-         recordAnswer(true, "Auto-Shield Used");
-      }
+  }
+
+  if (type === 'shield') {
+    // Logic: Auto-solve the current interaction
+    // For Phase 1, just trigger a "Free Win" visual
+    const activeSlide = document.querySelector('.slide:not(.hidden)');
+    if (activeSlide) {
+      const shieldOverlay = document.createElement('div');
+      shieldOverlay.className = "absolute inset-0 z-50 flex items-center justify-center pointer-events-none";
+      shieldOverlay.innerHTML = `<div class="text-9xl animate-ping">🛡️</div>`;
+      activeSlide.appendChild(shieldOverlay);
+      setTimeout(() => shieldOverlay.remove(), 1000);
+
+      // Grant points immediately
+      recordAnswer(true, "Auto-Shield Used");
     }
+  }
 }

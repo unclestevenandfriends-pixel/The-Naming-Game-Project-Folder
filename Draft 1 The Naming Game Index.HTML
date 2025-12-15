@@ -918,15 +918,95 @@
       </section>
 
       <!-- PLACEHOLDER: Slide 12 - Things Hunt (Map System) -->
-      <section class="slide" data-type="challenge" id="slide-12-placeholder">
-        <div class="slide-content flex flex-col items-center justify-center h-full max-w-5xl">
-          <div class="glass-panel p-12 rounded-[3rem] text-center border border-pink-500/30">
-            <h2 class="font-display text-5xl font-bold text-brand-400 mb-4">🔍 Things Hunt</h2>
-            <p class="text-2xl text-secondary mb-8">Interactive Scavenger Hunt - Coming Soon</p>
-            <p class="text-lg text-secondary/70 italic">Find and identify nouns in your environment!</p>
+      <section class="slide" data-type="challenge" id="slide-things-hunt">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-6xl px-8">
+          <!-- Title -->
+          <div class="text-center mb-8">
+            <h2 class="font-display text-4xl md:text-5xl font-bold text-brand-400 mb-3">
+              🦊 Things & Animals Hunt
+            </h2>
+            <p class="text-xl md:text-2xl text-secondary mb-2">
+              Find the <span class="text-green-400 font-bold">5 Things & Animals</span>
+            </p>
+            <div class="flex items-center justify-center gap-4 mt-4">
+              <span class="text-lg text-secondary/70">Found:</span>
+              <span id="things-hunt-score" class="text-3xl font-bold text-brand-400">0</span>
+              <span class="text-lg text-secondary/70">/ 5</span>
+            </div>
           </div>
+
+          <!-- Hunt Grid - JavaScript will populate this -->
+          <div id="things-hunt-grid" class="grid grid-cols-2 md:grid-cols-5 gap-4 w-full max-w-4xl">
+            <!-- Cards inserted by initThingsHuntGrid() -->
+          </div>
+
+          <!-- Hint -->
+          <p class="text-sm text-secondary/60 mt-6 italic text-center">
+            💡 Click words that name things or animals
+          </p>
         </div>
       </section>
+
+      <!-- NEW: People Hunt (Branch from Central Hub Camp) -->
+      <section class="slide" data-type="challenge" id="slide-people-hunt">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-6xl px-8">
+          <!-- Title -->
+          <div class="text-center mb-8">
+            <h2 class="font-display text-4xl md:text-5xl font-bold text-brand-400 mb-3">
+              👥 People Hunt
+            </h2>
+            <p class="text-xl md:text-2xl text-secondary mb-2">
+              Find the <span class="text-green-400 font-bold">5 People Nouns</span>
+            </p>
+            <div class="flex items-center justify-center gap-4 mt-4">
+              <span class="text-lg text-secondary/70">Found:</span>
+              <span id="people-hunt-score" class="text-3xl font-bold text-brand-400">0</span>
+              <span class="text-lg text-secondary/70">/ 5</span>
+            </div>
+          </div>
+
+          <!-- Hunt Grid - JavaScript will populate this -->
+          <div id="people-hunt-grid" class="grid grid-cols-2 md:grid-cols-5 gap-4 w-full max-w-4xl">
+            <!-- Cards inserted by initPeopleHuntGrid() -->
+          </div>
+
+          <!-- Hint -->
+          <p class="text-sm text-secondary/60 mt-6 italic text-center">
+            💡 Click words that name people
+          </p>
+        </div>
+      </section>
+
+      <!-- NEW: Places Hunt (Branch from Central Hub Camp) -->
+      <section class="slide" data-type="challenge" id="slide-places-hunt">
+        <div class="slide-content flex flex-col items-center justify-center h-full max-w-6xl px-8">
+          <!-- Title -->
+          <div class="text-center mb-8">
+            <h2 class="font-display text-4xl md:text-5xl font-bold text-brand-400 mb-3">
+              🏛️ Places Hunt
+            </h2>
+            <p class="text-xl md:text-2xl text-secondary mb-2">
+              Find the <span class="text-green-400 font-bold">5 Place Nouns</span>
+            </p>
+            <div class="flex items-center justify-center gap-4 mt-4">
+              <span class="text-lg text-secondary/70">Found:</span>
+              <span id="places-hunt-score" class="text-3xl font-bold text-brand-400">0</span>
+              <span class="text-lg text-secondary/70">/ 5</span>
+            </div>
+          </div>
+
+          <!-- Hunt Grid - JavaScript will populate this -->
+          <div id="places-hunt-grid" class="grid grid-cols-2 md:grid-cols-5 gap-4 w-full max-w-4xl">
+            <!-- Cards inserted by initPlacesHuntGrid() -->
+          </div>
+
+          <!-- Hint -->
+          <p class="text-sm text-secondary/60 mt-6 italic text-center">
+            💡 Click words that name places
+          </p>
+        </div>
+      </section>
+
 
       <!-- Slide 10: Common Nouns Title -->
       <!-- Slide 10: Common Nouns Title -->
@@ -1054,18 +1134,6 @@
                 </span>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PLACEHOLDER: Slide 13 - Mega-Mix Boss (Map System) -->
-      <section class="slide" data-type="boss" id="slide-13-placeholder">
-        <div class="slide-content flex flex-col items-center justify-center h-full max-w-5xl">
-          <div
-            class="glass-panel p-12 rounded-[3rem] text-center border border-yellow-500/30 bg-gradient-to-br from-yellow-500/5 to-orange-500/5">
-            <h2 class="font-display text-5xl font-bold text-yellow-400 mb-4">👑 MEGA-MIX BOSS</h2>
-            <p class="text-2xl text-secondary mb-8">Ultimate Challenge - Coming Soon</p>
-            <p class="text-lg text-secondary/70 italic">Prove your mastery of all noun types!</p>
           </div>
         </div>
       </section>

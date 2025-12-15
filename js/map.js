@@ -16,32 +16,43 @@ const MapSystem = {
     // - "hub": Decision point, no slides, unlocks multiple branch children
     // - "branch": Child of a hub, returns to hub after completion
     // - "gate": Requires ALL parents complete, then unlocks child
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // CORRECTED NODE DEFINITIONS - Batch 6 Fix
+    // Slides enumerated: 0-34 (35 total after removing misplaced placeholder)
+    // ═══════════════════════════════════════════════════════════════════════════════
     mapNodes: {
-        // Phase 1: The Awakening (slides 1-5)
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ PHASE 1: THE AWAKENING - The Village                                      ║
+        // ║ Slides 1-4: Introduction to nouns                                        ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "N1": {
             id: "N1",
             left: 4, top: 52,
             label: "The Village",
             type: "linear",
-            slides: [1, 2, 3, 4, 5], // Ends on Exit Ticket
-            exitSlide: 5, // The slide where Map button triggers completion
+            slides: [1, 2, 3, 4],  // World Without Names → Exit Ticket
+            exitSlide: 4,
             parents: [],
             children: ["N2"]
         },
 
-        // Phase 2: The Hunt (slides 6-8, then branches)
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ PHASE 2: THE HUNT - Three Noun Families                                   ║
+        // ║ Slides 5-8: People, Places, Things + Exit                                ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "N2": {
             id: "N2",
             left: 12, top: 52,
             label: "Three Noun Families",
             type: "linear",
-            slides: [6, 7, 8],
+            slides: [5, 6, 7, 8],  // Nouns Name People → Exit Ticket
             exitSlide: 8,
             parents: ["N1"],
             children: ["HubA"]
         },
 
-        // Hub A: Central Hub Camp (3-way branch)
+        // Hub A: Central Hub Camp (branching point for 3 hunts)
+        // NOTE: Hunt slides need proper challenge content - currently using slide 10
         "HubA": {
             id: "HubA",
             left: 21, top: 52,
@@ -49,19 +60,20 @@ const MapSystem = {
             label: "Central Hub Camp",
             parents: ["N2"],
             children: ["N3A", "N3B", "N3C"],
-            gate: "N4" // After all branches complete, this gate opens
+            gate: "N4"
         },
 
-        // Branch A nodes
+        // Hunt Branches - Each hunt has its own dedicated slide
+        // All branch off from HubA and return to HubA when complete
         "N3A": {
             id: "N3A",
             left: 21, top: 22,
             label: "People Hunt",
             type: "branch",
-            slides: [9],
-            exitSlide: 9,
+            slides: [11],  // ✅ People Hunt slide with people-hunt-grid
+            exitSlide: 11,
             parents: ["HubA"],
-            returnTo: "HubA", // Branch nodes return to their hub
+            returnTo: "HubA",
             branch: "A"
         },
         "N3B": {
@@ -69,8 +81,8 @@ const MapSystem = {
             left: 16, top: 82,
             label: "Places Hunt",
             type: "branch",
-            slides: [10],
-            exitSlide: 10,
+            slides: [12],  // ✅ Places Hunt slide with places-hunt-grid
+            exitSlide: 12,
             parents: ["HubA"],
             returnTo: "HubA",
             branch: "A"
@@ -78,98 +90,105 @@ const MapSystem = {
         "N3C": {
             id: "N3C",
             left: 26, top: 82,
-            label: "Things Hunt",
+            label: "Things & Animals Hunt",
             type: "branch",
-            slides: [11],
-            exitSlide: 11,
+            slides: [10],  // ✅ Things Hunt slide with things-hunt-grid
+            exitSlide: 10,
             parents: ["HubA"],
             returnTo: "HubA",
             branch: "A"
         },
 
-        // Gate after Branch A
+        // Gate N4: Mega-Mix Boss - Unlocks when ALL 3 hunts complete
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ N4: MEGA-MIX BOSS                                                        ║
+        // ║ Slide 9: "Can you help Norah spot the nouns?" challenge                 ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "N4": {
             id: "N4",
             left: 30, top: 52,
             label: "Mega-Mix Boss",
             type: "gate",
-            slides: [12],
-            exitSlide: 12,
-            parents: ["N3A", "N3B", "N3C"], // ALL must be complete
+            slides: [9],  // "Can you help Norah spot the nouns?"
+            exitSlide: 9,
+            parents: ["N3A", "N3B", "N3C"],
             children: ["N5"]
         },
 
-        // Phase 3: The Kingdom (Common Nouns)
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ PHASE 3: THE KINGDOM - Common Nouns                                      ║
+        // ║ Slides 11-15: Common noun concepts and rules                             ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "N5": {
             id: "N5",
             left: 38, top: 52,
             label: "Common Nouns",
             type: "linear",
-            slides: [13, 14, 15, 16, 17],
+            slides: [13, 14, 15, 16, 17],  // Title → Rule → Check
             exitSlide: 17,
             parents: ["N4"],
             children: ["N6"]
         },
+
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ N6: PROPER NOUNS - Crown Rule                                           ║
+        // ║ Slides 16-24: Proper nouns, capital letters, categories                  ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "N6": {
             id: "N6",
             left: 45, top: 52,
-            label: "Crown Rule",
+            label: "Proper Nouns",
             type: "linear",
-            slides: [18, 19, 20, 21],
-            exitSlide: 21,
+            slides: [18, 19, 20, 21, 22, 23, 24, 25, 26],  // Intro → Quick Check
+            exitSlide: 26,
             parents: ["N5"],
             children: ["N7"]
         },
+
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ N7: GOLDEN RULE + CASE BRIEFING                                         ║
+        // ║ Slides 25-26: The Golden Rule + Miss Muddle case intro                  ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "N7": {
             id: "N7",
             left: 52, top: 52,
-            label: "Proper Categories",
+            label: "Golden Rule",
             type: "linear",
-            slides: [22, 23, 24, 25, 26, 27],
-            exitSlide: 27,
-            parents: ["N6"],
-            children: ["N8"]
-        },
-
-        // Phase 4: The Investigation
-        "N8": {
-            id: "N8",
-            left: 59, top: 52,
-            label: "Case Briefing",
-            type: "linear",
-            slides: [28],
+            slides: [27, 28],  // Golden Rule → Case Briefing
             exitSlide: 28,
-            parents: ["N7"],
+            parents: ["N6"],
             children: ["HubB"]
         },
 
-        // Hub B: Detective's Hub (2-way branch)
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ PHASE 4: THE INVESTIGATION - Detective Hub                              ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "HubB": {
             id: "HubB",
-            left: 66, top: 52,
+            left: 59, top: 52,
             type: "hub",
             label: "Detective's Hub",
-            parents: ["N8"],
+            parents: ["N7"],
             children: ["N9A", "N9B"],
             gate: "GateB"
         },
         "N9A": {
             id: "N9A",
-            left: 66, top: 23,
+            left: 59, top: 23,
             label: "Evidence A",
             type: "branch",
-            slides: [29],
-            exitSlide: 29,
+            slides: [31],  // Evidence A: Locations
+            exitSlide: 31,
             parents: ["HubB"],
             returnTo: "HubB",
             branch: "B"
         },
         "N9B": {
             id: "N9B",
-            left: 66, top: 81,
+            left: 59, top: 81,
             label: "Evidence B",
             type: "branch",
-            slides: [30],
+            slides: [30],  // Evidence B: People & Dates
             exitSlide: 30,
             parents: ["HubB"],
             returnTo: "HubB",
@@ -177,17 +196,19 @@ const MapSystem = {
         },
         "GateB": {
             id: "GateB",
-            left: 72, top: 52,
+            left: 66, top: 52,
             type: "gate",
             label: "Case Closed",
             parents: ["N9A", "N9B"],
             children: ["HubC"]
         },
 
-        // Phase 5: The Trials (3-way branch)
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ PHASE 5: THE TRIALS - Quiz Hub                                          ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "HubC": {
             id: "HubC",
-            left: 79, top: 52,
+            left: 73, top: 52,
             type: "hub",
             label: "Trial Hub",
             parents: ["GateB"],
@@ -196,55 +217,57 @@ const MapSystem = {
         },
         "N10A": {
             id: "N10A",
-            left: 79, top: 22,
+            left: 73, top: 22,
             label: "Quiz 1",
             type: "branch",
-            slides: [31],
-            exitSlide: 31,
+            slides: [29],  // People and 'I'
+            exitSlide: 29,
             parents: ["HubC"],
             returnTo: "HubC",
             branch: "C"
         },
         "N10B": {
             id: "N10B",
-            left: 74, top: 82,
+            left: 68, top: 82,
             label: "Quiz 2",
             type: "branch",
-            slides: [32],
-            exitSlide: 32,
+            slides: [30],  // Places and Streets
+            exitSlide: 30,
             parents: ["HubC"],
             returnTo: "HubC",
             branch: "C"
         },
         "N10C": {
             id: "N10C",
-            left: 84, top: 82,
+            left: 78, top: 82,
             label: "Quiz 3",
             type: "branch",
-            slides: [33],
-            exitSlide: 33,
+            slides: [31],  // Days and Dates
+            exitSlide: 31,
             parents: ["HubC"],
             returnTo: "HubC",
             branch: "C"
         },
 
-        // Phase 6: The Finale
+        // ╔═══════════════════════════════════════════════════════════════════════════╗
+        // ║ PHASE 6: THE FINALE                                                     ║
+        // ╚═══════════════════════════════════════════════════════════════════════════╝
         "N11": {
             id: "N11",
-            left: 93, top: 52,
+            left: 86, top: 52,
             label: "Exit Ticket Boss",
             type: "gate",
-            slides: [34],
-            exitSlide: 34,
+            slides: [32],  // Riddle Match
+            exitSlide: 32,
             parents: ["N10A", "N10B", "N10C"],
             children: ["N12"]
         },
         "N12": {
             id: "N12",
-            left: 98, top: 45,
+            left: 94, top: 45,
             label: "Mission Complete",
             type: "linear",
-            slides: [35, 36],
+            slides: [35, 36],  // Mission Complete + Session Notes
             exitSlide: 36,
             parents: ["N11"],
             children: []
@@ -1012,6 +1035,46 @@ const MapSystem = {
         this.introPlayed = false;
         localStorage.removeItem('naming_game_map_v4');
         console.log("🗺️ Progress reset");
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // UTILITY FUNCTIONS (Required by main.js)
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Check if a slide is a "gated" exit slide (requires map button to proceed)
+     * @param {number} slideIndex - The slide index to check
+     * @returns {boolean} - True if this is an exit slide for any node
+     */
+    isGatedSlide(slideIndex) {
+        return Object.values(this.mapNodes).some(node =>
+            node.exitSlide === slideIndex
+        );
+    },
+
+    /**
+     * Flash the map button to indicate it should be clicked
+     */
+    flashMapButton() {
+        const btn = document.getElementById('map-nav-btn');
+        if (btn) {
+            btn.classList.add('map-btn-flash');
+            // Update text to indicate action needed
+            const btnText = document.getElementById('map-btn-text');
+            const btnIcon = document.getElementById('map-btn-icon');
+            if (btnText) btnText.innerText = 'Continue →';
+            if (btnIcon) btnIcon.innerText = '🗺️';
+        }
+    },
+
+    /**
+     * Stop flashing the map button
+     */
+    stopFlashMapButton() {
+        const btn = document.getElementById('map-nav-btn');
+        if (btn) {
+            btn.classList.remove('map-btn-flash');
+        }
     }
 };
 

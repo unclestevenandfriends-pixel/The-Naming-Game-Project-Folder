@@ -442,14 +442,27 @@ const GameEngine = {
         const lobby = document.getElementById('lobby-screen');
         if (lobby) lobby.style.display = 'none';
 
-        document.getElementById('viewport-frame').classList.remove('opacity-0');
-        document.querySelector('nav').classList.remove('opacity-0');
+        const viewport = document.getElementById('viewport-frame');
+        const nav = document.querySelector('nav');
+        
+        if (viewport) {
+            viewport.classList.remove('opacity-0');
+            viewport.style.pointerEvents = 'auto';
+        }
+        if (nav) nav.classList.remove('opacity-0');
 
         // --- FORCE START AT SLIDE 0 (HERO SLIDE) ---
         const slider = document.getElementById('slider');
         if (slider) {
             slider.scrollLeft = 0; // Force to start
+            slider.style.overflow = ''; // Re-enable scrolling
         }
+        
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // CRITICAL: Clear lobby lock to allow navigation
+        // ═══════════════════════════════════════════════════════════════════════════════
+        window.LOBBY_ACTIVE = false;
+        console.log("🔓 LOBBY_ACTIVE = false (navigation unlocked via beginMission)");
 
         // --- MAP INTRO SEQUENCE DISABLED ---
         // The map should NOT auto-trigger. User must click "START JOURNEY" button.

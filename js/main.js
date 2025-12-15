@@ -80,6 +80,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // === CLASS MODE INITIALIZATION ===
 function initClassMode() {
+  console.log("🎮 initClassMode() starting...");
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // CLEANUP: Remove ?reset= param if present (added by startNewClass)
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('reset')) {
+    console.log("🧹 Cleaning up reset parameter from URL");
+    urlParams.delete('reset');
+    const newUrl = urlParams.toString() 
+      ? window.location.pathname + '?' + urlParams.toString()
+      : window.location.pathname;
+    history.replaceState(null, '', newUrl);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // CRITICAL: SET GLOBAL LOBBY LOCK - Prevents ANY navigation until user chooses
+  // ═══════════════════════════════════════════════════════════════════════════════
+  window.LOBBY_ACTIVE = true;
+  console.log("🔐 LOBBY_ACTIVE = true (navigation blocked)");
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // CRITICAL FIX: AGGRESSIVE LOBBY ENFORCEMENT
+  // Force the correct visual state BEFORE any other initialization
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const _lobby = document.getElementById('lobby-screen');
+  const _viewport = document.getElementById('viewport-frame');
+  const _slider = document.getElementById('slider');
+  const _nav = document.querySelector('nav');
+
+  // 1. FORCE VIEWPORT HIDDEN (add opacity-0 back if removed)
+  if (_viewport) {
+    _viewport.classList.add('opacity-0');
+    _viewport.style.pointerEvents = 'none';
+  }
+  if (_nav) {
+    _nav.classList.add('opacity-0');
+  }
+
+  // 2. FORCE LOBBY VISIBLE
+  if (_lobby) {
+    _lobby.style.display = 'flex';
+    _lobby.style.visibility = 'visible';
+    _lobby.style.opacity = '1';
+    _lobby.style.pointerEvents = 'auto';
+  }
+
+  // 3. RESET SLIDER TO START (prevents mid-game position on refresh)
+  if (_slider) {
+    _slider.scrollLeft = 0;
+    // Also prevent scroll during lobby - remove after lobby dismissal
+    _slider.style.overflow = 'hidden';
+  }
+
+  // 4. CLEAR URL HASH to prevent restoreSlideFromHash from interfering
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+
+  console.log("🔒 Lobby enforcement applied - viewport hidden, lobby visible, slider reset, hash cleared");
+  // ═══════════════════════════════════════════════════════════════════════════════
+
   // SAFETY CHECK: If URL has mode=report, abort and switch to report mode
   const params = new URLSearchParams(window.location.search);
   const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || "");
@@ -99,43 +161,62 @@ function initClassMode() {
   if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.init();
   if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(0);
 
-  // Check for Saved Data (Resume Logic)
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // SESSION DETECTION: Check for ANY saved state
+  // Show Resume/New if EITHER savedData OR savedCharacter exists
+  // ═══════════════════════════════════════════════════════════════════════════════
   const savedData = localStorage.getItem('nameGame_data');
-  const hasCharacter = localStorage.getItem('nameGame_character');
+  const savedCharacter = localStorage.getItem('nameGame_character');
+  const savedSlide = localStorage.getItem('nameGame_slide');
+  const savedMapData = localStorage.getItem('naming_game_map_v4') || localStorage.getItem('map_data');
   const lobbyContent = document.getElementById('lobby-content');
+  
+  // Determine if we have ANY saved progress
+  const hasAnySavedState = savedData || savedCharacter || savedSlide || savedMapData;
+  
+  console.log("📊 Session Check:", { 
+    savedData: !!savedData, 
+    savedCharacter: !!savedCharacter, 
+    savedSlide: savedSlide,
+    savedMapData: !!savedMapData,
+    hasAnySavedState 
+  });
 
-  if (savedData && lobbyContent) {
-    // User has session data - show Resume / New Class options
+  if (hasAnySavedState && lobbyContent) {
+    // User has SOME session data - ALWAYS show Resume / New Class options
+    let playerName = "Agent";
     try {
-      const data = JSON.parse(savedData);
-      lobbyContent.innerHTML = `
-        <div class="glass-panel p-12 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.2)] max-w-2xl w-full text-center">
-          <p class="text-brand-400 font-body text-sm uppercase tracking-widest mb-4">Session Found</p>
-          <h3 class="text-3xl text-brand-400 font-bold mb-8 font-display">Welcome back, ${data.studentName}!</h3>
-          <div class="space-y-4">
-            <button onclick="window.resumeSessionWithSound()" 
-              class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-xl py-5 rounded-xl hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] transition-all duration-300 uppercase tracking-widest">
-              Resume Session
-            </button>
-            <button onclick="startNewClass()" 
-              class="w-full bg-white/5 border border-white/10 text-[#FDFDFD] font-bold text-lg py-4 rounded-xl hover:bg-white/10 transition-all duration-300 uppercase tracking-widest">
-              Start New Class
-            </button>
-          </div>
-        </div>
-      `;
-      console.log("🎮 Resume screen shown");
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        playerName = data.studentName || "Agent";
+      } else if (savedCharacter) {
+        const charData = JSON.parse(savedCharacter);
+        playerName = charData.playerName || "Agent";
+      }
     } catch (e) {
-      console.error("Resume data corrupt", e);
-      // Fallback to character select
-      if (typeof GameEngine !== 'undefined') GameEngine.showCharacterSelect();
+      console.warn("Could not parse saved name", e);
     }
+    
+    lobbyContent.innerHTML = `
+      <div class="glass-panel p-12 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.2)] max-w-2xl w-full text-center">
+        <p class="text-brand-400 font-body text-sm uppercase tracking-widest mb-4">Session Found</p>
+        <h3 class="text-3xl text-brand-400 font-bold mb-8 font-display">Welcome back, ${playerName}!</h3>
+        <div class="space-y-4">
+          <button onclick="window.resumeSessionWithSound()" 
+            class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-xl py-5 rounded-xl hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] transition-all duration-300 uppercase tracking-widest">
+            Resume Session
+          </button>
+          <button onclick="window.startNewClass()" 
+            class="w-full bg-white/5 border border-white/10 text-[#FDFDFD] font-bold text-lg py-4 rounded-xl hover:bg-white/10 transition-all duration-300 uppercase tracking-widest">
+            Start New Class
+          </button>
+        </div>
+      </div>
+    `;
+    console.log("🎮 Resume/New Class screen shown for:", playerName);
   } else if (typeof GameEngine !== 'undefined') {
-    // No saved session - show Character Select
-    console.log("🎮 No session - showing Character Select");
-    if (hasCharacter) {
-      GameEngine.restoreSession();
-    }
+    // Truly fresh start - no saved state at all - show Character Select
+    console.log("🎮 Fresh start - showing Character Select");
     setTimeout(() => GameEngine.showCharacterSelect(), 100);
   }
 
@@ -254,6 +335,8 @@ window.resumeSessionWithSound = function () {
 }
 
 function resumeSession() {
+  console.log("🎮 resumeSession() called - unlocking lobby");
+  
   // 🎮 GAMIFICATION: Restore HUD when resuming
   if (typeof GameEngine !== 'undefined') {
     GameEngine.restoreSession();
@@ -269,21 +352,36 @@ function resumeSession() {
     const lobby = document.getElementById('lobby-screen');
     const viewport = document.getElementById('viewport-frame');
     const nav = document.querySelector('nav');
+    const slider = document.getElementById('slider');
 
     gsap.to(lobby, {
       opacity: 0,
       duration: 0.8,
       onComplete: () => {
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // CRITICAL: Clear lobby lock and re-enable slider
+        // ═══════════════════════════════════════════════════════════════════════════════
+        window.LOBBY_ACTIVE = false;
+        console.log("🔓 LOBBY_ACTIVE = false (navigation unlocked)");
+        
         if (lobby) lobby.style.display = 'none';
-        if (viewport) viewport.classList.remove('opacity-0');
+        if (viewport) {
+          viewport.classList.remove('opacity-0');
+          viewport.style.pointerEvents = 'auto';
+        }
         if (nav) nav.classList.remove('opacity-0');
+        
+        // Re-enable slider scrolling
+        if (slider) {
+          slider.style.overflow = '';
+        }
 
         if (savedSlide) {
-          const slider = document.getElementById('slider');
           if (slider) {
             const slideWidth = slider.clientWidth;
             const idx = parseInt(savedSlide);
             slider.scrollLeft = idx * slideWidth;
+            console.log(`📍 Restored to slide ${idx}`);
             if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.init();
             if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(idx);
             if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.redrawCurrentSlide();
@@ -291,34 +389,97 @@ function resumeSession() {
         }
       }
     });
+  } else {
+    // No saved data but user clicked resume - just start fresh
+    console.warn("⚠️ No savedData found during resume - starting fresh");
+    window.LOBBY_ACTIVE = false;
+    if (typeof GameEngine !== 'undefined') {
+      GameEngine.showCharacterSelect();
+    }
   }
 }
 window.resumeSession = resumeSession;
 
 // === START NEW CLASS ===
+// === START NEW CLASS ===
 function startNewClass() {
-  if (confirm("Are you sure? This will delete all progress.")) {
-    // Clear all game data
-    localStorage.removeItem('nameGame_data');
-    localStorage.removeItem('nameGame_slide');
-    localStorage.removeItem('nameGame_character');
+  if (confirm("Are you sure? This will delete ALL progress and start completely fresh.")) {
+    console.log("🧹 NUCLEAR RESET: Clearing ALL game state...");
+    
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // NUCLEAR RESET - Clear absolutely everything
+    // ═══════════════════════════════════════════════════════════════════════════════
+    
+    // 1. Clear all game data keys
+    const keysToRemove = [
+      'nameGame_data',
+      'nameGame_slide', 
+      'nameGame_character',
+      'map_data',
+      'naming_game_map_v4',
+      'naming_game_map_v2',
+      'naming_game_map',
+      'stickyNotes',
+      'annotations',
+      'nameGame_markup',
+      'gameEngine_state',
+      'classData'
+    ];
+    
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+      console.log(`  ✓ Removed: ${key}`);
+    });
+    
+    // 2. Clear any keys that might have been created with dynamic names
+    const allKeys = Object.keys(localStorage);
+    allKeys.forEach(key => {
+      if (key.startsWith('nameGame_') || 
+          key.startsWith('naming_game_') || 
+          key.startsWith('map_') ||
+          key.startsWith('game_')) {
+        localStorage.removeItem(key);
+        console.log(`  ✓ Removed dynamic key: ${key}`);
+      }
+    });
 
-    // ✅ Clear map progress (both old and new keys)
-    localStorage.removeItem('map_data');
-    localStorage.removeItem('naming_game_map_v4');
-    localStorage.removeItem('naming_game_map_v2');
-
-    // Clear markup data
-    if (typeof MarkupCoordinator !== 'undefined') MarkupCoordinator.clearAll();
-    localStorage.removeItem('stickyNotes');
-    localStorage.removeItem('annotations');
-
-    // Reset MapSystem if it exists
-    if (typeof MapSystem !== 'undefined') {
-      MapSystem.resetProgress();
+    // 3. Clear markup data
+    if (typeof MarkupCoordinator !== 'undefined') {
+      try { MarkupCoordinator.clearAll(); } catch(e) {}
     }
-
-    location.reload();
+    
+    // 4. Reset MapSystem if it exists
+    if (typeof MapSystem !== 'undefined') {
+      try { MapSystem.resetProgress(); } catch(e) {}
+    }
+    
+    // 5. Reset GameEngine if it exists
+    if (typeof GameEngine !== 'undefined') {
+      try {
+        GameEngine.active = false;
+        GameEngine.config = {
+          characterId: null,
+          currentHealth: 100,
+          maxHealth: 100,
+          crystals: 0,
+          comboCount: 0,
+          powerups: {}
+        };
+      } catch(e) {}
+    }
+    
+    // 6. Clear URL hash
+    if (window.location.hash) {
+      history.replaceState(null, '', window.location.pathname);
+    }
+    
+    // 7. Clear session storage too
+    try { sessionStorage.clear(); } catch(e) {}
+    
+    console.log("🧹 NUCLEAR RESET COMPLETE - Reloading...");
+    
+    // 8. Force hard reload (bypass cache)
+    location.href = location.pathname + '?reset=' + Date.now();
   }
 }
 window.startNewClass = startNewClass;
@@ -383,9 +544,20 @@ function startClass() {
     opacity: 0,
     duration: 0.8,
     onComplete: () => {
+      // ═══════════════════════════════════════════════════════════════════════════════
+      // CRITICAL: Clear lobby lock to allow navigation
+      // ═══════════════════════════════════════════════════════════════════════════════
+      window.LOBBY_ACTIVE = false;
+      console.log("🔓 LOBBY_ACTIVE = false (navigation unlocked via startClass)");
+      
       lobby.style.display = 'none';
       viewport.classList.remove('opacity-0');
+      viewport.style.pointerEvents = 'auto';
       nav.classList.remove('opacity-0');
+      
+      // Re-enable slider scrolling
+      const slider = document.getElementById('slider');
+      if (slider) slider.style.overflow = '';
 
       // Init Canvas Systems
       if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.init();
@@ -449,7 +621,20 @@ if ('scrollRestoration' in history) {
 }
 
 function restoreSlideFromHash() {
+  // 🛑 BLOCK if global lobby lock is active
+  if (window.LOBBY_ACTIVE) {
+    console.log("🛑 restoreSlideFromHash BLOCKED - LOBBY_ACTIVE is true");
+    return;
+  }
+  
   if (window.location.hash && slider) {
+    // 🛑 BLOCK SCROLL if Lobby is Visible (backup check)
+    const lobby = document.getElementById('lobby-screen');
+    if (lobby && getComputedStyle(lobby).display !== 'none' && getComputedStyle(lobby).opacity !== '0') {
+      console.log("🛑 restoreSlideFromHash BLOCKED - Lobby is visible");
+      return;
+    }
+
     const targetId = window.location.hash.substring(1);
     const match = targetId.match(/slide-(\d+)/);
     if (match) {
