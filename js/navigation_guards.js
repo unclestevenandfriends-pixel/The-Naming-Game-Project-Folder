@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// NAVIGATION_GUARDS.JS - Slide Navigation Control System
-// Integrates with MapSystem v4 for proper forward-lock, backward-free navigation
+// NAVIGATION_GUARDS.JS - Slide Navigation Control System v3.0
+// ROBUST BARRIER ENFORCEMENT - Prevents CSS scroll-snap bypass
 // This file should be loaded AFTER map.js and BEFORE main.js
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -9,8 +9,15 @@ const NavigationGuard = {
     touchStartX: 0,
     touchStartY: 0,
     isBlocking: false,
+    lastValidSlide: 0,
+    scrollEnforcing: false,
+
+    // Cooldown tracking
     blockedCooldownMs: 1000,
     lastBlockedAt: 0,
+
+    // Track the maximum slide index that should be accessible
+    _cachedMaxSlide: 0,
 
     init() {
         if (this.initialized) return;
@@ -23,15 +30,56 @@ const NavigationGuard = {
         }
 
         this.setupTouchBlocker(slider);
-        this.setupScrollBlocker(slider);
+        this.setupScrollEnforcer(slider);
         this.setupKeyboardBlocker();
 
+        // Initial valid slide calculation
+        this.lastValidSlide = this.getCurrentSlide();
+        this.updateCachedMaxSlide();
+
         this.initialized = true;
-        console.log("🛡️ NavigationGuard v2.0 Initialized");
+        console.log("🛡️ NavigationGuard v3.0 Initialized - Robust Barrier Enforcement Active");
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // TOUCH/SWIPE BLOCKING
+    // CACHED MAX SLIDE CALCULATION
+    // Call this whenever node unlock state changes
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    updateCachedMaxSlide() {
+        if (typeof MapSystem === 'undefined') {
+            this._cachedMaxSlide = Infinity;
+            return;
+        }
+        this._cachedMaxSlide = this.calculateMaxAllowedSlide();
+        console.log(`🛡️ Max accessible slide updated: ${this._cachedMaxSlide}`);
+    },
+
+    calculateMaxAllowedSlide() {
+        if (typeof MapSystem === 'undefined') return Infinity;
+
+        const currentSlide = this.getCurrentSlide();
+        const currentNode = MapSystem.findNodeBySlide(currentSlide);
+
+        // If on a node, the max is the exitSlide of that node
+        if (currentNode && currentNode.exitSlide !== undefined) {
+            return currentNode.exitSlide;
+        }
+
+        // Fallback: check all unlocked nodes
+        let maxSlide = 0;
+        Object.values(MapSystem.mapNodes).forEach(node => {
+            if (MapSystem.isNodeUnlocked(node.id) && node.slides) {
+                const nodeMax = node.exitSlide || Math.max(...node.slides);
+                if (nodeMax > maxSlide) maxSlide = nodeMax;
+            }
+        });
+
+        return maxSlide || currentSlide;
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // TOUCH/SWIPE BLOCKING - Intercept before CSS can handle
     // ═══════════════════════════════════════════════════════════════════════════════
 
     setupTouchBlocker(slider) {
@@ -40,79 +88,134 @@ const NavigationGuard = {
             this.touchStartX = e.touches[0].clientX;
             this.touchStartY = e.touches[0].clientY;
             this.isBlocking = false;
+            this.lastValidSlide = this.getCurrentSlide();
         }, { passive: true });
 
         // Intercept touch move - block if trying to swipe left (forward) on exit slide
         slider.addEventListener('touchmove', (e) => {
             if (this.isBlocking) {
                 e.preventDefault();
-                return;
+                e.stopPropagation();
+                return false;
             }
 
             const currentX = e.touches[0].clientX;
             const deltaX = this.touchStartX - currentX;
 
-            // If swiping left (forward navigation)
-            if (deltaX > 30) {
+            // If swiping left (forward navigation) with threshold
+            if (deltaX > 20) {
                 if (!this.canNavigateForward()) {
                     this.isBlocking = true;
                     e.preventDefault();
+                    e.stopPropagation();
                     this.showBlockedFeedback();
+
+                    // Immediately snap back
+                    this.enforceSlidePosition(this.lastValidSlide);
+                    return false;
                 }
             }
-        }, { passive: false });
+        }, { passive: false, capture: true });
 
-        // Reset on touch end
+        // Reset on touch end and enforce position
         slider.addEventListener('touchend', () => {
+            if (this.isBlocking) {
+                // Ensure we're at valid position
+                setTimeout(() => this.enforceSlidePosition(this.lastValidSlide), 50);
+            }
             this.isBlocking = false;
         }, { passive: true });
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // SCROLL/WHEEL BLOCKING
+    // SCROLL ENFORCER - Catches any scroll that bypasses touch handlers
     // ═══════════════════════════════════════════════════════════════════════════════
 
-    setupScrollBlocker(slider) {
+    setupScrollEnforcer(slider) {
+        let rafId = null;
+        let lastScrollLeft = slider.scrollLeft;
+
+        // Use both scroll event AND requestAnimationFrame for maximum coverage
+        const enforceOnScroll = () => {
+            if (this.scrollEnforcing) return;
+
+            const currentSlide = Math.round(slider.scrollLeft / slider.clientWidth);
+            const maxAllowed = this._cachedMaxSlide;
+
+            // Forward movement check
+            if (currentSlide > this.lastValidSlide) {
+                // Check if this forward movement is allowed
+                if (!this.isSlideAccessible(currentSlide)) {
+                    console.log(`🛡️ BLOCKED: Attempted slide ${currentSlide}, max allowed ${maxAllowed}`);
+                    this.scrollEnforcing = true;
+
+                    // Immediate enforcement
+                    slider.scrollLeft = this.lastValidSlide * slider.clientWidth;
+
+                    this.showBlockedFeedback();
+
+                    setTimeout(() => {
+                        this.scrollEnforcing = false;
+                    }, 100);
+                    return;
+                }
+            }
+
+            // Update last valid slide if we're now at an allowed position
+            if (this.isSlideAccessible(currentSlide)) {
+                this.lastValidSlide = currentSlide;
+            }
+
+            // Update button state
+            if (typeof MapSystem !== 'undefined') {
+                MapSystem.updateButtonState(currentSlide);
+            }
+        };
+
+        // High-frequency scroll check
+        slider.addEventListener('scroll', () => {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(enforceOnScroll);
+        }, { passive: true });
+
+        // Also check periodically in case scroll event is missed
+        setInterval(() => {
+            const currentSlide = this.getCurrentSlide();
+            if (!this.isSlideAccessible(currentSlide) && !this.scrollEnforcing) {
+                console.log(`🛡️ Periodic check - snapping back from ${currentSlide}`);
+                this.enforceSlidePosition(this.lastValidSlide);
+            }
+        }, 200);
+
         // For mouse wheel scrolling
         slider.addEventListener('wheel', (e) => {
             // Scrolling right (forward)
-            if (e.deltaX > 0 || e.deltaY > 0) {
+            if (e.deltaX > 0) {
                 if (!this.canNavigateForward()) {
                     e.preventDefault();
+                    e.stopPropagation();
                     this.showBlockedFeedback();
+                    return false;
                 }
             }
-        }, { passive: false });
+        }, { passive: false, capture: true });
+    },
 
-        // Monitor scroll position and snap back if needed
-        let lastScrollLeft = 0;
-        let scrollCheckTimeout;
+    enforceSlidePosition(slideIndex) {
+        const slider = document.getElementById('slider');
+        if (!slider || this.scrollEnforcing) return;
 
-        slider.addEventListener('scroll', () => {
-            clearTimeout(scrollCheckTimeout);
+        this.scrollEnforcing = true;
 
-            scrollCheckTimeout = setTimeout(() => {
-                const currentSlide = Math.round(slider.scrollLeft / slider.clientWidth);
-                const maxAllowed = this.getMaxAllowedSlide();
+        // Use scrollTo without smooth behavior for immediate enforcement
+        slider.scrollTo({
+            left: slideIndex * slider.clientWidth,
+            behavior: 'auto'  // Instant, not smooth
+        });
 
-                // If scrolled past allowed slide, snap back
-                if (currentSlide > maxAllowed) {
-                    console.log(`🛡️ Snapping back from slide ${currentSlide} to ${maxAllowed}`);
-                    slider.scrollTo({
-                        left: maxAllowed * slider.clientWidth,
-                        behavior: 'smooth'
-                    });
-                    this.showBlockedFeedback();
-                }
-
-                // Update button state
-                if (typeof MapSystem !== 'undefined') {
-                    MapSystem.updateButtonState(currentSlide);
-                }
-
-                lastScrollLeft = slider.scrollLeft;
-            }, 100);
-        }, { passive: true });
+        setTimeout(() => {
+            this.scrollEnforcing = false;
+        }, 100);
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
@@ -132,14 +235,14 @@ const NavigationGuard = {
             if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
                 if (!this.canNavigateForward()) {
                     e.preventDefault();
+                    e.stopPropagation();
                     this.showBlockedFeedback();
-                    return;
+                    return false;
                 }
-                // If allowed, let the default handler in main.js handle it
             }
 
             // Backward is always allowed (ArrowLeft handled by main.js)
-        });
+        }, { capture: true });
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
@@ -152,6 +255,32 @@ const NavigationGuard = {
         return Math.round(slider.scrollLeft / slider.clientWidth);
     },
 
+    isSlideAccessible(slideIndex) {
+        if (typeof MapSystem === 'undefined') return true;
+
+        // Find which node this slide belongs to
+        const node = MapSystem.findNodeBySlide(slideIndex);
+
+        // If no node owns this slide, check if it's within general bounds
+        if (!node) {
+            return slideIndex <= this._cachedMaxSlide;
+        }
+
+        // Check if the node is unlocked
+        if (!MapSystem.isNodeUnlocked(node.id)) {
+            return false;
+        }
+
+        // If node is unlocked, check if we're not past its exit slide
+        // (unless next node is also unlocked)
+        if (node.exitSlide !== undefined && slideIndex > node.exitSlide) {
+            const nextNode = MapSystem.findNodeBySlide(slideIndex);
+            return nextNode && MapSystem.isNodeUnlocked(nextNode.id);
+        }
+
+        return true;
+    },
+
     canNavigateForward() {
         if (typeof MapSystem === 'undefined') return true;
 
@@ -162,25 +291,15 @@ const NavigationGuard = {
             return false; // Must click "Start Journey"
         }
 
-        // Check with MapSystem
-        return MapSystem.canSwipeForward(currentSlide);
-    },
-
-    getMaxAllowedSlide() {
-        if (typeof MapSystem === 'undefined') return Infinity;
-
-        const currentSlide = this.getCurrentSlide();
+        // Check if current slide is an exit slide (gate)
         const currentNode = MapSystem.findNodeBySlide(currentSlide);
-
-        if (!currentNode) return currentSlide;
-
-        // If on an exit slide, that's the max for this node
-        if (currentNode.exitSlide === currentSlide) {
-            return currentSlide;
+        if (currentNode && currentNode.exitSlide === currentSlide) {
+            // On an exit slide - must use map button
+            return false;
         }
 
-        // Otherwise, can go to the exit slide of current node
-        return currentNode.exitSlide || Math.max(...currentNode.slides);
+        // Check if next slide is accessible
+        return this.isSlideAccessible(currentSlide + 1);
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
@@ -200,7 +319,7 @@ const NavigationGuard = {
             return;
         }
 
-        // Fallback (if showLockedAlert ever isn't available)
+        // Fallback (if showLockedAlert ever isn’t available)
         if (typeof MapSystem !== 'undefined') {
             const currentSlide = this.getCurrentSlide();
             MapSystem.updateButtonState(currentSlide);
@@ -212,14 +331,12 @@ const NavigationGuard = {
         }
     },
 
-    showBlockedNotification() {
-        /* disabled: replaced by showLockedAlert flash */
-    }
+    showBlockedNotification() { /* disabled: replaced by showLockedAlert flash */ }
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// UPDATED nextSlide FUNCTION
-// Replace the nextSlide function in main.js with this version
+// GLOBAL NAVIGATION FUNCTIONS
+// These override any existing nextSlide/prevSlide to ensure barrier enforcement
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function nextSlide() {
@@ -232,6 +349,9 @@ function nextSlide() {
         return;
     }
 
+    // Update valid slide before navigation
+    NavigationGuard.lastValidSlide = NavigationGuard.getCurrentSlide();
+
     // Perform the navigation
     const currentIndex = NavigationGuard.getCurrentSlide();
     const targetIndex = currentIndex + 1;
@@ -241,7 +361,10 @@ function nextSlide() {
         behavior: 'smooth'
     });
 
-    if (typeof SoundFX !== 'undefined') {
+    // Update valid slide after navigation
+    NavigationGuard.lastValidSlide = targetIndex;
+
+    if (typeof SoundFX !== 'undefined' && SoundFX.playSlide) {
         SoundFX.playSlide();
     }
 }
@@ -251,21 +374,35 @@ function prevSlide() {
     if (!slider) return;
 
     // Backward is always allowed
-    slider.scrollBy({
-        left: -slider.clientWidth,
+    const currentIndex = NavigationGuard.getCurrentSlide();
+    const targetIndex = Math.max(0, currentIndex - 1);
+
+    slider.scrollTo({
+        left: targetIndex * slider.clientWidth,
         behavior: 'smooth'
     });
 
-    if (typeof SoundFX !== 'undefined') {
+    // Update valid slide
+    NavigationGuard.lastValidSlide = targetIndex;
+
+    if (typeof SoundFX !== 'undefined' && SoundFX.playSlide) {
         SoundFX.playSlide();
     }
 
     // Stop any map button flash when going backward
     if (typeof MapSystem !== 'undefined') {
-        const currentIndex = NavigationGuard.getCurrentSlide() - 1;
-        MapSystem.updateButtonState(Math.max(0, currentIndex));
+        MapSystem.updateButtonState(targetIndex);
     }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HOOK INTO MAPSYSTEM FOR CACHE UPDATES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Listen for node unlocks to update cache
+document.addEventListener('nodeUnlocked', () => {
+    NavigationGuard.updateCachedMaxSlide();
+});
 
 // Expose globally
 window.NavigationGuard = NavigationGuard;

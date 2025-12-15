@@ -198,6 +198,9 @@
 
 #map-instruction-text {
     animation: instruction-pulse 2s ease-in-out infinite;
+    color: #ffffff !important;
+    display: inline-block;
+    font-weight: 600;
 }
 
 @keyframes instruction-pulse {
