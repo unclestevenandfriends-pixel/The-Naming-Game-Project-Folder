@@ -3,6 +3,107 @@
 // Pattern-Based Node Progression with Lock Animations & Hub Returns
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// =========================================================
+// MAP TOAST (hard-fails safe, no Tailwind dependency)
+// =========================================================
+
+let mapToastEl = null;
+let mapToastTextEl = null;
+let mapToastTimer = null;
+
+function ensureMapToast() {
+    if (mapToastEl && mapToastTextEl) return;
+
+    mapToastEl = document.createElement("div");
+    mapToastEl.id = "mapToast";
+
+    // CRITICAL: All visibility styles are inline to guarantee they work
+    Object.assign(mapToastEl.style, {
+        position: "fixed",
+        top: "80px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: "999999",
+        maxWidth: "min(700px, calc(100vw - 40px))",
+        padding: "14px 20px",
+        borderRadius: "999px",
+        background: "rgba(20, 20, 30, 0.65)",  // Semi-transparent dark
+        border: "2px solid rgba(255, 80, 80, 0.7)",  // Red border
+        boxShadow: "0 10px 40px rgba(255, 80, 80, 0.3), 0 0 0 1px rgba(0,0,0,0.2) inset",
+        pointerEvents: "none",
+        opacity: "0",  // Start hidden, will be forced to 1 when shown
+        transition: "opacity 0.3s ease",
+    });
+
+    // Blur if supported
+    mapToastEl.style.backdropFilter = "blur(12px)";
+    mapToastEl.style.webkitBackdropFilter = "blur(12px)";
+
+    mapToastTextEl = document.createElement("div");
+    mapToastTextEl.id = "mapToastText";
+
+    // CRITICAL: Text styles are inline to guarantee red color shows
+    Object.assign(mapToastTextEl.style, {
+        fontSize: "16px",
+        lineHeight: "1.4",
+        fontWeight: "700",
+        color: "#FF3333",  // Bright red - FORCED inline
+        textShadow: "0 2px 12px rgba(0,0,0,0.9), 0 0 30px rgba(255,51,51,0.5)",
+        textAlign: "center",
+        display: "-webkit-box",
+        WebkitBoxOrient: "vertical",
+        WebkitLineClamp: "2",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+    });
+
+    mapToastEl.appendChild(mapToastTextEl);
+    document.body.appendChild(mapToastEl);
+
+    console.log("✅ Map toast element created and appended to body");
+}
+
+function showMapToast(message, { persist = false, durationMs = 6100 } = {}) {
+    ensureMapToast();
+
+    const msg = (message ?? "").toString().trim();
+    if (!msg) {
+        hideMapToast();
+        return;
+    }
+
+    mapToastTextEl.textContent = msg;
+
+    // CRITICAL: Force visible with inline style (guaranteed to work)
+    mapToastEl.style.opacity = "0.8";  // Semi-transparent but visible
+
+    // Add pulsation class as ENHANCEMENT (won't break if CSS fails)
+    mapToastEl.classList.add('toast-pulse-active');
+
+    console.log("🔔 Showing toast:", msg);
+
+    if (mapToastTimer) clearTimeout(mapToastTimer);
+    if (!persist) {
+        mapToastTimer = setTimeout(hideMapToast, durationMs);
+    }
+}
+
+function hideMapToast() {
+    if (!mapToastEl) return;
+
+    // Remove animation class
+    mapToastEl.classList.remove('toast-pulse-active');
+
+    // Hide with inline style
+    mapToastEl.style.opacity = "0";
+
+    if (mapToastTimer) {
+        clearTimeout(mapToastTimer);
+        mapToastTimer = null;
+    }
+}
+
+
 const MapSystem = {
     // === STATE FLAGS ===
     active: false,
@@ -286,6 +387,15 @@ const MapSystem = {
     // INITIALIZATION
     // ═══════════════════════════════════════════════════════════════════════════════
 
+    // === TOAST SYSTEM STATE ===
+    toastEl: null,
+    toastTextEl: null,
+    toastTimer: null,
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // INITIALIZATION
+    // ═══════════════════════════════════════════════════════════════════════════════
+
     init() {
         if (this.initialized && document.getElementById('world-map-overlay')) return;
         console.log("🗺️ MapSystem v4.0 Initializing...");
@@ -303,7 +413,10 @@ const MapSystem = {
             <!-- Header -->
             <div class="absolute top-0 left-0 w-full p-6 z-10 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
                 <h1 class="font-display text-4xl text-brand-400 drop-shadow-lg">🗺️ World Map</h1>
-                <button onclick="MapSystem.hideMapOnly()" class="bg-white/10 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur-md transition-all cursor-pointer pointer-events-auto">
+                <!-- Center: Mission HUD (REMOVED - Replaced by Global Toast) -->
+                
+                <!-- Right: Close Button -->
+                <button onclick="MapSystem.hideMapOnly()" class="pointer-events-auto bg-white/5 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur-md transition-all cursor-pointer border border-white/10 hover:border-brand-400 relative z-10">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
                 </button>
             </div>
@@ -328,17 +441,17 @@ const MapSystem = {
                     </div>
                 </div>
             </div>
-            
-            <!-- Instruction Banner (shown when player needs to click a node) -->
-            <div id="map-instruction" class="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 transition-opacity duration-500 pointer-events-none">
-                <div class="bg-black/90 backdrop-blur-xl px-8 py-4 rounded-2xl border border-brand-500/50 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
-                    <p id="map-instruction-text" class="text-lg font-bold text-brand-400 text-center">Click on the glowing node to continue!</p>
-                </div>
-            </div>
         </div>`;
 
         document.body.insertAdjacentHTML('beforeend', mapHTML);
+
+        // Canary: Ensure toast works immediately
+        showMapToast("Viewing map. Click the ▲ to return.", { persist: false });
     },
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // TOAST SYSTEM (Delegates to Global Safe Functions)
+    // ═══════════════════════════════════════════════════════════════════════════════
 
     injectMapButton() {
         const nav = document.querySelector('nav');
@@ -851,23 +964,17 @@ const MapSystem = {
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // INSTRUCTION BANNER
+    // INSTRUCTION BANNER -> MAPPED TO TOAST SYSTEM
     // ═══════════════════════════════════════════════════════════════════════════════
 
     showInstruction(text) {
-        const banner = document.getElementById('map-instruction');
-        const textEl = document.getElementById('map-instruction-text');
-        if (banner && textEl) {
-            textEl.innerText = text;
-            banner.style.opacity = '1';
-        }
+        // Map legacy calls to new Toast system
+        // Global function, not a method
+        showMapToast(text);
     },
 
     hideInstruction() {
-        const banner = document.getElementById('map-instruction');
-        if (banner) {
-            banner.style.opacity = '0';
-        }
+        hideMapToast();
     },
 
     showLockedMessage() {
