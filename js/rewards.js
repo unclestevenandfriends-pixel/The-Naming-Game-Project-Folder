@@ -5,13 +5,18 @@
 const RewardsEngine = {
     // === CALIBRATED TARGETS (Based on DOM Index) ===
     // These numbers represent the EXACT number of correct clicks required.
+    // REALIGNED to match map.js node configuration and actual HTML slide positions
     targets: {
-        6: 5,   // Things & Animals
-        7: 6,   // Norah Spot Nouns
-        12: 4,  // Common Check
+        // Hunt Games from Central Hub Camp (N3A, N3B, N3C)
+        10: 5,  // Things & Animals Hunt (N3C) - 5 correct items
+        11: 5,  // People Hunt (N3A) - 5 correct items
+        12: 5,  // Places Hunt (N3B) - 5 correct items
+        // Other game slides
+        7: 6,   // Norah Spot Nouns (slide 7)
+        14: 4,  // Common Check
         20: 4,  // Quick Check
         22: 10, // Detective (5 sentences x 2 nouns)
-        23: 12, // Evidence A (FIXED: 12 words, counting multi-word nouns separately)
+        23: 12, // Evidence A (12 words, counting multi-word nouns separately)
         24: 6,  // Evidence B
         25: 4,  // Quiz 1
         26: 4,  // Quiz 2

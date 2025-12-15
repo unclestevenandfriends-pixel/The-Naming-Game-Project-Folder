@@ -58,16 +58,18 @@ const NavigationGuard = {
     calculateMaxAllowedSlide() {
         if (typeof MapSystem === 'undefined') return Infinity;
 
-        const currentSlide = this.getCurrentSlide();
-        const currentNode = MapSystem.findNodeBySlide(currentSlide);
+        // 1. Start with the CURRENT active node in MapSystem (prioritize intended destination)
+        // This fixes the issue where being at Slide 8 (N2) blocked movement to Slide 10 (N3A)
+        const activeNodeId = MapSystem.state.currentNode;
+        const activeNode = MapSystem.mapNodes[activeNodeId];
 
-        // If on a node, the max is the exitSlide of that node
-        if (currentNode && currentNode.exitSlide !== undefined) {
-            return currentNode.exitSlide;
+        let maxSlide = 0;
+
+        if (activeNode && activeNode.slides) {
+            maxSlide = activeNode.exitSlide || Math.max(...activeNode.slides);
         }
 
-        // Fallback: check all unlocked nodes
-        let maxSlide = 0;
+        // 2. Scan ALL unlocked nodes to allow backtracking and full access
         Object.values(MapSystem.mapNodes).forEach(node => {
             if (MapSystem.isNodeUnlocked(node.id) && node.slides) {
                 const nodeMax = node.exitSlide || Math.max(...node.slides);
@@ -75,7 +77,9 @@ const NavigationGuard = {
             }
         });
 
-        return maxSlide || currentSlide;
+        // 3. Ensure we never lock the user out of their current position
+        const currentSlide = this.getCurrentSlide();
+        return Math.max(maxSlide, currentSlide);
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════

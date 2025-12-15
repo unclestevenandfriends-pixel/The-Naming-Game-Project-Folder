@@ -158,6 +158,11 @@ const MapSystem = {
             this.state.completedNodes.push(nodeId);
         }
 
+        // CRITICAL: Update NavigationGuard when completion status changes
+        if (typeof NavigationGuard !== 'undefined') {
+            NavigationGuard.updateCachedMaxSlide();
+        }
+
         this.show();
 
         setTimeout(() => {
@@ -360,6 +365,12 @@ const MapSystem = {
             this.animateTokenToNode(nodeId);
             this.state.currentNode = nodeId;
             this.saveProgress();
+
+            // CRITICAL: Update NavigationGuard to allow access to new node range
+            if (typeof NavigationGuard !== 'undefined') {
+                NavigationGuard.updateCachedMaxSlide();
+            }
+
             setTimeout(() => this.enterNodeSlides(nodeId), 2200);
         } else {
             this.enterNodeSlides(nodeId);
@@ -563,6 +574,11 @@ const MapSystem = {
                 this.state.currentNode = (data.currentNode || 'N1').toUpperCase();
                 this.introPlayed = data.introPlayed || false;
             } catch (e) { console.warn(e); }
+        }
+
+        // Ensure NavigationGuard is updated with loaded progress
+        if (typeof NavigationGuard !== 'undefined') {
+            setTimeout(() => NavigationGuard.updateCachedMaxSlide(), 500);
         }
     },
 
