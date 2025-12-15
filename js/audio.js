@@ -170,6 +170,28 @@ const SoundFX = {
       osc.start();
       osc.stop(this.ctx.currentTime + 0.8);
     });
+  },
+
+  playLocked() {
+    this._play(function () {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      // Softer, less stressful than sawtooth "error"
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.12);
+
+      // MUCH quieter
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.18);
+    });
   }
 };
 window.SoundFX = SoundFX;

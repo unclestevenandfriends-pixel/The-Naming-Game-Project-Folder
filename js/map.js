@@ -444,9 +444,6 @@ const MapSystem = {
         </div>`;
 
         document.body.insertAdjacentHTML('beforeend', mapHTML);
-
-        // Canary: Ensure toast works immediately
-        showMapToast("Viewing map. Click the ▲ to return.", { persist: false });
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════

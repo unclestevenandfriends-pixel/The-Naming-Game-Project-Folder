@@ -89,7 +89,7 @@ function initClassMode() {
   if (urlParams.has('reset')) {
     console.log("🧹 Cleaning up reset parameter from URL");
     urlParams.delete('reset');
-    const newUrl = urlParams.toString() 
+    const newUrl = urlParams.toString()
       ? window.location.pathname + '?' + urlParams.toString()
       : window.location.pathname;
     history.replaceState(null, '', newUrl);
@@ -170,16 +170,16 @@ function initClassMode() {
   const savedSlide = localStorage.getItem('nameGame_slide');
   const savedMapData = localStorage.getItem('naming_game_map_v4') || localStorage.getItem('map_data');
   const lobbyContent = document.getElementById('lobby-content');
-  
+
   // Determine if we have ANY saved progress
   const hasAnySavedState = savedData || savedCharacter || savedSlide || savedMapData;
-  
-  console.log("📊 Session Check:", { 
-    savedData: !!savedData, 
-    savedCharacter: !!savedCharacter, 
+
+  console.log("📊 Session Check:", {
+    savedData: !!savedData,
+    savedCharacter: !!savedCharacter,
     savedSlide: savedSlide,
     savedMapData: !!savedMapData,
-    hasAnySavedState 
+    hasAnySavedState
   });
 
   if (hasAnySavedState && lobbyContent) {
@@ -196,7 +196,7 @@ function initClassMode() {
     } catch (e) {
       console.warn("Could not parse saved name", e);
     }
-    
+
     lobbyContent.innerHTML = `
       <div class="glass-panel p-12 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.2)] max-w-2xl w-full text-center">
         <p class="text-brand-400 font-body text-sm uppercase tracking-widest mb-4">Session Found</p>
@@ -336,7 +336,7 @@ window.resumeSessionWithSound = function () {
 
 function resumeSession() {
   console.log("🎮 resumeSession() called - unlocking lobby");
-  
+
   // 🎮 GAMIFICATION: Restore HUD when resuming
   if (typeof GameEngine !== 'undefined') {
     GameEngine.restoreSession();
@@ -363,14 +363,14 @@ function resumeSession() {
         // ═══════════════════════════════════════════════════════════════════════════════
         window.LOBBY_ACTIVE = false;
         console.log("🔓 LOBBY_ACTIVE = false (navigation unlocked)");
-        
+
         if (lobby) lobby.style.display = 'none';
         if (viewport) {
           viewport.classList.remove('opacity-0');
           viewport.style.pointerEvents = 'auto';
         }
         if (nav) nav.classList.remove('opacity-0');
-        
+
         // Re-enable slider scrolling
         if (slider) {
           slider.style.overflow = '';
@@ -405,15 +405,15 @@ window.resumeSession = resumeSession;
 function startNewClass() {
   if (confirm("Are you sure? This will delete ALL progress and start completely fresh.")) {
     console.log("🧹 NUCLEAR RESET: Clearing ALL game state...");
-    
+
     // ═══════════════════════════════════════════════════════════════════════════════
     // NUCLEAR RESET - Clear absolutely everything
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     // 1. Clear all game data keys
     const keysToRemove = [
       'nameGame_data',
-      'nameGame_slide', 
+      'nameGame_slide',
       'nameGame_character',
       'map_data',
       'naming_game_map_v4',
@@ -425,19 +425,19 @@ function startNewClass() {
       'gameEngine_state',
       'classData'
     ];
-    
+
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
       console.log(`  ✓ Removed: ${key}`);
     });
-    
+
     // 2. Clear any keys that might have been created with dynamic names
     const allKeys = Object.keys(localStorage);
     allKeys.forEach(key => {
-      if (key.startsWith('nameGame_') || 
-          key.startsWith('naming_game_') || 
-          key.startsWith('map_') ||
-          key.startsWith('game_')) {
+      if (key.startsWith('nameGame_') ||
+        key.startsWith('naming_game_') ||
+        key.startsWith('map_') ||
+        key.startsWith('game_')) {
         localStorage.removeItem(key);
         console.log(`  ✓ Removed dynamic key: ${key}`);
       }
@@ -445,14 +445,14 @@ function startNewClass() {
 
     // 3. Clear markup data
     if (typeof MarkupCoordinator !== 'undefined') {
-      try { MarkupCoordinator.clearAll(); } catch(e) {}
+      try { MarkupCoordinator.clearAll(); } catch (e) { }
     }
-    
+
     // 4. Reset MapSystem if it exists
     if (typeof MapSystem !== 'undefined') {
-      try { MapSystem.resetProgress(); } catch(e) {}
+      try { MapSystem.resetProgress(); } catch (e) { }
     }
-    
+
     // 5. Reset GameEngine if it exists
     if (typeof GameEngine !== 'undefined') {
       try {
@@ -465,19 +465,19 @@ function startNewClass() {
           comboCount: 0,
           powerups: {}
         };
-      } catch(e) {}
+      } catch (e) { }
     }
-    
+
     // 6. Clear URL hash
     if (window.location.hash) {
       history.replaceState(null, '', window.location.pathname);
     }
-    
+
     // 7. Clear session storage too
-    try { sessionStorage.clear(); } catch(e) {}
-    
+    try { sessionStorage.clear(); } catch (e) { }
+
     console.log("🧹 NUCLEAR RESET COMPLETE - Reloading...");
-    
+
     // 8. Force hard reload (bypass cache)
     location.href = location.pathname + '?reset=' + Date.now();
   }
@@ -549,12 +549,12 @@ function startClass() {
       // ═══════════════════════════════════════════════════════════════════════════════
       window.LOBBY_ACTIVE = false;
       console.log("🔓 LOBBY_ACTIVE = false (navigation unlocked via startClass)");
-      
+
       lobby.style.display = 'none';
       viewport.classList.remove('opacity-0');
       viewport.style.pointerEvents = 'auto';
       nav.classList.remove('opacity-0');
-      
+
       // Re-enable slider scrolling
       const slider = document.getElementById('slider');
       if (slider) slider.style.overflow = '';
@@ -626,7 +626,7 @@ function restoreSlideFromHash() {
     console.log("🛑 restoreSlideFromHash BLOCKED - LOBBY_ACTIVE is true");
     return;
   }
-  
+
   if (window.location.hash && slider) {
     // 🛑 BLOCK SCROLL if Lobby is Visible (backup check)
     const lobby = document.getElementById('lobby-screen');
@@ -795,9 +795,9 @@ function showLockedAlert() {
   }
 
   // 3. SOFT SOUND (quieter, single play)
-  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) {
-    // Use pop instead of harsh error sound
-    SoundFX.playPop();
+  if (typeof SoundFX !== 'undefined') {
+    if (SoundFX.playLocked) SoundFX.playLocked();
+    else if (SoundFX.playPop) SoundFX.playPop(); // fallback
   }
 
   // 4. SMALL TEXT INDICATOR (non-intrusive)

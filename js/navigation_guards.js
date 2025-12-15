@@ -9,10 +9,12 @@ const NavigationGuard = {
     touchStartX: 0,
     touchStartY: 0,
     isBlocking: false,
+    blockedCooldownMs: 1000,
+    lastBlockedAt: 0,
 
     init() {
         if (this.initialized) return;
-        
+
         const slider = document.getElementById('slider');
         if (!slider) {
             console.warn("⚠️ NavigationGuard: Slider not found, retrying...");
@@ -23,7 +25,7 @@ const NavigationGuard = {
         this.setupTouchBlocker(slider);
         this.setupScrollBlocker(slider);
         this.setupKeyboardBlocker();
-        
+
         this.initialized = true;
         console.log("🛡️ NavigationGuard v2.0 Initialized");
     },
@@ -31,7 +33,7 @@ const NavigationGuard = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // TOUCH/SWIPE BLOCKING
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     setupTouchBlocker(slider) {
         // Capture touch start position
         slider.addEventListener('touchstart', (e) => {
@@ -49,7 +51,7 @@ const NavigationGuard = {
 
             const currentX = e.touches[0].clientX;
             const deltaX = this.touchStartX - currentX;
-            
+
             // If swiping left (forward navigation)
             if (deltaX > 30) {
                 if (!this.canNavigateForward()) {
@@ -69,7 +71,7 @@ const NavigationGuard = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // SCROLL/WHEEL BLOCKING
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     setupScrollBlocker(slider) {
         // For mouse wheel scrolling
         slider.addEventListener('wheel', (e) => {
@@ -85,14 +87,14 @@ const NavigationGuard = {
         // Monitor scroll position and snap back if needed
         let lastScrollLeft = 0;
         let scrollCheckTimeout;
-        
+
         slider.addEventListener('scroll', () => {
             clearTimeout(scrollCheckTimeout);
-            
+
             scrollCheckTimeout = setTimeout(() => {
                 const currentSlide = Math.round(slider.scrollLeft / slider.clientWidth);
                 const maxAllowed = this.getMaxAllowedSlide();
-                
+
                 // If scrolled past allowed slide, snap back
                 if (currentSlide > maxAllowed) {
                     console.log(`🛡️ Snapping back from slide ${currentSlide} to ${maxAllowed}`);
@@ -102,12 +104,12 @@ const NavigationGuard = {
                     });
                     this.showBlockedFeedback();
                 }
-                
+
                 // Update button state
                 if (typeof MapSystem !== 'undefined') {
                     MapSystem.updateButtonState(currentSlide);
                 }
-                
+
                 lastScrollLeft = slider.scrollLeft;
             }, 100);
         }, { passive: true });
@@ -116,13 +118,13 @@ const NavigationGuard = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // KEYBOARD BLOCKING
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     setupKeyboardBlocker() {
         document.addEventListener('keydown', (e) => {
             // Ignore if in input field
             if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
             if (document.activeElement.getAttribute('contenteditable') === 'true') return;
-            
+
             // Ignore if map is open
             if (typeof MapSystem !== 'undefined' && MapSystem.active) return;
 
@@ -135,7 +137,7 @@ const NavigationGuard = {
                 }
                 // If allowed, let the default handler in main.js handle it
             }
-            
+
             // Backward is always allowed (ArrowLeft handled by main.js)
         });
     },
@@ -143,7 +145,7 @@ const NavigationGuard = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // NAVIGATION CHECKS
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     getCurrentSlide() {
         const slider = document.getElementById('slider');
         if (!slider) return 0;
@@ -152,31 +154,31 @@ const NavigationGuard = {
 
     canNavigateForward() {
         if (typeof MapSystem === 'undefined') return true;
-        
+
         const currentSlide = this.getCurrentSlide();
-        
+
         // Special case: Hero slide before intro
         if (currentSlide === 0 && !MapSystem.introPlayed) {
             return false; // Must click "Start Journey"
         }
-        
+
         // Check with MapSystem
         return MapSystem.canSwipeForward(currentSlide);
     },
 
     getMaxAllowedSlide() {
         if (typeof MapSystem === 'undefined') return Infinity;
-        
+
         const currentSlide = this.getCurrentSlide();
         const currentNode = MapSystem.findNodeBySlide(currentSlide);
-        
+
         if (!currentNode) return currentSlide;
-        
+
         // If on an exit slide, that's the max for this node
         if (currentNode.exitSlide === currentSlide) {
             return currentSlide;
         }
-        
+
         // Otherwise, can go to the exit slide of current node
         return currentNode.exitSlide || Math.max(...currentNode.slides);
     },
@@ -184,51 +186,34 @@ const NavigationGuard = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // FEEDBACK
     // ═══════════════════════════════════════════════════════════════════════════════
-    
+
     showBlockedFeedback() {
-        // Flash the map button
+        const now = Date.now();
+
+        // HARD COOLDOWN: prevent stacked audio on aggressive swipes / scroll spam
+        if (now - this.lastBlockedAt < this.blockedCooldownMs) return;
+        this.lastBlockedAt = now;
+
+        // Prefer the already-built "damage-style" feedback
+        if (typeof window.showLockedAlert === 'function') {
+            window.showLockedAlert();
+            return;
+        }
+
+        // Fallback (if showLockedAlert ever isn't available)
         if (typeof MapSystem !== 'undefined') {
             const currentSlide = this.getCurrentSlide();
             MapSystem.updateButtonState(currentSlide);
         }
-        
-        // Show brief notification
-        this.showBlockedNotification();
-        
-        // Play blocked sound
-        if (typeof SoundFX !== 'undefined' && SoundFX.playIncorrect) {
-            SoundFX.playIncorrect();
+
+        if (typeof SoundFX !== 'undefined') {
+            if (SoundFX.playLocked) SoundFX.playLocked();
+            else if (SoundFX.playPop) SoundFX.playPop();
         }
     },
 
     showBlockedNotification() {
-        // Don't spam notifications
-        if (document.getElementById('nav-blocked-notification')) return;
-        
-        const notification = document.createElement('div');
-        notification.id = 'nav-blocked-notification';
-        notification.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] transition-all duration-300 opacity-0 scale-90 pointer-events-none';
-        notification.innerHTML = `
-            <div class="bg-black/95 backdrop-blur-xl px-8 py-6 rounded-2xl border border-amber-500/50 shadow-[0_0_40px_rgba(245,158,11,0.3)] text-center">
-                <div class="text-4xl mb-3">🗺️</div>
-                <p class="text-xl font-bold text-amber-400 mb-1">Click the Map Button!</p>
-                <p class="text-sm text-white/70">Complete this section to continue.</p>
-            </div>
-        `;
-        document.body.appendChild(notification);
-        
-        // Animate in
-        requestAnimationFrame(() => {
-            notification.style.opacity = '1';
-            notification.style.transform = 'translate(-50%, -50%) scale(1)';
-        });
-        
-        // Remove after delay
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translate(-50%, -50%) scale(0.9)';
-            setTimeout(() => notification.remove(), 300);
-        }, 1500);
+        /* disabled: replaced by showLockedAlert flash */
     }
 };
 
@@ -250,10 +235,10 @@ function nextSlide() {
     // Perform the navigation
     const currentIndex = NavigationGuard.getCurrentSlide();
     const targetIndex = currentIndex + 1;
-    
-    slider.scrollTo({ 
-        left: targetIndex * slider.clientWidth, 
-        behavior: 'smooth' 
+
+    slider.scrollTo({
+        left: targetIndex * slider.clientWidth,
+        behavior: 'smooth'
     });
 
     if (typeof SoundFX !== 'undefined') {
@@ -266,15 +251,15 @@ function prevSlide() {
     if (!slider) return;
 
     // Backward is always allowed
-    slider.scrollBy({ 
-        left: -slider.clientWidth, 
-        behavior: 'smooth' 
+    slider.scrollBy({
+        left: -slider.clientWidth,
+        behavior: 'smooth'
     });
 
     if (typeof SoundFX !== 'undefined') {
         SoundFX.playSlide();
     }
-    
+
     // Stop any map button flash when going backward
     if (typeof MapSystem !== 'undefined') {
         const currentIndex = NavigationGuard.getCurrentSlide() - 1;
