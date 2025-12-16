@@ -36,14 +36,15 @@ const GameEngine = {
         8: 5,   // Spot Noun (5 nouns to find)
         9: 6,   // Interactive Sentences (6 nouns total)
         14: 4,  // Common Check (4 common nouns)
-        22: 4,  // Quick Check (4 correct pairs)
-        24: 10, // Detective (10 nouns across 5 sentences)
-        25: 9,  // Muddle A (9 Locations)
-        26: 6,  // Muddle B (6 People/Dates)
-        27: 4,  // Quiz 1 (4 answers)
-        28: 4,  // Quiz 2 (4 answers)
-        29: 3,  // Quiz 3 (3 answers)
-        30: 3   // Riddles (3 matches)
+        20: 4,  // Quick Check (Proper Nouns section)
+        // CORRECTED INDICES for Detective Hub and Trial Hub sections:
+        28: 10, // Detective Intro / Mr Muddle sentences (slide 28)
+        29: 9,  // Evidence A: Locations (slide 29)
+        30: 6,  // Evidence B: People & Dates (slide 30)
+        31: 4,  // Quiz 1: People & I (slide 31)
+        32: 4,  // Quiz 2: Places & Streets (slide 32)
+        33: 3,  // Quiz 3: Days & Dates (slide 33)
+        34: 3   // Exit Ticket Riddles (slide 34)
     },
 
     slideProgress: {},

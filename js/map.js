@@ -23,15 +23,15 @@ const MapSystem = {
         "N6": { id: "N6", left: 45, top: 52, label: "Proper Nouns", type: "linear", slides: [18, 19, 20, 21, 22, 23, 24, 25, 26, 27], exitSlide: 27, parents: ["N5"], children: ["N7"] },
         "N7": { id: "N7", left: 52, top: 52, label: "Case Briefing", type: "linear", slides: [28], exitSlide: 28, parents: ["N6"], children: ["HubB"] },
         "HubB": { id: "HubB", left: 59, top: 52, type: "hub", label: "Detective's Hub", parents: ["N7"], children: ["N9A", "N9B"], gate: "GateB" },
-        "N9A": { id: "N9A", left: 59, top: 23, label: "Evidence A", type: "branch", slides: [31], exitSlide: 31, parents: ["HubB"], returnTo: "HubB" },
-        "N9B": { id: "N9B", left: 59, top: 81, label: "Evidence B", type: "branch", slides: [30], exitSlide: 30, parents: ["HubB"], returnTo: "HubB" },
+        "N9A": { id: "N9A", left: 59, top: 23, label: "Evidence A: Locations", type: "branch", slides: [29], exitSlide: 29, parents: ["HubB"], returnTo: "HubB" },
+        "N9B": { id: "N9B", left: 59, top: 81, label: "Evidence B: People & Dates", type: "branch", slides: [30], exitSlide: 30, parents: ["HubB"], returnTo: "HubB" },
         "GateB": { id: "GateB", left: 66, top: 52, type: "gate", label: "Case Closed", parents: ["N9A", "N9B"], children: ["HubC"] },
         "HubC": { id: "HubC", left: 73, top: 52, type: "hub", label: "Trial Hub", parents: ["GateB"], children: ["N10A", "N10B", "N10C"], gate: "N11" },
-        "N10A": { id: "N10A", left: 73, top: 22, label: "Quiz 1", type: "branch", slides: [29], exitSlide: 29, parents: ["HubC"], returnTo: "HubC" },
-        "N10B": { id: "N10B", left: 68, top: 82, label: "Quiz 2", type: "branch", slides: [30], exitSlide: 30, parents: ["HubC"], returnTo: "HubC" },
-        "N10C": { id: "N10C", left: 78, top: 82, label: "Quiz 3", type: "branch", slides: [31], exitSlide: 31, parents: ["HubC"], returnTo: "HubC" },
-        "N11": { id: "N11", left: 86, top: 52, label: "Exit Ticket Boss", type: "gate", slides: [32], exitSlide: 32, parents: ["N10A", "N10B", "N10C"], children: ["N12"] },
-        "N12": { id: "N12", left: 94, top: 45, label: "Mission Complete", type: "linear", slides: [35, 36], exitSlide: 36, parents: ["N11"], children: [] }
+        "N10A": { id: "N10A", left: 73, top: 22, label: "Quiz: People & I", type: "branch", slides: [31], exitSlide: 31, parents: ["HubC"], returnTo: "HubC" },
+        "N10B": { id: "N10B", left: 68, top: 82, label: "Quiz: Places & Streets", type: "branch", slides: [32], exitSlide: 32, parents: ["HubC"], returnTo: "HubC" },
+        "N10C": { id: "N10C", left: 78, top: 82, label: "Quiz: Days & Dates", type: "branch", slides: [33], exitSlide: 33, parents: ["HubC"], returnTo: "HubC" },
+        "N11": { id: "N11", left: 86, top: 52, label: "Exit Ticket", type: "gate", slides: [34], exitSlide: 34, parents: ["N10A", "N10B", "N10C"], children: ["N12"] },
+        "N12": { id: "N12", left: 94, top: 45, label: "Mission Complete", type: "linear", slides: [35], exitSlide: 35, parents: ["N11"], children: [] }
     },
 
     state: {
@@ -357,7 +357,24 @@ const MapSystem = {
     onNodeClick(nodeId) {
         if (this.isAnimating) return;
         const node = this.mapNodes[nodeId];
-        if (!node || !node.slides || node.slides.length === 0) return;
+        if (!node) return;
+        
+        // SPECIAL HANDLING: Gates without slides (like GateB "Case Closed")
+        // These are pass-through gates that auto-complete when clicked
+        if (node.type === 'gate' && (!node.slides || node.slides.length === 0)) {
+            if (this.state.completedNodes.includes(nodeId)) return; // Already completed
+            this.isAnimating = true;
+            this.animateTokenToNode(nodeId);
+            this.state.currentNode = nodeId;
+            this.showInstruction(`${node.label}! Proceeding to next area...`);
+            if (typeof SoundFX !== 'undefined') SoundFX.playCorrect();
+            setTimeout(() => {
+                this.triggerNodeCompletion(nodeId);
+            }, 1500);
+            return;
+        }
+        
+        if (!node.slides || node.slides.length === 0) return;
         if (this.state.completedNodes.includes(nodeId) && node.type !== 'branch') return;
 
         this.isAnimating = true;

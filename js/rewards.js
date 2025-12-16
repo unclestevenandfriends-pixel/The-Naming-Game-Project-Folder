@@ -14,14 +14,15 @@ const RewardsEngine = {
         // Other game slides
         7: 6,   // Norah Spot Nouns (slide 7)
         14: 4,  // Common Check
-        20: 4,  // Quick Check
-        22: 10, // Detective (5 sentences x 2 nouns)
-        23: 12, // Evidence A (12 words, counting multi-word nouns separately)
-        24: 6,  // Evidence B
-        25: 4,  // Quiz 1
-        26: 4,  // Quiz 2
-        27: 3,  // Quiz 3
-        28: 3   // Riddles
+        20: 4,  // Quick Check (Proper Nouns)
+        // CORRECTED INDICES for Detective Hub and Trial Hub sections:
+        28: 10, // Detective Intro / Mr Muddle sentences (slide 28)
+        29: 9,  // Evidence A: Locations (slide 29) - 9 location words
+        30: 6,  // Evidence B: People & Dates (slide 30) - 6 words
+        31: 4,  // Quiz 1: People & I (slide 31)
+        32: 4,  // Quiz 2: Places & Streets (slide 32)
+        33: 3,  // Quiz 3: Days & Dates (slide 33)
+        34: 3   // Exit Ticket Riddles (slide 34)
     },
 
     state: {},
