@@ -11,6 +11,7 @@ const NavigationGuard = {
     isBlocking: false,
     lastValidSlide: 0,
     scrollEnforcing: false,
+    mapNavigating: false, // NEW: Set true during direct map navigation
 
     // Cooldown tracking
     blockedCooldownMs: 1000,
@@ -142,6 +143,7 @@ const NavigationGuard = {
         // Use both scroll event AND requestAnimationFrame for maximum coverage
         const enforceOnScroll = () => {
             if (this.scrollEnforcing) return;
+            if (this.mapNavigating) return; // BYPASS: Don't block during direct map navigation
 
             const currentSlide = Math.round(slider.scrollLeft / slider.clientWidth);
             const maxAllowed = this._cachedMaxSlide;

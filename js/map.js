@@ -384,7 +384,23 @@ const MapSystem = {
         const slider = document.getElementById('slider');
         if (slider) {
             const firstSlide = node.slides[0];
+            console.log(`🗺️ DEBUG: nodeId=${nodeId}, slides=${JSON.stringify(node.slides)}, scrolling to index ${firstSlide}, left=${firstSlide * slider.clientWidth}`);
+
+            // Set bypass flag to prevent NavigationGuard from blocking this scroll
+            if (typeof NavigationGuard !== 'undefined') {
+                NavigationGuard.mapNavigating = true;
+            }
+
             slider.scrollTo({ left: firstSlide * slider.clientWidth, behavior: 'smooth' });
+
+            // Clear flag and update valid slide after scroll completes
+            setTimeout(() => {
+                if (typeof NavigationGuard !== 'undefined') {
+                    NavigationGuard.mapNavigating = false;
+                    NavigationGuard.lastValidSlide = firstSlide;
+                    NavigationGuard.updateCachedMaxSlide();
+                }
+            }, 600);
         }
         const viewport = document.getElementById('viewport-frame');
         if (viewport && typeof gsap !== 'undefined') gsap.to(viewport, { opacity: 1, duration: 0.3 });
