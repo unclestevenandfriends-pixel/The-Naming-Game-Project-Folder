@@ -194,15 +194,6 @@ const NavigationGuard = {
             rafId = requestAnimationFrame(enforceOnScroll);
         }, { passive: true });
 
-        // Also check periodically in case scroll event is missed
-        setInterval(() => {
-            const currentSlide = this.getCurrentSlide();
-            if (!this.isSlideAccessible(currentSlide) && !this.scrollEnforcing) {
-                console.log(`🛡️ Periodic check - snapping back from ${currentSlide}`);
-                this.enforceSlidePosition(this.lastValidSlide);
-            }
-        }, 200);
-
         // For mouse wheel scrolling
         slider.addEventListener('wheel', (e) => {
             // Scrolling right (forward)

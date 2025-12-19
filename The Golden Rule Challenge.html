@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slide 26: The Golden Rule Challenge (Hard Mode)</title>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS (Do NOT remove - Required for Iframe Rendering) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito+Sans:wght@400;600;700&display=swap"
+        rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -15,7 +18,7 @@
         /* ═══════════════════════════════════════════════════════════════════════════════
            BRAND PROTOCOL CSS
            ═══════════════════════════════════════════════════════════════════════════════ */
-        
+
         :root {
             --brand-bg: #0B0C15;
             --brand-gold: #fbbf24;
@@ -47,11 +50,16 @@
             max-height: 56.25vw;
             background: var(--brand-bg);
             overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
         }
 
-        .font-display { font-family: 'Fredoka', sans-serif; }
-        .text-glow-gold { text-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
+        .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .text-glow-gold {
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+        }
 
         /* GLASS CARD */
         .glass-card {
@@ -74,8 +82,9 @@
         .choice-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-4px);
-            border-color: rgba(251, 191, 36, 0.5); /* Gold Hint */
-            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
+            border-color: rgba(251, 191, 36, 0.5);
+            /* Gold Hint */
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
         }
 
         .choice-btn:active {
@@ -99,10 +108,17 @@
 
         /* ANIMATIONS */
         @keyframes pop-in {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
-        
+
         .question-anim {
             animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
@@ -110,27 +126,36 @@
         /* PROGRESS BAR */
         .progress-pill {
             height: 8px;
-            width: 30px; /* Reduced width to fit 12 items */
-            background: rgba(255,255,255,0.1);
+            width: 30px;
+            /* Reduced width to fit 12 items */
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 4px;
             transition: all 0.3s ease;
         }
-        .progress-pill.active { background: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
-        .progress-pill.completed { background: #22c55e; }
 
+        .progress-pill.active {
+            background: #fbbf24;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        .progress-pill.completed {
+            background: #22c55e;
+        }
     </style>
 </head>
+
 <body>
 
     <div id="viewport-frame" class="flex flex-col relative">
         <!-- BACKGROUND LAYER -->
-        <div class="absolute inset-0 z-0 opacity-20 pointer-events-none" 
-             style="background-image: linear-gradient(#fbbf24 1px, transparent 1px), linear-gradient(90deg, #fbbf24 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(circle at center, black, transparent 80%);">
+        <div class="absolute inset-0 z-0 opacity-20 pointer-events-none"
+            style="background-image: linear-gradient(#fbbf24 1px, transparent 1px), linear-gradient(90deg, #fbbf24 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(circle at center, black, transparent 80%);">
         </div>
 
         <!-- HEADER -->
         <header class="relative z-10 w-full pt-8 text-center flex flex-col items-center">
-            <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-bold uppercase tracking-widest mb-4">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-bold uppercase tracking-widest mb-4">
                 <i data-lucide="scale" class="w-4 h-4"></i> Capitalization Check
             </div>
             <h1 class="font-display text-4xl text-white font-bold text-glow-gold">
@@ -140,7 +165,7 @@
 
         <!-- GAME AREA -->
         <main class="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4">
-            
+
             <!-- PROGRESS INDICATOR (12 Slots) -->
             <div class="flex gap-2 mb-8" id="progress-container">
                 <div class="progress-pill active"></div>
@@ -159,19 +184,22 @@
 
             <!-- QUESTION CARD -->
             <div id="game-card" class="glass-card w-full p-12 flex flex-col items-center text-center question-anim">
-                
+
                 <h2 class="text-slate-400 text-xl font-bold uppercase tracking-widest mb-6">Complete the Sentence</h2>
-                
+
                 <div class="text-5xl font-display text-white mb-12 leading-tight">
-                    "<span id="question-text">I live in...</span> <span id="answer-slot" class="text-yellow-400 border-b-4 border-yellow-400 border-dashed px-4">?</span>"
+                    "<span id="question-text">I live in...</span> <span id="answer-slot"
+                        class="text-yellow-400 border-b-4 border-yellow-400 border-dashed px-4">?</span>"
                 </div>
 
                 <!-- OPTIONS -->
                 <div class="grid grid-cols-2 gap-8 w-full max-w-2xl">
-                    <button id="btn-opt-1" class="choice-btn rounded-2xl p-6 text-3xl font-bold text-slate-200" onclick="handleChoice(0)">
+                    <button id="btn-opt-1" class="choice-btn rounded-2xl p-6 text-3xl font-bold text-slate-200"
+                        onclick="handleChoice(0)">
                         Option A
                     </button>
-                    <button id="btn-opt-2" class="choice-btn rounded-2xl p-6 text-3xl font-bold text-slate-200" onclick="handleChoice(1)">
+                    <button id="btn-opt-2" class="choice-btn rounded-2xl p-6 text-3xl font-bold text-slate-200"
+                        onclick="handleChoice(1)">
                         Option B
                     </button>
                 </div>
@@ -186,12 +214,15 @@
         </main>
 
         <!-- VICTORY OVERLAY (Hidden) -->
-        <div id="victory-screen" class="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500">
+        <div id="victory-screen"
+            class="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500">
             <i data-lucide="trophy" class="w-24 h-24 text-yellow-400 mb-6 animate-bounce"></i>
             <h2 class="font-display text-6xl text-white font-bold mb-4">Mastery Achieved!</h2>
             <p class="text-slate-300 text-2xl mb-8">You conquered the 12 Golden Rules.</p>
             <div class="flex gap-4">
-                <button class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 px-8 rounded-full transition-all" onclick="location.reload()">
+                <button
+                    class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 px-8 rounded-full transition-all"
+                    onclick="location.reload()">
                     Replay Level
                 </button>
             </div>
@@ -203,7 +234,7 @@
         // ═══════════════════════════════════════════════════════════════════════════════
         // GAME DATA & STATE
         // ═══════════════════════════════════════════════════════════════════════════════
-        
+
         // MOCK AUDIO (In case audio.js is missing in this preview)
         const SoundFX = window.SoundFX || {
             playCorrect: () => console.log("🎵 Audio: Correct"),
@@ -218,13 +249,13 @@
             { text: "I saw a...", options: ["cat", "Cat"], correct: 0, explanation: "Common Noun (General Animal)" },
             { text: "My name is...", options: ["ben", "Ben"], correct: 1, explanation: "Proper Noun (Specific Person)" },
             { text: "We go to...", options: ["school", "School"], correct: 0, explanation: "Common Noun (General Place)" },
-            
+
             // INTERMEDIATE
             { text: "We go to...", options: ["hogwarts", "Hogwarts"], correct: 1, explanation: "Proper Noun (Specific School)" },
             { text: "I love...", options: ["summer", "Summer"], correct: 0, explanation: "Common Noun (Seasons are NOT proper!)" },
             { text: "This is...", options: ["uncle steven", "Uncle Steven"], correct: 1, explanation: "Proper Noun (Title + Name)" },
             { text: "I have an...", options: ["uncle", "Uncle"], correct: 0, explanation: "Common Noun (General Family Member)" },
-            
+
             // ADVANCED / TRICKY
             { text: "Look at...", options: ["jupiter", "Jupiter"], correct: 1, explanation: "Proper Noun (Specific Planet)" },
             { text: "I want...", options: ["lego", "LEGO"], correct: 1, explanation: "Proper Noun (Brand Name)" },
@@ -239,11 +270,11 @@
         // ═══════════════════════════════════════════════════════════════════════════════
         // LOGIC
         // ═══════════════════════════════════════════════════════════════════════════════
-        
+
         function loadQuestion() {
             const q = questions[currentQ];
             const card = document.getElementById('game-card');
-            
+
             // Reset UI
             isLocked = false;
             document.getElementById('question-text').textContent = q.text;
@@ -251,11 +282,11 @@
             document.getElementById('answer-slot').className = "text-yellow-400 border-b-4 border-yellow-400 border-dashed px-4";
             document.getElementById('feedback-text').textContent = "";
             document.getElementById('feedback-text').classList.add('text-transparent');
-            
+
             // Buttons
             const btn1 = document.getElementById('btn-opt-1');
             const btn2 = document.getElementById('btn-opt-2');
-            
+
             // Randomize Button Mapping to prevent patterns
             // currentMapping[0] = index of option for Button 1
             // currentMapping[1] = index of option for Button 2
@@ -267,17 +298,17 @@
 
             btn1.textContent = q.options[currentMapping[0]];
             btn2.textContent = q.options[currentMapping[1]];
-            
+
             // Reset button classes
             btn1.className = "choice-btn rounded-2xl p-6 text-3xl font-bold text-slate-200";
             btn2.className = "choice-btn rounded-2xl p-6 text-3xl font-bold text-slate-200";
-            
+
             btn1.classList.remove('opacity-20', 'correct', 'wrong');
             btn2.classList.remove('opacity-20', 'correct', 'wrong');
 
             // Update Progress Bar
             updateProgress();
-            
+
             // Re-trigger animation
             card.classList.remove('question-anim');
             void card.offsetWidth; // trigger reflow
@@ -291,11 +322,11 @@
             const q = questions[currentQ];
             const selectedOptionIndex = currentMapping[btnIndex]; // Get actual option index from mapping
             const isCorrect = selectedOptionIndex === q.correct;
-            
+
             // Physical buttons
             const btn = document.getElementById(btnIndex === 0 ? 'btn-opt-1' : 'btn-opt-2');
             const otherBtn = document.getElementById(btnIndex === 0 ? 'btn-opt-2' : 'btn-opt-1');
-            
+
             const feedback = document.getElementById('feedback-text');
             const slot = document.getElementById('answer-slot');
 
@@ -304,10 +335,10 @@
                 SoundFX.playCorrect();
                 btn.classList.add('correct');
                 otherBtn.classList.add('opacity-20');
-                
+
                 slot.textContent = q.options[q.correct];
                 slot.className = "text-green-400 font-bold border-b-4 border-green-500 px-4";
-                
+
                 feedback.textContent = `Correct! ${q.explanation}`;
                 feedback.className = "h-8 mt-6 text-xl font-bold text-green-400 transition-all duration-300";
 
@@ -316,10 +347,10 @@
                 // FAIL
                 SoundFX.playIncorrect();
                 btn.classList.add('wrong');
-                
+
                 feedback.textContent = "Oops! Look closely at the capitalization.";
                 feedback.className = "h-8 mt-6 text-xl font-bold text-red-400 transition-all duration-300";
-                
+
                 // Allow retry after short delay
                 setTimeout(() => {
                     isLocked = false;
@@ -351,10 +382,10 @@
             SoundFX.playFanfare();
             const modal = document.getElementById('victory-screen');
             modal.classList.remove('opacity-0', 'pointer-events-none');
-            
+
             // Update last pill
             const pills = document.querySelectorAll('.progress-pill');
-            pills[pills.length-1].classList.add('completed');
+            pills[pills.length - 1].classList.add('completed');
         }
 
         // Initialize
@@ -363,4 +394,5 @@
 
     </script>
 </body>
+
 </html>

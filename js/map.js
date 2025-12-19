@@ -957,6 +957,12 @@ const MapSystem = {
             }
         }
 
+        // 🛡️ SANITY CHECK: Ensure N1 is always unlocked to prevent soft-locks
+        if (!this.state.unlockedNodes.includes('N1')) {
+            console.log("🔧 MapSystem: N1 was missing from unlockedNodes. Restoring.");
+            this.state.unlockedNodes.push('N1');
+        }
+
         if (typeof NavigationGuard !== "undefined") {
             setTimeout(() => NavigationGuard.updateCachedMaxSlide(), 500);
         }

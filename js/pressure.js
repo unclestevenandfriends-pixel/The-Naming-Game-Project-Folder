@@ -246,7 +246,7 @@ const PressureSystem = {
 
         // Apply Damage
         if (typeof GameEngine !== 'undefined' && GameEngine.takeDamage) {
-            GameEngine.takeDamage(20);
+            GameEngine.takeDamage(GameEngine.config.damagePerWrongTimed || 20);
         }
     }
 };

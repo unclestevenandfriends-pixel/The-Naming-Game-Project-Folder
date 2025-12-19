@@ -7,23 +7,23 @@ const RewardsEngine = {
     // These numbers represent the EXACT number of correct clicks required.
     // REALIGNED to match map.js node configuration and actual HTML slide positions
     targets: {
-        // Hunt Games from Central Hub Camp (N3A, N3B, N3C)
-        10: 5,  // Things & Animals Hunt (N3C) - 5 correct items
-        11: 5,  // People Hunt (N3A) - 5 correct items
-        12: 5,  // Places Hunt (N3B) - 5 correct items
-        // Other game slides
-        7: 6,   // Norah Spot Nouns (slide 7)
-        14: 4,  // Common Check
-        20: 4,  // Quick Check (Proper Nouns)
-        // CORRECTED INDICES for Detective Hub and Trial Hub sections:
-        28: 10, // Detective Intro / Mr Muddle sentences (slide 28)
-        29: 9,  // Evidence A: Locations (slide 29) - 9 location words
-        30: 6,  // Evidence B: People & Dates (slide 30) - 6 words
-        31: 54, // Case Closed (slide 31) - 54 nouns
-        32: 4,  // Quiz 1: People & I (slide 32)
-        33: 4,  // Quiz 2: Places & Streets (slide 33)
-        34: 3,  // Quiz 3: Days & Dates (slide 34)
-        35: 3   // Exit Ticket Riddles (slide 35)
+        // Hunt Games (Hub A)
+        'people_hunt': 5,
+        'places_hunt': 5,
+        'things_hunt': 5,
+        // Other interactive slides
+        'sentence_spotting': 6,
+        'check_common_nouns': 4,
+        'proper_quick_check_placeholder': 4,
+        // Detective Hub & Trial Hub
+        'mr_muddle_intro': 10,
+        'evidence_a_locations': 9,
+        'evidence_b_people_dates': 6,
+        'case_closed': 54,
+        'quiz_people_i': 4,
+        'quiz_places_streets': 4,
+        'quiz_specific_dates': 3,
+        'exit_ticket_riddle': 3
     },
 
     state: {},
@@ -56,17 +56,19 @@ const RewardsEngine = {
     // 2. Process Answer
     handleAnswer(detail, isCorrect) {
         try {
-            // Calculate Index dynamically
-            const slideIndex = this.getCurrentSlideIndex();
+            // Calculate Key dynamically
+            const slideKey = window.SlideRegistry ? window.SlideRegistry.getCurrentKey() : null;
+            if (!slideKey) return;
+
             const context = detail?.context || "unknown_" + Date.now();
 
-            // Debug Log to help you verify
-            console.log(`🖱️ Interaction on Slide ${slideIndex}. Correct: ${isCorrect}`);
+            // Debug Log
+            console.log(`🖱️ Interaction on Slide [${slideKey}]. Correct: ${isCorrect}`);
 
-            if (!this.state[slideIndex]) {
-                this.state[slideIndex] = { found: new Set(), wrong: 0, completed: false };
+            if (!this.state[slideKey]) {
+                this.state[slideKey] = { found: new Set(), wrong: 0, completed: false };
             }
-            const tracker = this.state[slideIndex];
+            const tracker = this.state[slideKey];
 
             if (isCorrect) {
                 if (!tracker.found.has(context)) {
@@ -76,11 +78,11 @@ const RewardsEngine = {
                     this.fireDualConfetti(this.lastX, this.lastY);
 
                     // COMPLETION CHECK
-                    const target = this.targets[slideIndex];
+                    const target = this.targets[slideKey];
                     if (target) {
                         console.log(`🎯 Progress: ${tracker.found.size}/${target}`);
                         if (tracker.found.size >= target && !tracker.completed) {
-                            this.triggerCompletion(slideIndex, tracker);
+                            this.triggerCompletion(slideKey, tracker);
                         }
                     }
                 }
@@ -89,7 +91,6 @@ const RewardsEngine = {
             }
         } catch (err) {
             console.error("⚠️ RewardsEngine Error:", err);
-            // Swallowing error to prevent breaking games.js logic
         }
     },
 

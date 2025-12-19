@@ -114,6 +114,29 @@
             const label = this.LABEL_BY_KEY[key];
             if (!label) return `${idx + 1}`;
             return `${label} / ${this.DISPLAY_TOTAL}`;
+        },
+
+        /**
+         * 🔍 DYNAMIC LOOKUP
+         * Returns an object for the given key: { element: HTMLElement, title: String, index: Number }
+         */
+        lookup(key) {
+            const idx = this.idx(key);
+            if (idx === null) return { element: null, title: key, index: -1 };
+
+            const element = this.slides[idx] || null;
+            let title = this.LABEL_BY_KEY[key] || key; // Fallback to label
+
+            if (element) {
+                // Dynamic Title Extraction
+                const h1 = element.querySelector('h1, h2, .font-display');
+                if (h1) {
+                    const text = h1.innerText.trim().replace(/\n/g, ' ').substring(0, 60);
+                    if (text) title = text;
+                }
+            }
+
+            return { element, title, index: idx };
         }
     };
 

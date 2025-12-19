@@ -64,10 +64,15 @@ window.generateNotesSummary = function () {
       card.className = 'summary-card';
       let slideTitle = `Slide ${parseInt(slideIndex) + 1}`;
       const numericIndex = parseInt(slideIndex, 10);
-      const slideEl = document.querySelectorAll('.slide')[numericIndex];
-      if (slideEl) {
-        const h1 = slideEl.querySelector('h1, h2, .font-display');
-        if (h1) slideTitle = h1.innerText.replace(/\n/g, ' ').substring(0, 60) + '...';
+
+      // 🎯 DYNAMIC TITLE LOOKUP (Batch 1 Refactor)
+      // Use SlideRegistry as the Source of Truth instead of raw DOM index
+      if (window.SlideRegistry) {
+        const key = window.SlideRegistry.keyAtIndex(numericIndex);
+        if (key) {
+          const info = window.SlideRegistry.lookup(key);
+          if (info && info.title) slideTitle = info.title;
+        }
       }
 
       let listHTML = '<ul class="summary-note-list" style="list-style: none; padding: 0; margin: 0;">';
