@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 05: Node 1 Exit Protocol</title>
+
+    <!-- TAILWIND CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- LUCIDE ICONS -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- GSAP ANIMATION -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- GOOGLE FONTS (Strict Brand Compliance) -->
+    <!-- Headings: Fredoka | Body: Nunito Sans | Accent: Caveat Brush -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Fredoka:wght@300;400;600;700&family=Nunito+Sans:wght@300;400;600;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- CONFIGURATION -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // CORE PALETTE (From Color Palette Protocol)
+                        void: '#0B0C15', // Background
+                        brand: {
+                            400: '#22d3ee', // Cyan Neon (Primary)
+                            500: '#06b6d4', // Darker Cyan
+                        },
+                        accent: {
+                            400: '#f472b6', // Pink Neon
+                        },
+                        text: {
+                            main: '#FFFFFF', // Body Copy
+                            muted: '#94a3b8', // Slate Mist
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Nunito Sans', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif'],
+                        hand: ['Caveat Brush', 'cursive'],
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'flash-red': 'flashRed 0.5s ease-in-out',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           MASTER BRAND PROTOCOL STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        /* 1. SCALING ENGINE (UPGRADED FOR PREVIEW SAFETY) */
+        /* Original Protocol: font-size: 2vh on desktop.
+           New Safety Logic: font-size: min(2vh, 1.125vw).
+           Why? 1.125vw is exactly 2vh at a 16:9 ratio. 
+           This ensures text shrinks if width is the bottleneck (like in a mobile preview).
+        */
+        html {
+            font-size: min(2vh, 1.125vw);
+        }
+
+        body {
+            background-color: #0B0C15;
+            /* Void Blue */
+            margin: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #FFFFFF;
+            font-family: 'Nunito Sans', sans-serif;
+        }
+
+        /* 2. 16:9 VIEWPORT FRAME (Strict Lock) */
+        #viewport-frame {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 177.78vh;
+            /* 16:9 Aspect Ratio */
+            max-height: 56.25vw;
+            background: #0B0C15;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            /* Key for Header + Content layout */
+        }
+
+        /* 3. BACKGROUND TEXTURE (From Color Protocol - The Grid) */
+        .bg-grid {
+            position: absolute;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            background-image:
+                linear-gradient(to right, rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+            background-size: 4rem 4rem;
+            /* Scaled for 2vh font size */
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 4. GLASS CARDS (From Visual System) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 1.5rem;
+        }
+
+        /* TEXT GLOWS (From Brand Rules) */
+        .text-glow {
+            text-shadow: 0 0 0.8rem rgba(34, 211, 238, 0.5);
+        }
+
+        .text-glow-pink {
+            text-shadow: 0 0 0.8rem rgba(244, 114, 182, 0.5);
+        }
+
+        /* ANIMATIONS */
+        @keyframes flashRed {
+
+            0%,
+            100% {
+                box-shadow: inset 0 0 0 rgba(239, 68, 68, 0);
+            }
+
+            50% {
+                box-shadow: inset 0 0 100px rgba(239, 68, 68, 0.5);
+            }
+        }
+
+        .animate-flash-red {
+            animation: flashRed 0.5s ease-in-out;
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #22d3ee, transparent);
+            opacity: 0.5;
+            animation: scan 2s linear infinite;
+            display: none;
+        }
+
+        @keyframes scan {
+            0% {
+                top: 0%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        .scanning .scan-line {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="viewport-frame">
+
+        <!-- BACKGROUND LAYER -->
+        <div class="bg-grid"></div>
+
+        <!-- HEADER -->
+        <!-- Fixed height constraints to ensure top edge safety -->
+        <header class="relative z-20 px-12 pt-8 pb-2 w-full flex justify-between items-end shrink-0">
+            <div>
+                <div class="flex items-center gap-3 opacity-80 mb-1">
+                    <div class="w-3 h-3 rounded-full bg-brand-400 animate-pulse"></div>
+                    <span class="uppercase tracking-[0.2em] text-xs font-bold text-brand-400 font-display">Node 1 Exit
+                        Protocol</span>
+                </div>
+                <h1 class="text-4xl font-display font-bold text-white">The Gatekeeper</h1>
+            </div>
+            <!-- Mock Map/Settings Buttons -->
+            <div class="flex gap-4 opacity-50">
+                <div class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center"><i
+                        data-lucide="map" class="w-5 h-5"></i></div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <!-- SAFE LAYOUT: flex-1 ensures it fills space without overflow, min-h-0 prevents flexbox blowout -->
+        <div class="relative z-10 w-full flex-1 min-h-0 p-12 pt-6 flex flex-col">
+
+            <!-- GRID: SWAPPED COLUMNS (Gatekeeper Left, Scan Right) -->
+            <div class="w-full h-full grid grid-cols-2 gap-10">
+
+                <!-- COL 1: THE GATEKEEPER (Phase 1) -->
+                <div id="gatekeeper-panel"
+                    class="glass-card p-10 flex flex-col justify-center text-center relative transition-all duration-700 hover:border-brand-400/30 overflow-hidden">
+
+                    <div class="flex flex-col items-center w-full h-full justify-center" id="gatekeeper-content">
+                        <!-- Icon Badge -->
+                        <div
+                            class="w-16 h-16 rounded-full bg-brand-500/10 flex items-center justify-center mb-6 border border-brand-400/20 shadow-[0_0_2rem_rgba(34,211,238,0.15)] shrink-0">
+                            <i data-lucide="key" class="w-8 h-8 text-brand-400"></i>
+                        </div>
+
+                        <!-- Question Box -->
+                        <div
+                            class="bg-black/40 p-6 rounded-2xl border-l-4 border-brand-400 mb-6 text-left w-full shadow-inner relative overflow-hidden shrink-0">
+                            <div class="absolute -right-4 -top-4 text-white/5 rotate-12">
+                                <i data-lucide="help-circle" class="w-32 h-32"></i>
+                            </div>
+                            <p class="text-xl font-medium leading-relaxed font-display text-white relative z-10">
+                                "I am the name of <span class="text-brand-400">everything</span> you can see, touch, or
+                                feel.<br>
+                                I can be a person like a <strong>Teacher</strong>, or a place like
+                                <strong>Mars</strong>.<br>
+                                What am I?"
+                            </p>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="w-full space-y-3 shrink-0">
+                            <button onclick="checkAnswer(this, false)"
+                                class="option-btn w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-brand-400/50 transition-all text-left flex items-center gap-4 group">
+                                <div
+                                    class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-brand-400 text-sm text-transparent font-display font-bold transition-colors">
+                                    A</div>
+                                <span class="text-white/80 group-hover:text-white text-lg font-display">A
+                                    Sentence</span>
+                            </button>
+
+                            <button onclick="checkAnswer(this, true)"
+                                class="option-btn w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-brand-500/20 hover:border-brand-400 transition-all text-left flex items-center gap-4 group">
+                                <div
+                                    class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-brand-400 text-sm text-transparent font-display font-bold transition-colors">
+                                    B</div>
+                                <span class="text-white/80 group-hover:text-white font-bold text-lg font-display">A
+                                    Noun</span>
+                            </button>
+
+                            <button onclick="checkAnswer(this, false)"
+                                class="option-btn w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-brand-400/50 transition-all text-left flex items-center gap-4 group">
+                                <div
+                                    class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-brand-400 text-sm text-transparent font-display font-bold transition-colors">
+                                    C</div>
+                                <span class="text-white/80 group-hover:text-white text-lg font-display">A Name
+                                    Tag</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COL 2: REALITY SCAN (Phase 2 - Locked) -->
+                <div id="scan-panel"
+                    class="glass-card p-10 flex flex-col justify-center items-center text-center relative overflow-hidden transition-all duration-500 opacity-40 grayscale pointer-events-none border-dashed border-white/10">
+
+                    <!-- LOCK OVERLAY -->
+                    <div id="lock-overlay"
+                        class="absolute inset-0 flex flex-col items-center justify-center z-20 backdrop-blur-sm bg-black/40 rounded-2xl">
+                        <i data-lucide="lock" class="w-16 h-16 text-white/20 mb-6"></i>
+                        <span class="uppercase tracking-[0.3em] text-sm text-white/50 font-bold font-display">Locked
+                            until riddle solved</span>
+                    </div>
+
+                    <!-- Scan Line -->
+                    <div class="scan-line z-0"></div>
+
+                    <!-- Header Area -->
+                    <div class="relative z-10 mb-6 shrink-0">
+                        <h2 class="text-4xl font-display font-bold text-white mb-2 text-glow-pink">Reality Scan</h2>
+                        <p class="text-text-muted text-lg leading-relaxed max-w-sm mx-auto">
+                            Look around your room!<br>
+                            Find as many <strong class="text-white">Nouns</strong> as you can before the time runs out.
+                        </p>
+                    </div>
+
+                    <!-- TIMER CIRCLE -->
+                    <div class="relative w-56 h-56 mb-8 flex items-center justify-center z-10 shrink-0">
+                        <!-- SVG Size adjusted for 2vh scaling -->
+                        <svg class="progress-ring w-56 h-56" width="224" height="224" viewBox="0 0 224 224">
+                            <circle class="text-white/5" stroke="currentColor" stroke-width="12" fill="transparent"
+                                r="96" cx="112" cy="112" />
+                            <circle id="timer-ring" class="text-accent-400 progress-ring__circle" stroke="currentColor"
+                                stroke-width="12" stroke-linecap="round" fill="transparent" r="96" cx="112" cy="112"
+                                stroke-dasharray="603" stroke-dashoffset="0" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <span id="timer-text"
+                                class="text-6xl font-display font-bold text-white tracking-tighter text-glow-pink">30</span>
+                            <span
+                                class="text-sm uppercase tracking-widest text-white/40 mt-2 font-display">Seconds</span>
+                        </div>
+                    </div>
+
+                    <!-- START BUTTON -->
+                    <button id="btn-start-scan" onclick="startRealityScan()"
+                        class="relative z-10 px-8 py-4 bg-gradient-to-r from-accent-400 to-pink-600 text-white font-display font-bold text-lg rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_2rem_rgba(244,114,182,0.4)] shrink-0">
+                        <span class="flex items-center gap-3">
+                            <i data-lucide="play" class="w-5 h-5 fill-current"></i> START SCANNER
+                        </span>
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        lucide.createIcons();
+        const DURATION = 30;
+        const CIRCUMFERENCE = 603; // 2 * pi * 96
+        let timeLeft = DURATION;
+        let timerInterval = null;
+        let isScanning = false;
+
+        // --- PHASE 1: CHECK GATEKEEPER ---
+        function checkAnswer(btn, isCorrect) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.classList.add('pointer-events-none'));
+            allBtns.forEach(b => b.classList.remove('bg-red-500/20', 'bg-brand-500/20', 'border-red-500', 'border-brand-400'));
+
+            if (isCorrect) {
+                // SUCCESS
+                btn.classList.remove('bg-white/5');
+                btn.classList.add('bg-brand-500/20', 'border-brand-400', 'text-brand-400');
+
+                const iconDiv = btn.querySelector('div');
+                iconDiv.innerHTML = `<i data-lucide="check" class="w-6 h-6 text-brand-400"></i>`;
+                iconDiv.classList.remove('border-white/20', 'text-transparent');
+                iconDiv.classList.add('border-brand-400', 'bg-brand-500/20');
+
+                lucide.createIcons();
+                console.log("🔊 Play: Correct Answer Ding");
+
+                // UNLOCK PHASE 2
+                setTimeout(unlockRealityScan, 800);
+
+            } else {
+                // FAIL
+                btn.classList.add('bg-red-500/20', 'border-red-500', 'shake-locked');
+                setTimeout(() => {
+                    btn.classList.remove('shake-locked');
+                    allBtns.forEach(b => b.classList.remove('pointer-events-none'));
+                }, 500);
+                console.log("🔊 Play: Wrong Buzzer");
+            }
+        }
+
+        // --- PHASE 2: UNLOCK SCANNER ---
+        function unlockRealityScan() {
+            const scanPanel = document.getElementById('scan-panel');
+            const overlay = document.getElementById('lock-overlay');
+            const gatekeeperPanel = document.getElementById('gatekeeper-panel');
+
+            // 1. Fade out Lock Overlay
+            gsap.to(overlay, { opacity: 0, duration: 0.5, onComplete: () => overlay.remove() });
+
+            // 2. Activate Scan Panel
+            scanPanel.classList.remove('opacity-40', 'grayscale', 'pointer-events-none', 'border-dashed');
+            scanPanel.classList.add('border-accent-400/50', 'shadow-[0_0_50px_rgba(244,114,182,0.15)]');
+
+            // 3. Dim Gatekeeper Panel
+            gatekeeperPanel.classList.add('opacity-40', 'grayscale');
+
+            console.log("🔊 Play: Mechanical Unlock Sound");
+        }
+
+        // --- PHASE 3: RUN SCANNER ---
+        function startRealityScan() {
+            if (isScanning) return;
+            isScanning = true;
+
+            const btn = document.getElementById('btn-start-scan');
+            btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+            btn.innerHTML = `<span class="flex items-center gap-3"><i data-lucide="loader" class="animate-spin w-6 h-6"></i> SCANNING...</span>`;
+            lucide.createIcons();
+
+            document.getElementById('scan-panel').classList.add('scanning');
+            console.log("🔊 Play: Ticking Clock Sound");
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI(timeLeft);
+
+                if (timeLeft <= 5) {
+                    const text = document.getElementById('timer-text');
+                    text.classList.remove('text-white');
+                    text.classList.add('text-red-500', 'animate-pulse');
+                    console.log("🔊 Play: Beep");
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishScan();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI(seconds) {
+            document.getElementById('timer-text').innerText = seconds;
+            const ring = document.getElementById('timer-ring');
+            const offset = CIRCUMFERENCE - (seconds / DURATION) * CIRCUMFERENCE;
+            ring.style.strokeDashoffset = offset;
+        }
+
+        function finishScan() {
+            console.log("🔊 Play: Level Complete Chime");
+
+            // Visual Flash
+            const frame = document.getElementById('viewport-frame');
+            const flash = document.createElement('div');
+            flash.className = "absolute inset-0 bg-brand-500/20 z-50 animate-flash-red pointer-events-none mix-blend-overlay";
+            frame.appendChild(flash);
+            setTimeout(() => flash.remove(), 600);
+
+            // Final State
+            document.getElementById('scan-panel').classList.remove('scanning');
+            document.getElementById('timer-text').innerText = "DONE";
+            document.getElementById('timer-text').classList.remove('text-red-500', 'animate-pulse');
+            document.getElementById('timer-text').classList.add('text-brand-400');
+            document.getElementById('timer-text').classList.add('text-glow');
+
+            console.log("🚀 TRIGGER MAP UNLOCK: Node 1 Complete");
+            if (window.parent && window.parent.MapSystem) {
+                window.parent.MapSystem.completeNode('N1');
+            }
+        }
+    </script>
+</body>
+
+</html>

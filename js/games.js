@@ -14,7 +14,7 @@ function recordAnswer(isCorrect, context) {
 
     // 🎮 GAMIFICATION HOOK: Notify GameEngine of correct answer
     document.dispatchEvent(new CustomEvent('game:correct', {
-      detail: { context, slideIndex: localStorage.getItem('nameGame_slide') || 0 }
+      detail: { context, slideKey: localStorage.getItem('nameGame_slide_key') || 'hero' }
     }));
 
   } else {
@@ -22,7 +22,7 @@ function recordAnswer(isCorrect, context) {
 
     // 🎮 GAMIFICATION HOOK: Notify GameEngine of incorrect answer  
     document.dispatchEvent(new CustomEvent('game:incorrect', {
-      detail: { context, slideIndex: localStorage.getItem('nameGame_slide') || 0 }
+      detail: { context, slideKey: localStorage.getItem('nameGame_slide_key') || 'hero' }
     }));
   }
   console.log("Current State:", classData);

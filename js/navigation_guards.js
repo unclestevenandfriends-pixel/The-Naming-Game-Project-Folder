@@ -60,21 +60,39 @@ const NavigationGuard = {
         if (typeof MapSystem === 'undefined') return Infinity;
 
         // 1. Start with the CURRENT active node in MapSystem (prioritize intended destination)
-        // This fixes the issue where being at Slide 8 (N2) blocked movement to Slide 10 (N3A)
         const activeNodeId = MapSystem.state.currentNode;
         const activeNode = MapSystem.mapNodes[activeNodeId];
 
         let maxSlide = 0;
 
-        if (activeNode && activeNode.slides) {
-            maxSlide = activeNode.exitSlide || Math.max(...activeNode.slides);
+        if (activeNode) {
+            const slides = MapSystem.resolveNodeSlides(activeNode);
+            const exitIdx = MapSystem.resolveExitSlide(activeNode);
+
+            if (slides) {
+                slides.forEach(idx => {
+                    if (idx > maxSlide) maxSlide = idx;
+                });
+            }
+            if (exitIdx !== undefined && exitIdx !== null) {
+                if (exitIdx > maxSlide) maxSlide = exitIdx;
+            }
         }
 
         // 2. Scan ALL unlocked nodes to allow backtracking and full access
         Object.values(MapSystem.mapNodes).forEach(node => {
-            if (MapSystem.isNodeUnlocked(node.id) && node.slides) {
-                const nodeMax = node.exitSlide || Math.max(...node.slides);
-                if (nodeMax > maxSlide) maxSlide = nodeMax;
+            if (MapSystem.isNodeUnlocked(node.id)) {
+                const slides = MapSystem.resolveNodeSlides(node);
+                const exitIdx = MapSystem.resolveExitSlide(node);
+
+                if (slides) {
+                    slides.forEach(idx => {
+                        if (idx > maxSlide) maxSlide = idx;
+                    });
+                }
+                if (exitIdx !== undefined && exitIdx !== null) {
+                    if (exitIdx > maxSlide) maxSlide = exitIdx;
+                }
             }
         });
 
@@ -256,16 +274,15 @@ const NavigationGuard = {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     getCurrentSlide() {
-        const slider = document.getElementById('slider');
-        if (!slider) return 0;
-        return Math.round(slider.scrollLeft / slider.clientWidth);
+        return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
     },
 
     isSlideAccessible(slideIndex) {
         if (typeof MapSystem === 'undefined') return true;
 
         // Find which node this slide belongs to
-        const node = MapSystem.findNodeBySlide(slideIndex);
+        const key = MapSystem.getSlideKeyAtIndex(slideIndex);
+        const node = MapSystem.findNodeByKey(key);
 
         // If no node owns this slide, check if it's within general bounds
         if (!node) {
@@ -279,9 +296,11 @@ const NavigationGuard = {
 
         // If node is unlocked, check if we're not past its exit slide
         // (unless next node is also unlocked)
-        if (node.exitSlide !== undefined && slideIndex > node.exitSlide) {
-            const nextNode = MapSystem.findNodeBySlide(slideIndex);
-            return nextNode && MapSystem.isNodeUnlocked(nextNode.id);
+        const exitSlide = MapSystem.resolveExitSlide(node);
+        if (exitSlide !== null && slideIndex === exitSlide) {
+            // This is the boundary slide. 
+            // Accessibility within this slide is fine, but moving forward from it is gated.
+            return true;
         }
 
         return true;
@@ -298,10 +317,15 @@ const NavigationGuard = {
         }
 
         // Check if current slide is an exit slide (gate)
-        const currentNode = MapSystem.findNodeBySlide(currentSlide);
-        if (currentNode && currentNode.exitSlide === currentSlide) {
-            // On an exit slide - must use map button
-            return false;
+        const currentKey = MapSystem.getSlideKeyAtIndex(currentSlide);
+        const currentNode = MapSystem.findNodeByKey(currentKey);
+        const exitSlide = currentNode ? MapSystem.resolveExitSlide(currentNode) : null;
+
+        if (currentNode && exitSlide === currentSlide) {
+            // On an exit slide - must use map button (unless already completed)
+            if (!MapSystem.state.completedNodes.includes(currentNode.id)) {
+                return false;
+            }
         }
 
         // Check if next slide is accessible

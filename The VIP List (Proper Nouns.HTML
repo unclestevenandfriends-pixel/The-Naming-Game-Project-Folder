@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 20: The VIP List (Proper Nouns)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           BRAND PROTOCOL CSS
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        :root {
+            --brand-bg: #0B0C15;
+            --brand-cyan: #22d3ee;
+            --brand-purple: #c084fc;
+            --brand-emerald: #34d399;
+            --brand-pink: #f472b6;
+            --brand-gold: #fbbf24;
+        }
+
+        body {
+            background-color: #000;
+            color: #FDFDFD;
+            margin: 0;
+            font-family: 'Nunito Sans', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 16:9 VIEWPORT FRAME */
+        #viewport-frame {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 177.78vh;
+            max-height: 56.25vw;
+            background: var(--brand-bg);
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .font-display { font-family: 'Fredoka', sans-serif; }
+        .text-glow { text-shadow: 0 0 20px rgba(251, 191, 36, 0.4); } /* Gold Glow */
+
+        /* BACKGROUND GRID */
+        .bg-grid {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* GLASS CARD PROTOCOL */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* NEXT BUTTON */
+        .btn-next {
+            background: linear-gradient(135deg, #22d3ee, #06b6d4);
+            color: #000;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.6);
+        }
+
+        .btn-next:active {
+            transform: scale(0.98);
+        }
+
+        /* CATEGORY SPECIFIC STYLES */
+        .card-people { border-top: 4px solid var(--brand-purple); }
+        .card-places { border-top: 4px solid var(--brand-emerald); }
+        .card-time   { border-top: 4px solid var(--brand-cyan); }
+        .card-brands { border-top: 4px solid var(--brand-pink); }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="viewport-frame" class="flex flex-col relative">
+        <!-- BACKGROUND LAYER -->
+        <div class="absolute inset-0 z-0 bg-grid opacity-50 pointer-events-none"></div>
+        <div class="absolute inset-0 z-0 bg-gradient-to-t from-[#0B0C15] via-transparent to-transparent opacity-80 pointer-events-none"></div>
+
+        <!-- HEADER -->
+        <header class="relative z-10 w-full pt-10 pb-6 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-bold uppercase tracking-widest mb-4">
+                <i data-lucide="crown" class="w-4 h-4"></i> The Golden Rule
+            </div>
+            <h1 class="font-display text-5xl text-white font-bold text-glow mb-2">
+                The <span class="text-yellow-400">VIP</span> List
+            </h1>
+            <p class="text-slate-400 text-xl font-light tracking-wide">
+                (Very Important Proper Nouns)
+            </p>
+        </header>
+
+        <!-- MAIN CONTENT: 2x2 GRID -->
+        <main class="relative z-10 flex-1 px-16 pb-8 flex items-center justify-center">
+            <div class="grid grid-cols-2 gap-6 w-full max-w-5xl h-[55vh]">
+                
+                <!-- CARD 1: PEOPLE -->
+                <div class="glass-card card-people p-8 flex flex-col justify-center items-start group">
+                    <div class="icon-box bg-purple-500/20 text-purple-300 group-hover:bg-purple-500/30 transition-colors">
+                        <i data-lucide="user-check" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="font-display text-2xl text-purple-200 mb-3 group-hover:text-purple-100 transition-colors">Specific People</h2>
+                    <p class="text-slate-300 text-lg leading-relaxed">
+                        Names like <span class="text-purple-300 font-bold">Sarah</span>, <br>
+                        <span class="text-purple-300 font-bold">Dr. Smith</span>, and <br>
+                        <span class="text-purple-300 font-bold">Harry Potter</span>.
+                    </p>
+                </div>
+
+                <!-- CARD 2: PLACES -->
+                <div class="glass-card card-places p-8 flex flex-col justify-center items-start group">
+                    <div class="icon-box bg-emerald-500/20 text-emerald-300 group-hover:bg-emerald-500/30 transition-colors">
+                        <i data-lucide="map-pin" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="font-display text-2xl text-emerald-200 mb-3 group-hover:text-emerald-100 transition-colors">Specific Places</h2>
+                    <p class="text-slate-300 text-lg leading-relaxed">
+                        Names like <span class="text-emerald-300 font-bold">Paris</span>, <br>
+                        <span class="text-emerald-300 font-bold">Disney World</span>, and <br>
+                        <span class="text-emerald-300 font-bold">Mars</span>.
+                    </p>
+                </div>
+
+                <!-- CARD 3: TIME -->
+                <div class="glass-card card-time p-8 flex flex-col justify-center items-start group">
+                    <div class="icon-box bg-cyan-500/20 text-cyan-300 group-hover:bg-cyan-500/30 transition-colors">
+                        <i data-lucide="calendar-clock" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="font-display text-2xl text-cyan-200 mb-3 group-hover:text-cyan-100 transition-colors">Time</h2>
+                    <p class="text-slate-300 text-lg leading-relaxed">
+                        Days & Months like <br>
+                        <span class="text-cyan-300 font-bold">Monday</span> and <span class="text-cyan-300 font-bold">July</span>. <br>
+                        <span class="text-slate-500 text-base italic mt-1 block border-l-2 border-slate-700 pl-2">(but not seasons!)</span>
+                    </p>
+                </div>
+
+                <!-- CARD 4: BRANDS -->
+                <div class="glass-card card-brands p-8 flex flex-col justify-center items-start group">
+                    <div class="icon-box bg-pink-500/20 text-pink-300 group-hover:bg-pink-500/30 transition-colors">
+                        <i data-lucide="tag" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="font-display text-2xl text-pink-200 mb-3 group-hover:text-pink-100 transition-colors">Brands</h2>
+                    <p class="text-slate-300 text-lg leading-relaxed">
+                        Names like <span class="text-pink-300 font-bold">Nike</span>, <br>
+                        <span class="text-pink-300 font-bold">LEGO</span>, and <br>
+                        <span class="text-pink-300 font-bold">Google</span>.
+                    </p>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- FOOTER / NAV -->
+        <footer class="relative z-20 w-full p-8 flex justify-end items-center">
+            <button class="btn-next rounded-full px-8 py-3 flex items-center gap-2 group" onclick="console.log('Navigating to next slide...')">
+                Next <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </footer>
+
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

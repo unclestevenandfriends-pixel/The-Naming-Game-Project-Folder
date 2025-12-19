@@ -41,10 +41,11 @@ const GameEngine = {
         28: 10, // Detective Intro / Mr Muddle sentences (slide 28)
         29: 9,  // Evidence A: Locations (slide 29)
         30: 6,  // Evidence B: People & Dates (slide 30)
-        31: 4,  // Quiz 1: People & I (slide 31)
-        32: 4,  // Quiz 2: Places & Streets (slide 32)
-        33: 3,  // Quiz 3: Days & Dates (slide 33)
-        34: 3   // Exit Ticket Riddles (slide 34)
+        31: 54, // Case Closed (slide 31) - 54 nouns
+        32: 4,  // Quiz 1: People & I (slide 32)
+        33: 4,  // Quiz 2: Places & Streets (slide 33)
+        34: 3,  // Quiz 3: Days & Dates (slide 34)
+        35: 3   // Exit Ticket Riddles (slide 35)
     },
 
     slideProgress: {},
@@ -445,7 +446,7 @@ const GameEngine = {
 
         const viewport = document.getElementById('viewport-frame');
         const nav = document.querySelector('nav');
-        
+
         if (viewport) {
             viewport.classList.remove('opacity-0');
             viewport.style.pointerEvents = 'auto';
@@ -458,7 +459,7 @@ const GameEngine = {
             slider.scrollLeft = 0; // Force to start
             slider.style.overflow = ''; // Re-enable scrolling
         }
-        
+
         // ═══════════════════════════════════════════════════════════════════════════════
         // CRITICAL: Clear lobby lock to allow navigation
         // ═══════════════════════════════════════════════════════════════════════════════

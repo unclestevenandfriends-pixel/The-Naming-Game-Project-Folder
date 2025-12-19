@@ -356,3 +356,40 @@ function saveProgress() {
 window.saveProgress = saveProgress;
 
 console.log("✅ core.js loaded - Foundation systems ready");
+
+// ─────────────────────────────────────────────────────────────
+// SINGLE SOURCE OF TRUTH: Playable slides list (registry)
+// Excludes hidden + utility + anything marked skip-registry.
+// ─────────────────────────────────────────────────────────────
+window.SLIDE_REGISTRY = {
+  getSlides() {
+    const slider = document.getElementById('slider');
+    if (!slider) return [];
+    return Array.from(
+      slider.querySelectorAll('section.slide[data-slide-key]')
+    ).filter(s =>
+      !s.classList.contains('hidden') &&
+      !s.classList.contains('utility') &&
+      s.getAttribute('data-skip-registry') !== '1'
+    );
+  },
+  indexOfKey(key) {
+    const slides = this.getSlides();
+    return slides.findIndex(s => s.dataset.slideKey === key);
+  },
+  keyAtIndex(i) {
+    const slides = this.getSlides();
+    return slides[i]?.dataset?.slideKey ?? null;
+  },
+  getCurrentIndex() {
+    const slider = document.getElementById('slider');
+    const slides = this.getSlides();
+    if (!slider || slides.length === 0) return 0;
+    const w = slider.clientWidth || 1;
+    const i = Math.round(slider.scrollLeft / w);
+    return Math.max(0, Math.min(i, slides.length - 1));
+  },
+  getCurrentKey() {
+    return this.keyAtIndex(this.getCurrentIndex());
+  }
+};

@@ -124,12 +124,12 @@ function initClassMode() {
     slider.addEventListener('scroll', () => {
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
-        const slideWidth = slider.clientWidth;
-        const index = Math.round(slider.scrollLeft / slideWidth);
+        const currentIndex = (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
 
         if (typeof MapSystem !== 'undefined') {
-          MapSystem.updateButtonState(index);
-          const nodeForSlide = MapSystem.findNodeBySlide(index);
+          MapSystem.updateButtonState(currentIndex);
+          const currentKey = (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentKey() : null);
+          const nodeForSlide = currentKey ? MapSystem.findNodeByKey(currentKey) : null;
           if (nodeForSlide && MapSystem.state.currentNode !== nodeForSlide.id) {
             if (MapSystem.isNodeUnlocked(nodeForSlide.id)) {
               MapSystem.state.currentNode = nodeForSlide.id;
@@ -138,15 +138,21 @@ function initClassMode() {
           }
         }
 
+        // Prevent crash if setURLHash doesn't exist
+        if (typeof setURLHash === "function") {
+          setURLHash(currentIndex);
+        } else {
+          window.location.hash = `slide=${currentIndex + 1}`;
+        }
         const currentSaved = localStorage.getItem('nameGame_slide');
-        if (currentSaved !== String(index)) {
-          localStorage.setItem('nameGame_slide', index);
+        if (currentSaved !== currentIndex.toString()) {
+          localStorage.setItem('nameGame_slide', currentIndex);
           if (typeof SoundFX !== 'undefined') SoundFX.playSlide();
-          if (index === 32 && typeof generateNotesSummary === 'function') generateNotesSummary();
-          if (index === 1 && typeof generateNotesSummary === 'function') generateNotesSummary();
+          if (currentIndex === 33 && typeof generateNotesSummary === 'function') generateNotesSummary();
+          if (currentIndex === 1 && typeof generateNotesSummary === 'function') generateNotesSummary();
         }
 
-        if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(index);
+        if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(currentIndex);
         if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.redrawCurrentSlide();
 
       }, 150);
@@ -181,12 +187,16 @@ function resumeSession() {
         if (viewport) { viewport.classList.remove('opacity-0'); viewport.style.pointerEvents = 'auto'; }
         if (nav) nav.classList.remove('opacity-0');
         if (slider) slider.style.overflow = '';
-        if (savedSlide && slider) {
-          const idx = parseInt(savedSlide);
-          slider.scrollLeft = idx * slider.clientWidth;
-          if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.init();
-          if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(idx);
-          if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.redrawCurrentSlide();
+
+        if (window.SlideRegistry) SlideRegistry.rebuild();
+        if (!restoreBySlideKey()) {
+          if (savedSlide && slider) {
+            const idx = parseInt(savedSlide);
+            slider.scrollLeft = idx * slider.clientWidth;
+            if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.init();
+            if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(idx);
+            if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.redrawCurrentSlide();
+          }
         }
       }
     });
@@ -262,16 +272,45 @@ window.startClass = startClass;
 
 const slider = document.getElementById('slider');
 const counter = document.getElementById('slide-counter');
-const totalSlides = 37;
+const DISPLAY_TOTAL = 32;
 
 function updateCounter() {
   if (!slider || !counter) return;
-  const scrollPos = slider.scrollLeft;
-  const width = slider.offsetWidth;
-  const current = Math.round(scrollPos / width) + 1;
-  counter.innerText = `${current.toString().padStart(2, '0')} / ${totalSlides}`;
-  const slideId = `slide-${current - 1}`;
-  if (window.location.hash !== `#${slideId}`) history.replaceState(null, null, `#${slideId}`);
+
+  const currentIndex = (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
+  const slides = (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getSlides() : []);
+
+  if (window.SlideRegistry && (!SlideRegistry.slides || !SlideRegistry.slides.length)) {
+    SlideRegistry.rebuild();
+  }
+
+  const currentSlideEl = slides[currentIndex];
+  const key = currentSlideEl?.dataset?.slideKey || "";
+
+  const label = window.SlideRegistry?.LABEL_BY_KEY?.[key] || "??";
+  const displayLabel = (label === "—") ? label : String(label).padStart(2, "0");
+  counter.innerText = `${displayLabel} / ${window.SlideRegistry?.DISPLAY_TOTAL ?? 32}`;
+
+  saveCurrentSlideKey();
+}
+
+function saveCurrentSlideKey() {
+  if (!window.SLIDE_REGISTRY) return;
+
+  const key = window.SLIDE_REGISTRY.getCurrentKey();
+  if (key) localStorage.setItem("nameGame_slide_key", key);
+}
+
+function restoreBySlideKey() {
+  const key = localStorage.getItem("nameGame_slide_key");
+  if (!key || !window.SlideRegistry?.idx) return false;
+
+  const idx = window.SlideRegistry.idx(key);
+  if (!Number.isInteger(idx)) return false;
+
+  // Use your existing go-to-slide/scroll function; do NOT create a new navigation system.
+  slider.scrollTo({ left: idx * (slider.clientWidth || window.innerWidth), behavior: "auto" });
+  return true;
 }
 if (slider) slider.addEventListener('scroll', () => window.requestAnimationFrame(updateCounter));
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -297,7 +336,7 @@ window.addEventListener('load', restoreSlideFromHash);
 function getCurrentSlideIndex() {
   const slider = document.getElementById('slider');
   if (!slider) return 0;
-  return Math.round(slider.scrollLeft / slider.clientWidth);
+  return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
 }
 
 function getMaxUnlockedSlide() {
@@ -306,8 +345,9 @@ function getMaxUnlockedSlide() {
   Object.values(MapSystem.mapNodes).forEach(node => {
     const isUnlocked = MapSystem.isNodeUnlocked(node.id);
     const isCompleted = MapSystem.state.completedNodes.includes(node.id);
-    if ((isUnlocked || isCompleted) && node.slides && node.slides.length > 0) {
-      const nodeMaxSlide = Math.max(...node.slides);
+    const slides = MapSystem.resolveNodeSlides(node);
+    if ((isUnlocked || isCompleted) && slides && slides.length > 0) {
+      const nodeMaxSlide = Math.max(...slides);
       if (nodeMaxSlide > maxSlide) maxSlide = nodeMaxSlide;
     }
   });
@@ -330,8 +370,9 @@ function canNavigateTo(targetIndex) {
   const currentNodeId = MapSystem.state.currentNode;
   if (currentNodeId) {
     const currentNode = MapSystem.mapNodes[currentNodeId];
-    if (currentNode && currentNode.slides && currentNode.slides.length > 0) {
-      const lastSlideOfNode = currentNode.slides[currentNode.slides.length - 1];
+    const slides = MapSystem.resolveNodeSlides(currentNode);
+    if (currentNode && slides && slides.length > 0) {
+      const lastSlideOfNode = slides[slides.length - 1];
       if (currentIndex === lastSlideOfNode && targetIndex > lastSlideOfNode) {
         MapSystem.flashMapButton();
         return { allowed: false, reason: 'node-exit', nodeId: currentNodeId, node: currentNode };

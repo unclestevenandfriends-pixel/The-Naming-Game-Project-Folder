@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 11: The Mega Mix Boss</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito+Sans:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           BRAND PROTOCOL CSS
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        :root {
+            --brand-bg: #0B0C15;
+            --brand-cyan: #22d3ee;
+            --brand-pink: #f472b6;
+            --brand-red: #ef4444;
+        }
+
+        body {
+            background-color: #000;
+            color: #FDFDFD;
+            margin: 0;
+            font-family: 'Nunito Sans', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        /* 16:9 VIEWPORT FRAME */
+        #viewport-frame {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 177.78vh;
+            max-height: 56.25vw;
+            background: var(--brand-bg);
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+        }
+
+        /* GLASS CARD */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            border-color: rgba(34, 211, 238, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-card:active {
+            transform: scale(0.95);
+        }
+
+        /* GRID ITEM STATES */
+        .word-btn.correct {
+            background: rgba(34, 211, 238, 0.2) !important;
+            border-color: #22d3ee !important;
+            color: #22d3ee !important;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+            animation: pulse-green 0.5s ease-out;
+        }
+
+        .word-btn.wrong {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+            pointer-events: none;
+            /* Disable after mistake */
+            opacity: 0.6;
+        }
+
+        /* ANIMATIONS */
+        @keyframes pulse-green {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shake-screen {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake-effect {
+            animation: shake-screen 0.5s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        .flash-red {
+            animation: red-flash 0.3s ease-out;
+        }
+
+        @keyframes red-flash {
+            0% {
+                box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+
+            50% {
+                box-shadow: inset 0 0 100px 50px rgba(239, 68, 68, 0.3);
+            }
+
+            100% {
+                box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        /* CUSTOM SCROLLBAR for fallback */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="viewport-frame" class="flex flex-col">
+        <!-- BACKGROUND GRID -->
+        <div class="absolute inset-0 z-0 opacity-20 pointer-events-none"
+            style="background-image: linear-gradient(#22d3ee 1px, transparent 1px), linear-gradient(90deg, #22d3ee 1px, transparent 1px); background-size: 50px 50px; mask-image: radial-gradient(circle at center, black, transparent 90%);">
+        </div>
+
+        <!-- HEADER / HUD -->
+        <header
+            class="relative z-10 w-full px-12 py-6 flex justify-between items-center bg-gradient-to-b from-[#0B0C15] to-transparent">
+            <div>
+                <div
+                    class="bg-pink-500/10 border border-pink-500/20 px-4 py-1 rounded-full text-pink-400 text-xs font-bold uppercase tracking-widest mb-2 inline-flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span> Boss Battle
+                </div>
+                <h1 class="font-display text-3xl text-white font-bold text-glow">The Mega Mix Boss</h1>
+                <p class="text-slate-400 text-sm">Find the <span class="text-cyan-400 font-bold">15 Nouns</span> hidden
+                    in the chaos!</p>
+            </div>
+
+            <!-- STATUS BARS -->
+            <div class="flex gap-8 items-end">
+                <!-- Boss Health (Nouns Left) -->
+                <div class="text-right w-48">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-1">Boss Health</div>
+                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700 relative">
+                        <div id="boss-health-bar"
+                            class="h-full bg-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)] transition-all duration-500 w-full">
+                        </div>
+                    </div>
+                    <div id="boss-health-text" class="text-cyan-400 font-display font-bold text-xl mt-1">15/15</div>
+                </div>
+
+                <!-- Player Health (Mistakes) -->
+                <div class="text-right w-48">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-1">Your Health</div>
+                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700 relative">
+                        <div id="player-health-bar"
+                            class="h-full bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)] transition-all duration-300 w-full">
+                        </div>
+                    </div>
+                    <div id="player-health-text" class="text-green-400 font-display font-bold text-xl mt-1">100%</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN GRID AREA -->
+        <main class="relative z-10 flex-1 px-12 pb-8 flex items-center justify-center">
+            <div id="game-grid" class="grid grid-cols-6 grid-rows-5 gap-4 w-full h-full max-w-6xl max-h-[70vh]">
+                <!-- Buttons injected by JS -->
+            </div>
+        </main>
+
+        <!-- SUCCESS MODAL -->
+        <div id="victory-modal"
+            class="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-700">
+            <div class="text-center transform scale-90 transition-transform duration-500">
+                <div class="mb-6 relative inline-block">
+                    <div class="absolute inset-0 bg-cyan-500 blur-3xl opacity-20 rounded-full animate-pulse"></div>
+                    <i data-lucide="crown" class="w-32 h-32 text-cyan-400 relative z-10"></i>
+                </div>
+                <h2
+                    class="font-display text-6xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 font-bold mb-4 drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+                    BOSS DEFEATED!
+                </h2>
+                <p class="text-white text-2xl mb-8 font-light tracking-wide">You found all 15 Nouns!</p>
+                <div class="flex justify-center gap-4">
+                    <button
+                        class="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-4 px-10 rounded-xl transition-all shadow-[0_0_30px_rgba(34,211,238,0.4)] uppercase tracking-widest"
+                        onclick="location.reload()">
+                        Play Again
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME OVER MODAL -->
+        <div id="gameover-modal"
+            class="absolute inset-0 z-50 flex items-center justify-center bg-red-950/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-700">
+            <div class="text-center transform scale-90 transition-transform duration-500">
+                <i data-lucide="skull" class="w-32 h-32 text-red-500 mb-6 mx-auto animate-bounce"></i>
+                <h2 class="font-display text-6xl text-red-500 font-bold mb-4">DEFEATED</h2>
+                <p class="text-white text-xl mb-8">The wildcards overwhelmed you.</p>
+                <button
+                    class="border border-red-500/50 text-red-400 hover:bg-red-500/10 font-bold py-3 px-8 rounded-lg transition-all uppercase tracking-widest"
+                    onclick="location.reload()">
+                    Try Again
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DATA & CONFIG
+        // ═══════════════════════════════════════════════════════════════════════════════
+        const gameConfig = {
+            totalNouns: 15,
+            playerMaxHealth: 100,
+            damagePerHit: 20 // 5 mistakes = Game Over
+        };
+
+        const gameState = {
+            found: 0,
+            health: 100,
+            active: true
+        };
+
+        const wordList = [
+            // --- NOUNS (CORRECT) ---
+            { text: "Doctor", type: "noun" }, { text: "Friend", type: "noun" }, { text: "Baker", type: "noun" },
+            { text: "Clown", type: "noun" }, { text: "Pirate", type: "noun" },
+            { text: "Beach", type: "noun" }, { text: "Shop", type: "noun" }, { text: "Forest", type: "noun" },
+            { text: "Kitchen", type: "noun" }, { text: "London", type: "noun" },
+            { text: "Fox", type: "noun" }, { text: "Owl", type: "noun" },
+            { text: "Phone", type: "noun" }, { text: "Key", type: "noun" }, { text: "Apple", type: "noun" },
+
+            // --- WILDCARDS (INCORRECT) ---
+            { text: "Run", type: "verb" }, { text: "Jump", type: "verb" }, { text: "Sleep", type: "verb" },
+            { text: "Eat", type: "verb" }, { text: "Fly", type: "verb" },
+            { text: "Happy", type: "adj" }, { text: "Blue", type: "adj" }, { text: "Fast", type: "adj" },
+            { text: "Shiny", type: "adj" }, { text: "Hot", type: "adj" },
+            { text: "Under", type: "prep" }, { text: "With", type: "prep" }, { text: "From", type: "prep" },
+            { text: "In", type: "prep" }, { text: "On", type: "prep" }
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+        lucide.createIcons();
+        initGrid();
+
+        function initGrid() {
+            const grid = document.getElementById('game-grid');
+            const shuffled = [...wordList].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = "glass-card word-btn w-full h-full flex items-center justify-center text-lg md:text-xl font-bold text-slate-200 shadow-lg";
+                btn.textContent = item.text;
+
+                // Touch/Click Handler
+                btn.onclick = () => handleInteraction(btn, item);
+
+                grid.appendChild(btn);
+            });
+        }
+
+        function handleInteraction(el, item) {
+            if (!gameState.active || el.classList.contains('correct') || el.classList.contains('wrong')) return;
+
+            if (item.type === 'noun') {
+                // SUCCESS LOGIC
+                el.classList.add('correct');
+
+                // Particle FX (Simulated)
+                createParticles(el);
+
+                gameState.found++;
+                updateBossHealth();
+                checkWin();
+
+                // Simulate "Class Data" update for the backend
+                console.log(`Score Up: Found ${item.text}`);
+
+            } else {
+                // FAILURE LOGIC
+                el.classList.add('wrong');
+                triggerDamageEffect();
+
+                gameState.health -= gameConfig.damagePerHit;
+                updatePlayerHealth();
+                checkLoss();
+
+                // Simulate "Class Data" update
+                console.log(`Damage Taken: Clicked ${item.text} (${item.type})`);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // VISUAL FX & UI UPDATES
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function updateBossHealth() {
+            const nounsLeft = gameConfig.totalNouns - gameState.found;
+            const percentage = (nounsLeft / gameConfig.totalNouns) * 100;
+
+            const bar = document.getElementById('boss-health-bar');
+            bar.style.width = `${percentage}%`;
+
+            // Color shift based on health
+            if (percentage < 30) bar.className = "h-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] transition-all duration-500";
+
+            document.getElementById('boss-health-text').textContent = `${gameState.found}/${gameConfig.totalNouns}`;
+        }
+
+        function updatePlayerHealth() {
+            const bar = document.getElementById('player-health-bar');
+            const pct = Math.max(0, gameState.health);
+
+            bar.style.width = `${pct}%`;
+
+            // Critical Health Styling
+            if (pct <= 40) {
+                bar.className = "h-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] transition-all duration-300 animate-pulse";
+                document.getElementById('player-health-text').className = "text-red-500 font-display font-bold text-xl mt-1";
+            }
+
+            document.getElementById('player-health-text').textContent = `${pct}%`;
+        }
+
+        function triggerDamageEffect() {
+            const frame = document.getElementById('viewport-frame');
+            frame.classList.add('shake-effect', 'flash-red');
+
+            setTimeout(() => {
+                frame.classList.remove('shake-effect', 'flash-red');
+            }, 500);
+        }
+
+        function createParticles(target) {
+            // Simple DOM-based particle explosion for visual flair without external lib dependency in preview
+            const rect = target.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.style.position = 'fixed';
+                p.style.left = centerX + 'px';
+                p.style.top = centerY + 'px';
+                p.style.width = '6px';
+                p.style.height = '6px';
+                p.style.background = '#22d3ee';
+                p.style.borderRadius = '50%';
+                p.style.pointerEvents = 'none';
+                p.style.zIndex = '100';
+                document.body.appendChild(p);
+
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 50 + Math.random() * 50;
+
+                p.animate([
+                    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                    { transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 600,
+                    easing: 'ease-out'
+                }).onfinish = () => p.remove();
+            }
+        }
+
+        function checkWin() {
+            if (gameState.found >= gameConfig.totalNouns) {
+                gameState.active = false;
+                setTimeout(() => {
+                    const modal = document.getElementById('victory-modal');
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    modal.querySelector('div').classList.remove('scale-90');
+
+                    if (window.parent && window.parent.MapSystem) {
+                        window.parent.MapSystem.completeNode('N4');
+                    }
+                }, 800);
+            }
+        }
+
+        function checkLoss() {
+            if (gameState.health <= 0) {
+                gameState.active = false;
+                setTimeout(() => {
+                    const modal = document.getElementById('gameover-modal');
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    modal.querySelector('div').classList.remove('scale-90');
+                }, 500);
+            }
+        }
+    </script>
+</body>
+
+</html>
