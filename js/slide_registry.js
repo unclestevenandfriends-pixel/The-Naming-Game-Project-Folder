@@ -55,7 +55,14 @@
             const slider = document.getElementById("slider");
             if (!slider) return;
 
-            this.slides = Array.from(slider.querySelectorAll("section.slide[data-slide-key]:not(.hidden)"));
+            // 🎯 UNIFIED FILTERING: Exclude hidden, utility, and marked-to-skip slides
+            this.slides = Array.from(slider.querySelectorAll("section.slide[data-slide-key]"))
+                .filter(s =>
+                    !s.classList.contains('hidden') &&
+                    !s.classList.contains('utility') &&
+                    s.getAttribute('data-skip-registry') !== '1'
+                );
+
             this.indexByKey.clear();
             this.keyByIndex = [];
 
@@ -65,24 +72,59 @@
                 this.indexByKey.set(key, idx);
                 this.keyByIndex[idx] = key;
             });
+            console.log("📍 SlideRegistry rebuilt. Count:", this.slides.length);
         },
 
         idx(key) {
-            return this.indexByKey.has(key) ? this.indexByKey.get(key) : null;
+            if (!this.indexByKey.has(key)) return null;
+            return this.indexByKey.get(key);
+        },
+
+        keyAtIndex(i) {
+            return this.keyByIndex[i] ?? null;
+        },
+
+        indexOfKey(key) {
+            return this.idx(key) ?? -1;
+        },
+
+        getCurrentIndex() {
+            const slider = document.getElementById('slider');
+            if (!slider || this.slides.length === 0) return 0;
+            const w = slider.clientWidth || 1;
+            const i = Math.round(slider.scrollLeft / w);
+            return Math.max(0, Math.min(i, this.slides.length - 1));
+        },
+
+        getCurrentKey() {
+            return this.keyAtIndex(this.getCurrentIndex());
+        },
+
+        getSlides() {
+            return this.slides;
+        },
+
+        getVisibleSlides() {
+            return this.slides;
         },
 
         labelForIndex(idx) {
             const key = this.keyByIndex[idx];
             if (!key) return null;
             const label = this.LABEL_BY_KEY[key];
-            if (!label) return null;
+            if (!label) return `${idx + 1}`;
             return `${label} / ${this.DISPLAY_TOTAL}`;
         }
     };
 
+    // 🚀 INITIALIZE IMMEDIATELY
+    SlideRegistry.rebuild();
+
     window.SlideRegistry = SlideRegistry;
+    window.SLIDE_REGISTRY = SlideRegistry; // Alias for legacy compatibility
 
     document.addEventListener("DOMContentLoaded", () => {
         SlideRegistry.rebuild();
+        console.log("📍 SlideRegistry re-synced on DOMContentLoaded");
     });
 })();

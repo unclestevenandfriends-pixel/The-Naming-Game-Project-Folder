@@ -12,15 +12,15 @@ const MapSystem = {
     audioInitialized: false,
 
     getVisibleSlides() {
-        return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getSlides() : []);
+        return (window.SlideRegistry ? window.SlideRegistry.slides : []);
     },
 
     getSlideKeyAtIndex(slideIndex) {
-        return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.keyAtIndex(slideIndex) : null);
+        return (window.SlideRegistry ? window.SlideRegistry.keyAtIndex(slideIndex) : null);
     },
 
     getIndexForSlideKey(slideKey) {
-        return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.indexOfKey(slideKey) : -1);
+        return (window.SlideRegistry ? window.SlideRegistry.indexOfKey(slideKey) : -1);
     },
 
     // Node Definitions (The Logic)
@@ -44,7 +44,7 @@ const MapSystem = {
         "N10B": { id: "N10B", left: 72, top: 72, label: "Quiz: Places & Streets", type: "branch", slideKeys: ["quiz_places_streets"], exitKey: "quiz_places_streets", parents: ["HubC"], returnTo: "HubC" },
         "N10C": { id: "N10C", left: 81.8, top: 71.8, label: "Quiz: Days & Dates", type: "branch", slideKeys: ["quiz_specific_dates"], exitKey: "quiz_specific_dates", parents: ["HubC"], returnTo: "HubC" },
         "N11": { id: "N11", left: 88.8, top: 50.3, label: "Exit Ticket", type: "gate", slideKeys: ["exit_ticket_riddle"], exitKey: "exit_ticket_riddle", parents: ["N10A", "N10B", "N10C"], children: ["N12"] },
-        "N12": { id: "N12", left: 95.7, top: 50.2, label: "Mission Complete", type: "linear", slideKeys: ["mission_complete"], exitKey: "mission_complete", parents: ["N11"], children: [] }
+        "N12": { id: "N12", left: 95.7, top: 50.2, label: "Mission Complete", type: "linear", slideKeys: ["mission_complete", "session_summary"], exitKey: "session_summary", parents: ["N11"], children: [] }
     },
 
     state: {
@@ -294,7 +294,12 @@ const MapSystem = {
 
     triggerNodeCompletion(nodeId) {
         nodeId = this.canonicalNodeId(nodeId);
-        if (this.isAnimating) return;
+        if (this.isAnimating) {
+            console.warn("⚠️ MapSystem: triggerNodeCompletion called while animating. Forcing completion if node valid.", { nodeId });
+            // If it's a linear node or hub child, we might want to force it
+            // but for safety, let's just proceed if the map is not actually visible
+            if (this.active) return;
+        }
         this.isAnimating = true;
         const node = this.mapNodes[nodeId];
         if (!node) return;
@@ -632,11 +637,31 @@ const MapSystem = {
 
             slider.scrollTo({ left: firstIndex * slider.clientWidth, behavior: 'smooth' });
 
+            // 🛡️ HARD KEY VERIFICATION: Double check we landed on the right slide.
+            // If there's a drift (due to dynamic hidden slides), we correct it immediately.
+            setTimeout(() => {
+                if (typeof window.SlideRegistry !== 'undefined') {
+                    const landedKey = window.SlideRegistry.getCurrentKey();
+                    const targetKey = node.slideKeys[0];
+                    if (landedKey !== targetKey) {
+                        const correctIdx = window.SlideRegistry.indexOfKey(targetKey);
+                        if (correctIdx !== -1) {
+                            console.warn(`🎯 DRIFT DETECTED: Landed on ${landedKey}, correcting to ${targetKey} (Index ${correctIdx})`);
+                            slider.scrollTo({ left: correctIdx * slider.clientWidth, behavior: 'auto' });
+                            if (typeof NavigationGuard !== 'undefined') {
+                                NavigationGuard.lastValidSlide = correctIdx;
+                            }
+                        }
+                    }
+                }
+            }, 300); // Check mid-swipe or just after
+
             // Clear flag and update valid slide after scroll completes
             setTimeout(() => {
                 if (typeof NavigationGuard !== 'undefined') {
                     NavigationGuard.mapNavigating = false;
-                    NavigationGuard.lastValidSlide = firstIndex;
+                    const finalIdx = window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : firstIndex;
+                    NavigationGuard.lastValidSlide = finalIdx;
                     NavigationGuard.updateCachedMaxSlide();
                 }
             }, 600);
@@ -788,12 +813,7 @@ const MapSystem = {
             console.log('🗺️ Text set to:', textEl.innerText);
             console.log('🗺️ Computed styles:', window.getComputedStyle(textEl).color);
 
-            // Ensure map overlay is visible
-            const map = document.getElementById('world-map-overlay');
-            if (map && map.classList.contains('translate-y-full')) {
-                map.classList.remove('translate-y-full');
-                this.active = true;
-            }
+            // Ensure instruction banner is visible
             banner.style.opacity = '1';
 
             // Auto-hide after 3 seconds
@@ -824,7 +844,7 @@ const MapSystem = {
     },
 
     getCurrentSlideIndex() {
-        return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
+        return (window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : 0);
     },
 
     findNodeByKey(key) {

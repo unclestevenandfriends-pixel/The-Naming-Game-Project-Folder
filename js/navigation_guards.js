@@ -163,7 +163,7 @@ const NavigationGuard = {
             if (this.scrollEnforcing) return;
             if (this.mapNavigating) return; // BYPASS: Don't block during direct map navigation
 
-            const currentSlide = Math.round(slider.scrollLeft / slider.clientWidth);
+            const currentSlide = this.getCurrentSlide();
             const maxAllowed = this._cachedMaxSlide;
 
             // Forward movement check
@@ -171,16 +171,8 @@ const NavigationGuard = {
                 // Check if this forward movement is allowed
                 if (!this.isSlideAccessible(currentSlide)) {
                     console.log(`🛡️ BLOCKED: Attempted slide ${currentSlide}, max allowed ${maxAllowed}`);
-                    this.scrollEnforcing = true;
-
-                    // Immediate enforcement
-                    slider.scrollLeft = this.lastValidSlide * slider.clientWidth;
-
+                    this.enforceSlidePosition(this.lastValidSlide);
                     this.showBlockedFeedback();
-
-                    setTimeout(() => {
-                        this.scrollEnforcing = false;
-                    }, 100);
                     return;
                 }
             }
@@ -274,7 +266,7 @@ const NavigationGuard = {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     getCurrentSlide() {
-        return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
+        return (window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : 0);
     },
 
     isSlideAccessible(slideIndex) {

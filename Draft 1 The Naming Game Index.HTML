@@ -1711,19 +1711,43 @@
               Mission <br><span class="text-brand-400">Complete!</span>
             </h1>
 
-            <div class="glass-panel p-8 rounded-[2rem] border border-white/10 bg-white/5 mb-8 backdrop-blur-xl">
+            <div
+              class="glass-panel p-8 rounded-[2rem] border border-white/10 bg-white/5 mb-8 backdrop-blur-xl relative overflow-hidden">
+              <div class="absolute top-0 right-0 p-4 opacity-20 rotate-12">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-scroll-text text-brand-400">
+                  <path d="M15 12h-5" />
+                  <path d="M15 8h-5" />
+                  <path d="M19 17V5a2 2 0 0 0-2-2H4" />
+                  <path
+                    d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" />
+                </svg>
+              </div>
+
               <p class="text-xl leading-relaxed text-secondary font-light mb-4">
                 <span class="text-brand-400 font-bold text-2xl block mb-2 font-display">"Goodbye, friends!"</span>
                 A Noun is a naming word. Common Nouns are general. Proper Nouns wear
                 the Crown.
               </p>
-              <div class="p-4 bg-brand-500/10 rounded-xl border border-brand-500/20">
+              <div class="p-4 bg-brand-500/10 rounded-xl border border-brand-500/20 mb-6">
                 <span class="text-[#FDFDFD] font-bold text-lg block mb-1">
                   Don't just see a "woman," see Aunt Emily.
                 </span>
                 <span class="text-brand-400 font-bold uppercase tracking-widest text-xs block">
                   Common Nouns are everywhere. Proper Nouns are special.
                 </span>
+              </div>
+
+              <div class="flex items-center gap-4 text-brand-300/80 animate-pulse">
+                <div class="flex-1 h-px bg-brand-300/20"></div>
+                <span class="text-sm font-bold uppercase tracking-[0.2em]">Swipe right to see your results</span>
+                <div class="flex-1 h-px bg-brand-300/20"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-chevron-right">
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </div>
             </div>
 
@@ -1744,7 +1768,7 @@
       </section>
 
       <!-- Slide 32: Session Notes Summary -->
-      <section class="slide utility hidden" id="slide-summary" data-slide-key="session_summary" data-skip-registry="1">
+      <section class="slide" id="slide-summary" data-slide-key="session_summary">
         <div class="slide-content max-w-7xl w-full flex flex-col h-full">
           <div class="text-center mb-8">
             <h2 class="text-4xl md:text-5xl font-bold mb-4 text-brand-400 font-display">

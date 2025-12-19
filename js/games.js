@@ -290,6 +290,19 @@ function initMuddle() {
     const p = document.createElement('p');
     p.className = "leading-relaxed";
 
+    // 🏆 Completion Tracking: Count how many mistakes need fixing
+    let totalTargetWords = 0;
+    let foundTargetWords = 0;
+    const nodeId = container.id === 'muddle-evidence-a' ? 'N9A' : 'N9B';
+
+    // First pass: Count total targets
+    text.split(/(\n|\s+)/).forEach(token => {
+      const clean = token.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      if (clean && muddleWords[clean]) totalTargetWords++;
+    });
+
+    console.log(`🔍 Muddle ${nodeId}: Target count is ${totalTargetWords}`);
+
     text.split(/(\n|\s+)/).forEach(token => {
       if (!token.trim()) {
         p.appendChild(document.createTextNode(token));
@@ -303,9 +316,9 @@ function initMuddle() {
 
       span.onclick = () => {
         if (span.dataset.clicked) return;
-        span.dataset.clicked = "true";
 
         if (singleWordMap[clean]) {
+          span.dataset.clicked = "true"; // Only lock on correct
           if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playCorrect);
           recordAnswer(true, `Muddle Fix: ${clean} -> ${singleWordMap[clean]}`);
           const correctWord = singleWordMap[clean];
@@ -314,11 +327,24 @@ function initMuddle() {
 
           span.classList.add('text-green-400', 'font-bold');
           if (typeof gsap !== 'undefined') gsap.from(span, { scale: 1.2, color: '#fff', duration: 0.5, ease: "elastic.out(1, 0.3)" });
+
+          // 🏁 Track Progress
+          foundTargetWords++;
+          if (foundTargetWords === totalTargetWords) {
+            console.log(`✅ Muddle ${nodeId} COMPLETE!`);
+            if (typeof MapSystem !== 'undefined') {
+              MapSystem.triggerNodeCompletion(nodeId);
+            }
+          }
         } else {
           if (typeof SoundFX !== 'undefined') SoundFX.playIncorrect();
           span.classList.add('text-red-400', 'line-through');
           if (typeof gsap !== 'undefined') gsap.to(span, { x: 5, duration: 0.05, yoyo: true, repeat: 3 });
           recordAnswer(false, `Muddle Wrong: ${clean}`);
+
+          // Reset wrong click after animation to allow fixing? 
+          // (Actually Muddle logic usually allows one try per word, but let's keep it simple for now)
+          span.dataset.clicked = "true";
         }
       };
       p.appendChild(span);
@@ -358,9 +384,19 @@ function initAllQuizzes() {
     if (!container || container.dataset.initialized === "true") return;
     container.dataset.initialized = "true";
 
+    // 🏆 Completion Tracking
+    let questionsCompleted = 0;
+    const totalQuestions = questions.length;
+    const nodeIdMap = {
+      'quiz-1-container': 'N10A',
+      'quiz-2-container': 'N10B',
+      'quiz-3-container': 'N10C'
+    };
+    const nodeId = nodeIdMap[containerId];
+
     questions.forEach((q, idx) => {
       const box = document.createElement('div');
-      box.className = "glass-panel p-8 rounded-2xl border border-white/10 flex items-center gap-6";
+      box.className = "glass-panel p-8 rounded-2xl border border-white/10 flex items-center gap-6 mb-6"; // Added mb-6
 
       const letter = document.createElement('div');
       letter.className = "w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-[#FDFDFD] font-bold border border-white/10 shrink-0";
@@ -385,15 +421,16 @@ function initAllQuizzes() {
           span.onclick = () => {
             if (span.classList.contains('text-brand-400') || span.classList.contains('text-red-400')) return;
             if (span.dataset.clicked) return;
-            span.dataset.clicked = "true";
 
             const isTarget = q.nouns.some(n => word.includes(n));
 
             if (isTarget) {
+              span.dataset.clicked = "true";
               if (typeof SoundFX !== 'undefined') SoundFX.playCorrect();
               span.classList.add('text-brand-400', 'font-bold');
               recordAnswer(true, `Quiz Correct: ${clean}`);
               foundCount++;
+
               if (foundCount === totalNouns) {
                 if (!box.querySelector('.quiz-check')) {
                   const check = document.createElement('div');
@@ -402,6 +439,15 @@ function initAllQuizzes() {
                   box.appendChild(check);
                   if (typeof gsap !== 'undefined') gsap.from(check, { scale: 0, rotation: -180, duration: 0.5 });
                   box.classList.add('border-green-500/50', 'bg-green-500/10');
+
+                  // 🏁 Question Complete
+                  questionsCompleted++;
+                  if (questionsCompleted === totalQuestions && nodeId) {
+                    console.log(`✅ Quiz ${nodeId} COMPLETE!`);
+                    if (typeof MapSystem !== 'undefined') {
+                      MapSystem.triggerNodeCompletion(nodeId);
+                    }
+                  }
                 }
               }
             } else {
@@ -452,6 +498,10 @@ function initRiddles() {
     zone.ondragleave = () => {
       zone.classList.remove('bg-white/10', 'border-brand-500');
     };
+    // 🏆 Completion Tracking for Riddles
+    let solvedRiddlesCount = 0;
+    const totalRiddlesCount = riddles.length;
+
     zone.ondrop = (e) => {
       e.preventDefault();
       zone.classList.remove('bg-white/10', 'border-brand-500');
@@ -476,6 +526,15 @@ function initRiddles() {
                 `;
           zone.classList.add('border-green-500/50', 'bg-green-500/10');
           if (typeof gsap !== 'undefined') gsap.from(zone, { scale: 1.05, duration: 0.2, yoyo: true, repeat: 1 });
+
+          // 🏁 Track solved count
+          solvedRiddlesCount++;
+          if (solvedRiddlesCount === totalRiddlesCount) {
+            console.log(`✅ Riddles COMPLETE! Triggering N11.`);
+            if (typeof MapSystem !== 'undefined') {
+              MapSystem.triggerNodeCompletion('N11');
+            }
+          }
         }
       } else {
         if (typeof SoundFX !== 'undefined') SoundFX.playIncorrect();

@@ -124,11 +124,11 @@ function initClassMode() {
     slider.addEventListener('scroll', () => {
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
-        const currentIndex = (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
+        const currentIndex = (window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : 0);
 
         if (typeof MapSystem !== 'undefined') {
           MapSystem.updateButtonState(currentIndex);
-          const currentKey = (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentKey() : null);
+          const currentKey = (window.SlideRegistry ? window.SlideRegistry.getCurrentKey() : null);
           const nodeForSlide = currentKey ? MapSystem.findNodeByKey(currentKey) : null;
           if (nodeForSlide && MapSystem.state.currentNode !== nodeForSlide.id) {
             if (MapSystem.isNodeUnlocked(nodeForSlide.id)) {
@@ -136,6 +136,11 @@ function initClassMode() {
               MapSystem.saveProgress();
             }
           }
+        }
+
+        if (currentKey === 'session_summary' && typeof window.generateNotesSummary === 'function') {
+          console.log("📊 Final Slide Reached: Generating Session Summary...");
+          window.generateNotesSummary();
         }
 
         // Prevent crash if setURLHash doesn't exist
@@ -278,8 +283,8 @@ const DISPLAY_TOTAL = 32;
 function updateCounter() {
   if (!slider || !counter) return;
 
-  const currentIndex = (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
-  const slides = (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getSlides() : []);
+  const currentIndex = (window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : 0);
+  const slides = (window.SlideRegistry ? window.SlideRegistry.getSlides() : []);
 
   if (window.SlideRegistry && (!SlideRegistry.slides || !SlideRegistry.slides.length)) {
     SlideRegistry.rebuild();
@@ -288,17 +293,25 @@ function updateCounter() {
   const currentSlideEl = slides[currentIndex];
   const key = currentSlideEl?.dataset?.slideKey || "";
 
-  const label = window.SlideRegistry?.LABEL_BY_KEY?.[key] || "??";
-  const displayLabel = (label === "—") ? label : String(label).padStart(2, "0");
+  const label = window.SlideRegistry?.LABEL_BY_KEY?.[key] || null;
+
+  let displayLabel;
+  if (!label) {
+    // If no explicit label, try to show the dynamic index
+    displayLabel = String(currentIndex + 1).padStart(2, "0");
+  } else {
+    displayLabel = (label === "—") ? label : String(label).padStart(2, "0");
+  }
+
   counter.innerText = `${displayLabel} / ${window.SlideRegistry?.DISPLAY_TOTAL ?? 32}`;
 
   saveCurrentSlideKey();
 }
 
 function saveCurrentSlideKey() {
-  if (!window.SLIDE_REGISTRY) return;
+  if (!window.SlideRegistry) return;
 
-  const key = window.SLIDE_REGISTRY.getCurrentKey();
+  const key = window.SlideRegistry.getCurrentKey();
   if (key) localStorage.setItem("nameGame_slide_key", key);
 }
 
@@ -337,7 +350,7 @@ window.addEventListener('load', restoreSlideFromHash);
 function getCurrentSlideIndex() {
   const slider = document.getElementById('slider');
   if (!slider) return 0;
-  return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getCurrentIndex() : 0);
+  return (window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : 0);
 }
 
 function getMaxUnlockedSlide() {
