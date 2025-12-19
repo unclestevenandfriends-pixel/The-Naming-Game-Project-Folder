@@ -236,9 +236,11 @@ const PressureSystem = {
             }, 100);
         }
 
-        // Screen Shake & Sound
-        document.body.classList.add('shake-screen');
-        setTimeout(() => document.body.classList.remove('shake-screen'), 500);
+        // Screen Shake & Sound (Accessibility Aware)
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.body.classList.add('shake-screen');
+            setTimeout(() => document.body.classList.remove('shake-screen'), 500);
+        }
 
         if (typeof SoundFX !== 'undefined' && SoundFX.playIncorrect) {
             SoundFX.playIncorrect();

@@ -50,15 +50,15 @@
         "intro_village": "A World Without Names?",
         "adventure_start": "Meet Norah Noun!",
         "three_noun_families": "What is a Noun?",
-        "node_n1_exit": "Mission: Exit 1",
+        "node_n1_exit": "Exit Protocol 1",
         "norah_detective": "Nouns Name People",
         "sentence_spotting": "Nouns Name Places",
         "village_checkpoint": "Things & Animals",
-        "node_n2_exit": "Mission: Exit 2",
+        "node_n2_exit": "Exit Protocol 2",
         "people_hunt": "People Hunt",
         "places_hunt": "Places Hunt",
-        "things_hunt": "Things & Animals Hunt",
-        "mega_mix_boss": "Mega Mix Boss",
+        "things_hunt": "Things Hunt",
+        "mega_mix_boss": "The Mega Mix Boss",
         "common_nouns_title": "Common Nouns",
         "what_is_common_noun": "What is a Common Noun?",
         "common_noun_examples": "Common Nouns are General Labels",
@@ -164,29 +164,19 @@
          * Returns an object for the given key: { element: HTMLElement, title: String, index: Number }
          */
         lookup(key) {
-            const idx = this.idx(key);
-            if (idx === null) return { element: null, title: key, index: -1 };
-
-            const element = this.slides[idx] || null;
-
-            // 1. Try static TITLE_MAP first (Decoupling)
+            // 1. Try static map first (Safe for Lazy Loading)
             let title = this.TITLE_MAP[key];
 
-            // 2. Fallback to DOM if TITLE_MAP misses it
+            // 2. Fallback to DOM if missing (Legacy)
+            const idx = this.idx(key);
+            const element = (idx !== null) ? (this.slides[idx] || null) : null;
+
             if (!title && element) {
                 const h1 = element.querySelector('h1, h2, .font-display');
-                if (h1) {
-                    const text = h1.innerText.trim().replace(/\n/g, ' ').substring(0, 60);
-                    if (text) title = text;
-                }
+                if (h1) title = h1.innerText.trim().replace(/\n/g, ' ').substring(0, 60);
             }
 
-            // 3. Last fallback to label or key
-            if (!title) {
-                title = this.LABEL_BY_KEY[key] || key;
-            }
-
-            return { element, title, index: idx };
+            return { element, title: title || key, index: idx ?? -1 };
         }
     };
 

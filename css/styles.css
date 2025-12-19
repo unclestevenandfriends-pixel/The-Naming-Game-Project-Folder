@@ -1792,6 +1792,7 @@ body.markup-hidden #stamps-layer {
 .map-node {
   transform: translate(-50%, -50%);
   /* Center on coords */
+  will-change: transform;
 }
 
 /* Map Return Button Animation */
