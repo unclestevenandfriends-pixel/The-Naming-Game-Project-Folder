@@ -49,8 +49,8 @@ const MapSystem = {
 
     state: {
         completedNodes: [],
-        unlockedNodes: ['N1'],
-        currentNode: 'N1',
+        unlockedNodes: [], // Start empty for cinematic intro
+        currentNode: null, // Start null to force a glide from courtyard to N1 on first click
         pendingUnlock: null
     },
 
@@ -560,7 +560,14 @@ const MapSystem = {
             }
             container.appendChild(anchor);
         });
-        this.positionTokenOnNode(this.state.currentNode, false);
+
+        // 🛡️ INTRO PROTECTION: Do not snap token if we haven't played the intro yet
+        // OR if currentNode is null (initial state).
+        // This allows playIntro() to handle the cinematic placement.
+        if (this.introPlayed && this.state.currentNode !== null) {
+            this.positionTokenOnNode(this.state.currentNode, false);
+        }
+
         this.updateMapCamera();
     },
 
@@ -703,30 +710,58 @@ const MapSystem = {
         if (this.introPlayed) return;
         this.introPlayed = true;
         this.isAnimating = true;
-        this.saveProgress();
 
-        // NOTE: show() is NOT called here - it's called by handleMapButtonClick() BEFORE playIntro()
-        // This ensures the map only opens when the user clicks "Start Journey"
+        // Ensure map is rendered with N1 locked
+        this.state.unlockedNodes = [];
+        this.renderMap();
 
         const token = document.getElementById('player-token');
-        if (token) {
+        const world = document.getElementById('map-world');
+
+        if (token && world) {
+            // Force currentNode to null to ensure first click glides
+            this.state.currentNode = null;
+
+            // 🛠️ DETACH FROM ANCHORS: Move token to the main world container
+            // so that percentage positioning works relative to the map itself.
+            world.appendChild(token);
+
             token.style.transition = 'none';
             token.style.opacity = '0';
-            token.style.left = '4%';
-            token.style.top = '30%';
+
+            // 📍 NW VILLAGE COURTYARD (Refined Coords): Avoids the roof, flush in courtyard
+            token.style.left = '6.5%';
+            token.style.top = '32%';
+
             this.updateTokenAvatar();
+
+            // STEP 1: Traveler Fades in
             setTimeout(() => {
-                token.style.transition = 'opacity 1s ease-out, top 2s ease-in-out';
+                token.style.transition = 'opacity 1.5s ease-out';
                 token.style.opacity = '1';
-                token.style.top = '50.1%'; // Exact center of N1
-                if (typeof SoundFX !== 'undefined') SoundFX.playSuccess();
+                if (typeof SoundFX !== 'undefined') SoundFX.playPop();
             }, 500);
-        }
-        setTimeout(() => this.showInstruction('Your adventure begins! Click "The Village" to start.'), 2000);
-        setTimeout(() => {
+
+            // STEP 2: The Village Unlocks with Burst
+            setTimeout(() => {
+                this.showInstruction('Discovering The Village...');
+                this.unlockNodeWithAnimation('N1');
+            }, 2500);
+
+            // STEP 3: Enable Interaction
+            setTimeout(() => {
+                this.showInstruction('Adventure awaits! Click "The Village" to begin.');
+                this.isAnimating = false; // Player can now click N1
+                this.saveProgress();
+            }, 4000);
+        } else {
+            // Fallback
+            this.state.unlockedNodes = ['N1'];
+            this.introPlayed = true;
             this.isAnimating = false;
-            this.positionTokenOnNode('N1', true);
-        }, 3000);
+            this.renderMap();
+            this.saveProgress();
+        }
     },
 
     // --- RESTORED INSTRUCTION LOGIC (No Toasts) ---
@@ -805,11 +840,15 @@ const MapSystem = {
 
     isNodeUnlocked(nodeId) {
         nodeId = this.canonicalNodeId(nodeId);
-        if (nodeId === 'N1') return true;
         if (this.state.unlockedNodes.includes(nodeId)) return true;
+
         const node = this.mapNodes[nodeId];
         if (!node || !node.parents || node.parents.length === 0) return false;
+
+        // Gate logic: all parents must be complete
         if (node.type === 'gate') return node.parents.every(p => this.state.completedNodes.includes(p));
+
+        // Standard logic: any parent complete
         return node.parents.some(p => this.state.completedNodes.includes(p));
     },
 
@@ -887,13 +926,11 @@ const MapSystem = {
                     .map(canon)
                     .filter(Boolean);
 
-                this.state.unlockedNodes = (data.unlockedNodes || ["N1"])
+                this.state.unlockedNodes = (data.unlockedNodes || [])
                     .map(canon)
                     .filter(Boolean);
 
-                if (!this.state.unlockedNodes.includes("N1")) this.state.unlockedNodes.unshift("N1");
-
-                this.state.currentNode = canon(data.currentNode || "N1") || "N1";
+                this.state.currentNode = data.currentNode === null ? null : (canon(data.currentNode || "N1") || "N1");
                 this.introPlayed = !!data.introPlayed;
             } catch (e) {
                 console.warn("MapSystem.loadProgress parse error:", e);
