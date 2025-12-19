@@ -88,6 +88,12 @@ const MapSystem = {
 
     init() {
         if (this.initialized) return;
+
+        // 🛠️ FORCE REBUILD: Ensure SlideRegistry is fresh after any DOM changes
+        if (window.SlideRegistry && typeof window.SlideRegistry.rebuild === 'function') {
+            window.SlideRegistry.rebuild();
+        }
+
         this.injectMapUI();
         this.ensureMapWorldWrapper();
         this.injectMapButton();
@@ -186,9 +192,13 @@ const MapSystem = {
         // Completion Check
         const currentKey = this.getSlideKeyAtIndex(currentSlide);
         const currentNode = this.findNodeByKey(currentKey);
+
+        // 🛡️ BRANCH PROTECTION: Branches (Hunts) only complete via explicit games.js signal
+        const isBranch = currentNode && currentNode.type === 'branch';
+
         const exitSlide = currentNode ? this.resolveExitSlide(currentNode) : null;
 
-        if (currentNode && exitSlide === currentSlide) {
+        if (currentNode && !isBranch && exitSlide === currentSlide) {
             this.triggerNodeCompletion(currentNode.id);
             return;
         }
@@ -418,9 +428,11 @@ const MapSystem = {
 
         token.style.transition = animate ? 'left 2s ease-in-out, top 2s ease-in-out, opacity 0.5s ease' : 'none';
 
-        // PERFECT CENTERING: use 50% offsets with the translate already in CSS
-        token.style.left = '50%';
-        token.style.top = '50%';
+        // 🎯 ABSOLUTE CENTERING (Codex-Fix): Centering on a zero-sized anchor requires top/left:0
+        // Rely purely on the CSS translate(-50%, -50%) for the actual socketing.
+        token.style.left = '0';
+        token.style.top = '0';
+        token.style.transform = 'translate(-50%, -50%) !important';
         token.style.opacity = '1';
 
         anchor.appendChild(token);
@@ -633,6 +645,11 @@ const MapSystem = {
     },
 
     show() {
+        // 🛠️ RE-SYNC REGISTRY (Codex-Fix): Ensure Map indices are correct before opening
+        if (window.SlideRegistry && typeof window.SlideRegistry.rebuild === 'function') {
+            window.SlideRegistry.rebuild();
+        }
+
         if (!document.getElementById('world-map-overlay')) this.init();
         this.renderMap();
         const map = document.getElementById('world-map-overlay');

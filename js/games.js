@@ -745,6 +745,14 @@ function initPlacesHuntGrid() {
 function huntGameComplete(huntType) {
   console.log(`🎉 ${huntType} Hunt Complete!`);
 
+  // 🗺️ Map hunt types to node IDs
+  const huntToNodeId = {
+    'people': 'N3A',
+    'places': 'N3B',
+    'things': 'N3C'
+  };
+  const nodeId = huntToNodeId[huntType];
+
   // Play celebration sound
   if (typeof SoundFX !== 'undefined' && SoundFX.playChime) {
     SoundFX.playChime();
@@ -752,8 +760,11 @@ function huntGameComplete(huntType) {
     SoundFX.playCorrect();
   }
 
-  // Flash the map button
-  if (typeof MapSystem !== 'undefined' && MapSystem.flashMapButton) {
+  // 🧭 SIGNAL MAP SYSTEM: Directly trigger node completion
+  if (nodeId && typeof MapSystem !== 'undefined' && MapSystem.triggerNodeCompletion) {
+    console.log(`🗺️ Signaling MapSystem to complete node: ${nodeId}`);
+    MapSystem.triggerNodeCompletion(nodeId);
+  } else if (typeof MapSystem !== 'undefined' && MapSystem.flashMapButton) {
     MapSystem.flashMapButton();
   }
 
