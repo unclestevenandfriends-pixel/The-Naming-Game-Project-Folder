@@ -34,7 +34,8 @@ function recordAnswer(isCorrect, context) {
 // ═════════════════════════════════════════════════════════════════════
 function initSpotNounGrid() {
   const gameGrid = document.getElementById('spot-noun-grid');
-  if (!gameGrid || gameGrid.hasChildNodes()) return; // Prevent double init
+  if (!gameGrid || gameGrid.dataset.initialized === "true") return; // Prevent double init
+  gameGrid.dataset.initialized = "true";
 
   const nouns = [
     { word: 'fox', isNoun: true }, { word: 'small', isNoun: false },
@@ -72,7 +73,8 @@ function initSpotNounGrid() {
 // ═════════════════════════════════════════════════════════════════════
 function initInteractiveSentences() {
   const slide9Container = document.getElementById('slide-9-sentences');
-  if (!slide9Container || slide9Container.hasChildNodes()) return;
+  if (!slide9Container || slide9Container.dataset.initialized === "true") return;
+  slide9Container.dataset.initialized = "true";
 
   const sentences = [
     { text: "The fox is tired.", nouns: ["fox"] },
@@ -126,7 +128,8 @@ function initInteractiveSentences() {
 // ═════════════════════════════════════════════════════════════════════
 function initCommonCheck() {
   const checkContainer = document.getElementById('common-check-container');
-  if (!checkContainer || checkContainer.hasChildNodes()) return;
+  if (!checkContainer || checkContainer.dataset.initialized === "true") return;
+  checkContainer.dataset.initialized = "true";
 
   const checkHint = document.getElementById('common-check-hint');
   let checkCount = 0; // Local Scope
@@ -281,7 +284,8 @@ function initMuddle() {
   if (containerB) renderMuddle(containerB, muddleSourceB);
 
   function renderMuddle(container, text) {
-    if (container.hasChildNodes()) return; // Prevent double render
+    if (!container || container.dataset.initialized === "true") return; // Prevent double render
+    container.dataset.initialized = "true";
     container.innerHTML = "";
     const p = document.createElement('p');
     p.className = "leading-relaxed";
@@ -351,7 +355,8 @@ function initAllQuizzes() {
 
   function initQuiz(containerId, questions) {
     const container = document.getElementById(containerId);
-    if (!container || container.hasChildNodes()) return;
+    if (!container || container.dataset.initialized === "true") return;
+    container.dataset.initialized = "true";
 
     questions.forEach((q, idx) => {
       const box = document.createElement('div');
@@ -421,7 +426,9 @@ function initAllQuizzes() {
 function initRiddles() {
   const qContainer = document.getElementById('riddle-questions');
   const aContainer = document.getElementById('riddle-answers');
-  if (!qContainer || !aContainer || qContainer.hasChildNodes()) return;
+  if (!qContainer || !aContainer || qContainer.dataset.initialized === "true") return;
+  qContainer.dataset.initialized = "true";
+  aContainer.dataset.initialized = "true";
 
   const riddles = [
     { q: "You can use me to write a story.", a: "Crayon", id: "r1" },
