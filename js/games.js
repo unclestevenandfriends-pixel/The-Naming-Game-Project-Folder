@@ -1,3 +1,12 @@
+// --- DEBOUNCED SAVE HELPER ---
+let saveTimeout;
+function debouncedSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    if (typeof saveProgress === 'function') saveProgress();
+  }, 2000);
+}
+
 // --- GAMEPLAY LOGIC (SCORING) ---
 function recordAnswer(isCorrect, context) {
   // Global Duplicate Check (Prevents Score Overflow on Refresh)
@@ -25,8 +34,12 @@ function recordAnswer(isCorrect, context) {
       detail: { context, slideKey: localStorage.getItem('nameGame_slide_key') || 'hero' }
     }));
   }
-  console.log("Current State:", classData);
-  saveProgress(); // Auto-Save
+
+  if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE) {
+    console.log("Current State:", classData);
+  }
+
+  debouncedSave(); // Use debounced version instead of immediate saveProgress()
 }
 
 // ═════════════════════════════════════════════════════════════════════

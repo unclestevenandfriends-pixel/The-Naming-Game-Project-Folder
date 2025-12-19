@@ -44,9 +44,52 @@
         "session_summary": "—"
     };
 
+    // static map to allow title lookup even if the slide iframe/HTML is lazy-loaded
+    const TITLE_MAP = {
+        "hero": "The Naming Game",
+        "intro_village": "A World Without Names?",
+        "adventure_start": "Meet Norah Noun!",
+        "three_noun_families": "What is a Noun?",
+        "node_n1_exit": "Mission: Exit 1",
+        "norah_detective": "Nouns Name People",
+        "sentence_spotting": "Nouns Name Places",
+        "village_checkpoint": "Things & Animals",
+        "node_n2_exit": "Mission: Exit 2",
+        "people_hunt": "People Hunt",
+        "places_hunt": "Places Hunt",
+        "things_hunt": "Things & Animals Hunt",
+        "mega_mix_boss": "Mega Mix Boss",
+        "common_nouns_title": "Common Nouns",
+        "what_is_common_noun": "What is a Common Noun?",
+        "common_noun_examples": "Common Nouns are General Labels",
+        "common_noun_rule": "The Common Noun Rule",
+        "check_common_nouns": "Which are Common Nouns?",
+        "proper_nouns_intro": "Proper Nouns",
+        "what_is_proper_noun": "What is a Proper Noun?",
+        "capital_letter_rule": "The Shiny Crown!",
+        "proper_quick_check_placeholder": "Quick Check",
+        "power_specific_people": "Proper Nouns specify who.",
+        "power_specific_places": "Proper Nouns specify where.",
+        "power_specific_dates": "Specific Dates",
+        "brands_and_events": "Brands and Events",
+        "the_vip_list": "The VIP List",
+        "the_golden_rule": "The Golden Rule Challenge",
+        "mr_muddle_intro": "The Case of Miss Muddle",
+        "evidence_a_locations": "Evidence A: Locations",
+        "evidence_b_people_dates": "Evidence B: People & Dates",
+        "case_closed": "Case Closed",
+        "quiz_people_i": "People and 'I'",
+        "quiz_places_streets": "Places and Streets",
+        "quiz_specific_dates": "Specific Days and Dates",
+        "exit_ticket_riddle": "Exit Ticket Riddle Match",
+        "mission_complete": "Mission Complete!",
+        "session_summary": "Session Notes Summary"
+    };
+
     const SlideRegistry = {
         DISPLAY_TOTAL,
         LABEL_BY_KEY,
+        TITLE_MAP,
         indexByKey: new Map(),
         keyByIndex: [],
         slides: [],
@@ -117,7 +160,7 @@
         },
 
         /**
-         * 🔍 DYNAMIC LOOKUP
+         * 🔍 LOOKUP (Decoupled from DOM)
          * Returns an object for the given key: { element: HTMLElement, title: String, index: Number }
          */
         lookup(key) {
@@ -125,15 +168,22 @@
             if (idx === null) return { element: null, title: key, index: -1 };
 
             const element = this.slides[idx] || null;
-            let title = this.LABEL_BY_KEY[key] || key; // Fallback to label
 
-            if (element) {
-                // Dynamic Title Extraction
+            // 1. Try static TITLE_MAP first (Decoupling)
+            let title = this.TITLE_MAP[key];
+
+            // 2. Fallback to DOM if TITLE_MAP misses it
+            if (!title && element) {
                 const h1 = element.querySelector('h1, h2, .font-display');
                 if (h1) {
                     const text = h1.innerText.trim().replace(/\n/g, ' ').substring(0, 60);
                     if (text) title = text;
                 }
+            }
+
+            // 3. Last fallback to label or key
+            if (!title) {
+                title = this.LABEL_BY_KEY[key] || key;
             }
 
             return { element, title, index: idx };

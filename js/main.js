@@ -160,6 +160,9 @@ function initClassMode() {
         if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(currentIndex);
         if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.redrawCurrentSlide();
 
+        // Force immediate save on navigation (overrides debouncing in games.js)
+        if (typeof saveProgress === 'function') saveProgress();
+
       }, 150);
     }, { passive: true });
   }

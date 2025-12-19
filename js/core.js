@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // CORE.JS - Foundation Systems (MUST LOAD FIRST)
 // Contains: Security Config, Class Data State, MarkupCoordinator, SPAGSystem
+const DEBUG_MODE = false;
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // --- SECURITY CONFIGURATION ---
@@ -28,7 +29,7 @@ document.addEventListener('keydown', (e) => {
     if (modal) {
       if (modal.open) modal.close();
       else modal.showModal();
-      console.log("Teacher Modal Toggled via Shortcut");
+      if (DEBUG_MODE) console.log("Teacher Modal Toggled via Shortcut");
     }
   }
 });
@@ -67,7 +68,7 @@ const MarkupCoordinator = {
     if (saved) {
       try {
         this.state = JSON.parse(saved);
-        console.log("✅ Markup State Loaded:", this.state);
+        if (DEBUG_MODE) console.log("✅ Markup State Loaded:", this.state);
       } catch (e) {
         console.error("⚠️ State corrupt, starting fresh.");
       }
@@ -85,9 +86,9 @@ const MarkupCoordinator = {
   // Immediate Save (use on Slide Change or Blur)
   forceSave() {
     try {
-      const data = JSON.stringify(this.state);
-      localStorage.setItem('nameGame_markup', data);
-      console.log("💾 State Saved to Storage");
+      const json = JSON.stringify(this.state);
+      localStorage.setItem('nameGame_markup', json);
+      if (DEBUG_MODE) console.log("💾 State Saved to Storage");
     } catch (e) {
       console.warn("❌ Storage Full or Error:", e);
     }
@@ -104,8 +105,13 @@ const MarkupCoordinator = {
 
   // Migration: Wipe old conflicting data to prevent ghost bugs
   migrateOldData() {
-    if (localStorage.getItem('stickyNotes') || localStorage.getItem('annotations')) {
-      console.log("🧹 Migrating/Cleaning legacy Draft 18 data...");
+    const draft18_notes = localStorage.getItem('draft18_notes');
+    const stickyNotes = localStorage.getItem('stickyNotes');
+    const annotations = localStorage.getItem('annotations');
+
+    if (draft18_notes || stickyNotes || annotations) {
+      if (DEBUG_MODE) console.log("🧹 Migrating/Cleaning legacy Draft 18 data...");
+      localStorage.removeItem('draft18_notes');
       localStorage.removeItem('stickyNotes');
       localStorage.removeItem('annotations');
     }
@@ -350,12 +356,13 @@ function saveProgress() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('mode') === 'report') return;
 
-  localStorage.setItem('nameGame_data', JSON.stringify(classData));
-  console.log("Progress Saved");
+  const json = JSON.stringify(classData);
+  localStorage.setItem('nameGame_data', json);
+  if (DEBUG_MODE) console.log("Progress Saved");
 }
 window.saveProgress = saveProgress;
 
-console.log("✅ core.js loaded - Foundation systems ready");
+if (DEBUG_MODE) console.log("✅ core.js loaded - Foundation systems ready");
 
 
 // SLIDE_REGISTRY moved to js/slide_registry.js for consolidation

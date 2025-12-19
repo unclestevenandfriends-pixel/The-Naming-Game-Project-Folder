@@ -5,6 +5,10 @@
   box-sizing: border-box;
 }
 
+iframe {
+  background-color: #0B0C15;
+}
+
 /* 
        STABILIZED DESKTOP-FIRST CSS 
        - Removed aggressive 'vh' scaling to prevent top-cutoff.
@@ -127,6 +131,7 @@ li,
   /* Vertically center */
   align-items: center;
   /* Horizontally center */
+  will-change: transform;
 }
 
 /* Slide Content Wrapper */

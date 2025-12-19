@@ -115,7 +115,17 @@ const RewardsEngine = {
 
     // === DUAL CONFETTI SYSTEM ===
     fireDualConfetti(x, y) {
-        if (typeof confetti === 'undefined') return;
+        if (typeof confetti === 'undefined') {
+            console.log("🎊 Rewards: Loading confetti library...");
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js';
+            script.onload = () => {
+                console.log("🎊 Rewards: Confetti loaded. Firing burst.");
+                this.fireDualConfetti(x, y); // Retry once loaded
+            };
+            document.head.appendChild(script);
+            return;
+        }
 
         // 1. Precision Pop (At Mouse)
         confetti({

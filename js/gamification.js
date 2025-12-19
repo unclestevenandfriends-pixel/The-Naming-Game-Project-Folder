@@ -407,6 +407,7 @@ const GameEngine = {
     },
 
     beginMission() {
+        if (typeof SoundFX !== 'undefined') SoundFX.unlock();
         if (!this.config.characterId) return;
 
         const nameInput = document.getElementById('student-name');

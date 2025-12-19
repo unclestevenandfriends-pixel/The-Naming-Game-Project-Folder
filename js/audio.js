@@ -23,7 +23,9 @@ const SoundFX = {
 
   unlock() {
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume().then(() => console.log("🔊 Audio Context Resumed"));
+      this.ctx.resume().then(() => {
+        if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE) console.log("🔊 Audio Context Resumed");
+      });
     }
     this.isUnlocked = true;
     if (typeof initJukebox === 'function') {
