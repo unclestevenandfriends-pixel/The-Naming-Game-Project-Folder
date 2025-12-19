@@ -94,7 +94,7 @@ const RewardsEngine = {
         }
     },
 
-    triggerCompletion(slideIndex, tracker) {
+    triggerCompletion(slideKey, tracker) {
         tracker.completed = true;
 
         // Quality Score

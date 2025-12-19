@@ -35,11 +35,11 @@ const MapSystem = {
         "N5": { id: "N5", left: 38.3, top: 50.2, label: "Common Nouns", type: "linear", slideKeys: ["common_nouns_title", "what_is_common_noun", "common_noun_examples", "common_noun_rule", "check_common_nouns"], exitKey: "check_common_nouns", parents: ["N4"], children: ["N6"] },
         "N6": { id: "N6", left: 46, top: 50.2, label: "Proper Nouns", type: "linear", slideKeys: ["proper_nouns_intro", "what_is_proper_noun", "capital_letter_rule", "proper_quick_check_placeholder", "power_specific_people", "power_specific_places", "power_specific_dates", "brands_and_events", "the_vip_list", "the_golden_rule"], exitKey: "the_golden_rule", parents: ["N5"], children: ["N7"] },
         "N7": { id: "N7", left: 53.7, top: 50.3, label: "Case Briefing", type: "linear", slideKeys: ["mr_muddle_intro"], exitKey: "mr_muddle_intro", parents: ["N6"], children: ["HubB"] },
-        "HubB": { id: "HubB", left: 60.6, top: 50.2, type: "hub", label: "Detective's Hub", parents: ["N7"], children: ["N9A", "N9B"], gate: "GateB" },
+        "HubB": { id: "HubB", left: 60.6, top: 50.2, type: "hub", label: "Detective's Hub", parents: ["N7"], children: ["N9A", "N9B"], gate: "DetectiveBoss" },
         "N9A": { id: "N9A", left: 60.6, top: 28.4, label: "Evidence A: Locations", type: "branch", slideKeys: ["evidence_a_locations"], exitKey: "evidence_a_locations", parents: ["HubB"], returnTo: "HubB" },
         "N9B": { id: "N9B", left: 60.7, top: 71.8, label: "Evidence B: People & Dates", type: "branch", slideKeys: ["evidence_b_people_dates"], exitKey: "evidence_b_people_dates", parents: ["HubB"], returnTo: "HubB" },
-        "GateB": { id: "GateB", left: 68.4, top: 50.4, type: "gate", label: "Case Closed", slideKeys: ["case_closed"], exitKey: "case_closed", parents: ["N9A", "N9B"], children: ["HubC"] },
-        "HubC": { id: "HubC", left: 76.9, top: 50, type: "hub", label: "Trial Hub", parents: ["GateB"], children: ["N10A", "N10B", "N10C"], gate: "N11" },
+        "DetectiveBoss": { id: "DetectiveBoss", left: 68.4, top: 50.4, type: "gate", label: "Case Closed", slideKeys: ["case_closed"], exitKey: "case_closed", parents: ["N9A", "N9B"], children: ["HubC"] },
+        "HubC": { id: "HubC", left: 76.9, top: 50, type: "hub", label: "Trial Hub", parents: ["DetectiveBoss"], children: ["N10A", "N10B", "N10C"], gate: "N11" },
         "N10A": { id: "N10A", left: 76.9, top: 28.3, label: "Quiz: People & I", type: "branch", slideKeys: ["quiz_people_i"], exitKey: "quiz_people_i", parents: ["HubC"], returnTo: "HubC" },
         "N10B": { id: "N10B", left: 72, top: 72, label: "Quiz: Places & Streets", type: "branch", slideKeys: ["quiz_places_streets"], exitKey: "quiz_places_streets", parents: ["HubC"], returnTo: "HubC" },
         "N10C": { id: "N10C", left: 81.8, top: 71.8, label: "Quiz: Days & Dates", type: "branch", slideKeys: ["quiz_specific_dates"], exitKey: "quiz_specific_dates", parents: ["HubC"], returnTo: "HubC" },
@@ -98,6 +98,7 @@ const MapSystem = {
         this.ensureMapWorldWrapper();
         this.injectMapButton();
         this.loadProgress();
+        this.ensureN1Unlocked();
         this.updateMapCamera();
         this.initialized = true;
     },
@@ -582,8 +583,7 @@ const MapSystem = {
         const node = this.mapNodes[nodeId];
         if (!node) return;
 
-        // SPECIAL HANDLING: Gates without slides (like GateB "Case Closed")
-        // These are pass-through gates that auto-complete when clicked
+        // SPECIAL HANDLING: Gates without slides (like DetectiveBoss "Case Closed" - wait, it has slides, but some might not)
         if (node.type === 'gate' && (!node.slideKeys || node.slideKeys.length === 0)) {
             if (this.state.completedNodes.includes(nodeId)) return; // Already completed
             this.isAnimating = true;
@@ -958,13 +958,17 @@ const MapSystem = {
         }
 
         // 🛡️ SANITY CHECK: Ensure N1 is always unlocked to prevent soft-locks
-        if (!this.state.unlockedNodes.includes('N1')) {
-            console.log("🔧 MapSystem: N1 was missing from unlockedNodes. Restoring.");
-            this.state.unlockedNodes.push('N1');
-        }
+        this.ensureN1Unlocked();
 
         if (typeof NavigationGuard !== "undefined") {
             setTimeout(() => NavigationGuard.updateCachedMaxSlide(), 500);
+        }
+    },
+
+    ensureN1Unlocked() {
+        if (!this.state.unlockedNodes.includes('N1')) {
+            console.log("🔧 MapSystem: N1 was missing from unlockedNodes. Restoring.");
+            this.state.unlockedNodes.push('N1');
         }
     },
 
