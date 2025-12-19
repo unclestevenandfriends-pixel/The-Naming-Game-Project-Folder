@@ -456,6 +456,12 @@ const GameEngine = {
         // --- FORCE START AT SLIDE 0 (HERO SLIDE) ---
         const slider = document.getElementById('slider');
         if (slider) {
+            const slideZero = document.getElementById('slide-0');
+            if (slideZero) slideZero.classList.remove('hidden');
+
+            // Rebuild registry to ensure slide-0 is index 0
+            if (window.SlideRegistry) window.SlideRegistry.rebuild();
+
             slider.scrollLeft = 0; // Force to start
             slider.style.overflow = ''; // Re-enable scrolling
         }

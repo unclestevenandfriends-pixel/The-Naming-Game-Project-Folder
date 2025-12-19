@@ -9,6 +9,7 @@ const MapSystem = {
     introPlayed: false,
     initialized: false,
     isAnimating: false,
+    audioInitialized: false,
 
     getVisibleSlides() {
         return (window.SLIDE_REGISTRY ? window.SLIDE_REGISTRY.getSlides() : []);
@@ -24,26 +25,26 @@ const MapSystem = {
 
     // Node Definitions (The Logic)
     mapNodes: {
-        "N1": { id: "N1", left: 4, top: 52, label: "The Village", type: "linear", slideKeys: ["intro_village", "adventure_start", "three_noun_families", "node_n1_exit"], exitKey: "node_n1_exit", parents: [], children: ["N2"] },
-        "N2": { id: "N2", left: 12, top: 52, label: "Three Noun Families", type: "linear", slideKeys: ["norah_detective", "sentence_spotting", "village_checkpoint", "node_n2_exit"], exitKey: "node_n2_exit", parents: ["N1"], children: ["HubA"] },
-        "HubA": { id: "HubA", left: 21, top: 52, type: "hub", label: "Central Hub Camp", parents: ["N2"], children: ["N3A", "N3B", "N3C"], gate: "N4" },
-        "N3A": { id: "N3A", left: 21, top: 22, label: "People Hunt", type: "branch", slideKeys: ["people_hunt"], exitKey: "people_hunt", parents: ["HubA"], returnTo: "HubA" },
-        "N3B": { id: "N3B", left: 16, top: 82, label: "Places Hunt", type: "branch", slideKeys: ["places_hunt"], exitKey: "places_hunt", parents: ["HubA"], returnTo: "HubA" },
-        "N3C": { id: "N3C", left: 26, top: 82, label: "Things & Animals Hunt", type: "branch", slideKeys: ["things_hunt"], exitKey: "things_hunt", parents: ["HubA"], returnTo: "HubA" },
-        "N4": { id: "N4", left: 30, top: 52, label: "Mega-Mix Boss", type: "gate", slideKeys: ["mega_mix_boss"], exitKey: "mega_mix_boss", parents: ["N3A", "N3B", "N3C"], children: ["N5"] },
-        "N5": { id: "N5", left: 38, top: 52, label: "Common Nouns", type: "linear", slideKeys: ["common_nouns_title", "what_is_common_noun", "common_noun_examples", "common_noun_rule", "check_common_nouns"], exitKey: "check_common_nouns", parents: ["N4"], children: ["N6"] },
-        "N6": { id: "N6", left: 45, top: 52, label: "Proper Nouns", type: "linear", slideKeys: ["proper_nouns_intro", "what_is_proper_noun", "capital_letter_rule", "proper_quick_check_placeholder", "power_specific_people", "power_specific_places", "power_specific_dates", "brands_and_events", "the_vip_list", "the_golden_rule"], exitKey: "the_golden_rule", parents: ["N5"], children: ["N7"] },
-        "N7": { id: "N7", left: 52, top: 52, label: "Case Briefing", type: "linear", slideKeys: ["mr_muddle_intro"], exitKey: "mr_muddle_intro", parents: ["N6"], children: ["HubB"] },
-        "HubB": { id: "HubB", left: 59, top: 52, type: "hub", label: "Detective's Hub", parents: ["N7"], children: ["N9A", "N9B"], gate: "GateB" },
-        "N9A": { id: "N9A", left: 59, top: 23, label: "Evidence A: Locations", type: "branch", slideKeys: ["evidence_a_locations"], exitKey: "evidence_a_locations", parents: ["HubB"], returnTo: "HubB" },
-        "N9B": { id: "N9B", left: 59, top: 81, label: "Evidence B: People & Dates", type: "branch", slideKeys: ["evidence_b_people_dates"], exitKey: "evidence_b_people_dates", parents: ["HubB"], returnTo: "HubB" },
-        "GateB": { id: "GateB", left: 66, top: 52, type: "gate", label: "Case Closed", slideKeys: ["case_closed"], exitKey: "case_closed", parents: ["N9A", "N9B"], children: ["HubC"] },
-        "HubC": { id: "HubC", left: 73, top: 52, type: "hub", label: "Trial Hub", parents: ["GateB"], children: ["N10A", "N10B", "N10C"], gate: "N11" },
-        "N10A": { id: "N10A", left: 73, top: 22, label: "Quiz: People & I", type: "branch", slideKeys: ["quiz_people_i"], exitKey: "quiz_people_i", parents: ["HubC"], returnTo: "HubC" },
-        "N10B": { id: "N10B", left: 68, top: 82, label: "Quiz: Places & Streets", type: "branch", slideKeys: ["quiz_places_streets"], exitKey: "quiz_places_streets", parents: ["HubC"], returnTo: "HubC" },
-        "N10C": { id: "N10C", left: 78, top: 82, label: "Quiz: Days & Dates", type: "branch", slideKeys: ["quiz_specific_dates"], exitKey: "quiz_specific_dates", parents: ["HubC"], returnTo: "HubC" },
-        "N11": { id: "N11", left: 86, top: 52, label: "Exit Ticket", type: "gate", slideKeys: ["exit_ticket_riddle"], exitKey: "exit_ticket_riddle", parents: ["N10A", "N10B", "N10C"], children: ["N12"] },
-        "N12": { id: "N12", left: 94, top: 45, label: "Mission Complete", type: "linear", slideKeys: ["mission_complete"], exitKey: "mission_complete", parents: ["N11"], children: [] }
+        "N1": { id: "N1", left: 4, top: 50.1, label: "The Village", type: "linear", slideKeys: ["intro_village", "adventure_start", "three_noun_families", "node_n1_exit"], exitKey: "node_n1_exit", parents: [], children: ["N2"] },
+        "N2": { id: "N2", left: 11.8, top: 50.1, label: "Three Noun Families", type: "linear", slideKeys: ["norah_detective", "sentence_spotting", "village_checkpoint", "node_n2_exit"], exitKey: "node_n2_exit", parents: ["N1"], children: ["HubA"] },
+        "HubA": { id: "HubA", left: 23.6, top: 50.2, type: "hub", label: "Central Hub Camp", parents: ["N2"], children: ["N3A", "N3B", "N3C"], gate: "N4" },
+        "N3A": { id: "N3A", left: 23.7, top: 27.3, label: "People Hunt", type: "branch", slideKeys: ["people_hunt"], exitKey: "people_hunt", parents: ["HubA"], returnTo: "HubA" },
+        "N3B": { id: "N3B", left: 18.4, top: 71.8, label: "Places Hunt", type: "branch", slideKeys: ["places_hunt"], exitKey: "places_hunt", parents: ["HubA"], returnTo: "HubA" },
+        "N3C": { id: "N3C", left: 28.9, top: 72, label: "Things & Animals Hunt", type: "branch", slideKeys: ["things_hunt"], exitKey: "things_hunt", parents: ["HubA"], returnTo: "HubA" },
+        "N4": { id: "N4", left: 31, top: 50.3, label: "Mega-Mix Boss", type: "gate", slideKeys: ["mega_mix_boss"], exitKey: "mega_mix_boss", parents: ["N3A", "N3B", "N3C"], children: ["N5"] },
+        "N5": { id: "N5", left: 38.3, top: 50.2, label: "Common Nouns", type: "linear", slideKeys: ["common_nouns_title", "what_is_common_noun", "common_noun_examples", "common_noun_rule", "check_common_nouns"], exitKey: "check_common_nouns", parents: ["N4"], children: ["N6"] },
+        "N6": { id: "N6", left: 46, top: 50.2, label: "Proper Nouns", type: "linear", slideKeys: ["proper_nouns_intro", "what_is_proper_noun", "capital_letter_rule", "proper_quick_check_placeholder", "power_specific_people", "power_specific_places", "power_specific_dates", "brands_and_events", "the_vip_list", "the_golden_rule"], exitKey: "the_golden_rule", parents: ["N5"], children: ["N7"] },
+        "N7": { id: "N7", left: 53.7, top: 50.3, label: "Case Briefing", type: "linear", slideKeys: ["mr_muddle_intro"], exitKey: "mr_muddle_intro", parents: ["N6"], children: ["HubB"] },
+        "HubB": { id: "HubB", left: 60.6, top: 50.2, type: "hub", label: "Detective's Hub", parents: ["N7"], children: ["N9A", "N9B"], gate: "GateB" },
+        "N9A": { id: "N9A", left: 60.6, top: 28.4, label: "Evidence A: Locations", type: "branch", slideKeys: ["evidence_a_locations"], exitKey: "evidence_a_locations", parents: ["HubB"], returnTo: "HubB" },
+        "N9B": { id: "N9B", left: 60.7, top: 71.8, label: "Evidence B: People & Dates", type: "branch", slideKeys: ["evidence_b_people_dates"], exitKey: "evidence_b_people_dates", parents: ["HubB"], returnTo: "HubB" },
+        "GateB": { id: "GateB", left: 68.4, top: 50.4, type: "gate", label: "Case Closed", slideKeys: ["case_closed"], exitKey: "case_closed", parents: ["N9A", "N9B"], children: ["HubC"] },
+        "HubC": { id: "HubC", left: 76.9, top: 50, type: "hub", label: "Trial Hub", parents: ["GateB"], children: ["N10A", "N10B", "N10C"], gate: "N11" },
+        "N10A": { id: "N10A", left: 76.9, top: 28.3, label: "Quiz: People & I", type: "branch", slideKeys: ["quiz_people_i"], exitKey: "quiz_people_i", parents: ["HubC"], returnTo: "HubC" },
+        "N10B": { id: "N10B", left: 72, top: 72, label: "Quiz: Places & Streets", type: "branch", slideKeys: ["quiz_places_streets"], exitKey: "quiz_places_streets", parents: ["HubC"], returnTo: "HubC" },
+        "N10C": { id: "N10C", left: 81.8, top: 71.8, label: "Quiz: Days & Dates", type: "branch", slideKeys: ["quiz_specific_dates"], exitKey: "quiz_specific_dates", parents: ["HubC"], returnTo: "HubC" },
+        "N11": { id: "N11", left: 88.8, top: 50.3, label: "Exit Ticket", type: "gate", slideKeys: ["exit_ticket_riddle"], exitKey: "exit_ticket_riddle", parents: ["N10A", "N10B", "N10C"], children: ["N12"] },
+        "N12": { id: "N12", left: 95.7, top: 50.2, label: "Mission Complete", type: "linear", slideKeys: ["mission_complete"], exitKey: "mission_complete", parents: ["N11"], children: [] }
     },
 
     state: {
@@ -88,8 +89,10 @@ const MapSystem = {
     init() {
         if (this.initialized) return;
         this.injectMapUI();
+        this.ensureMapWorldWrapper();
         this.injectMapButton();
         this.loadProgress();
+        this.updateMapCamera();
         this.initialized = true;
     },
 
@@ -101,31 +104,57 @@ const MapSystem = {
         <div id="world-map-overlay" class="fixed inset-0 z-[8000] bg-[#0B0C15] transition-transform duration-700 translate-y-full flex flex-col">
             <div class="absolute top-0 left-0 w-full p-6 z-10 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
                 <h1 class="font-display text-4xl text-brand-400 drop-shadow-lg">🗺️ World Map</h1>
-                <button onclick="MapSystem.hideMapOnly()" class="pointer-events-auto bg-white/5 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur-md transition-all cursor-pointer border border-white/10 hover:border-brand-400 relative z-10">
+                <button onclick="MapSystem.hideMapOnly()" class="pointer-events-auto bg-white/5 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur-md transition-all cursor-pointer border border-white/10 hover-border-brand-400 relative z-10">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
                 </button>
             </div>
             
-            <div id="map-instruction" class="absolute top-24 left-1/2 -translate-x-1/2 bg-black/80 text-white px-8 py-3 rounded-full border border-brand-500/30 shadow-[0_0_30px_rgba(34,211,238,0.3)] z-50 pointer-events-none transition-opacity duration-500 opacity-0">
+            <div id="map-instruction" class="absolute top-24 left-1/2 -translate-x-1/2 bg-black/80 text-white px-8 py-3 rounded-full border border-brand-500/30 shadow-[0_0_30px_rgba(34,211,238,0.3)] z-50 pointer-events-none transition-opacity duration-500" style="opacity: 0;">
                 <span id="map-instruction-text" class="font-display text-lg tracking-wider"></span>
             </div>
 
-            <div class="flex-1 overflow-hidden relative flex items-center justify-center">
-                <div id="map-nodes" class="relative w-full max-w-[177.78vh] aspect-video">
-                    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://github.com/unclestevenandfriends-pixel/The-naming-game-noun-presentation-assets/blob/main/assets/characters/Final%20Map.jpg?raw=true');"></div>
-                    <svg id="map-lines" class="absolute inset-0 w-full h-full pointer-events-none opacity-60"></svg>
-                    <div id="player-token" class="absolute z-50 opacity-0 pointer-events-none" style="transition: left 2s ease-in-out, top 2s ease-in-out, opacity 0.5s ease;">
-                        <div class="relative">
-                            <div id="player-token-ring" class="w-20 h-20 rounded-full border-4 border-brand-400 shadow-[0_0_30px_rgba(34,211,238,0.6)] overflow-hidden bg-black">
-                                <img id="player-token-img" class="w-full h-full object-cover" src="" alt="Player">
+            <div class="flex-1 overflow-hidden relative flex items-center justify-center bg-black">
+                <div id="map-world" class="absolute top-0 left-0 w-full h-full origin-top-left transition-transform duration-1000 ease-in-out will-change-transform">
+                    <img id="map-background-img" src="https://github.com/unclestevenandfriends-pixel/The-naming-game-noun-presentation-assets/blob/main/assets/characters/Final%20Map.jpg?raw=true" class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" draggable="false">
+                    <div id="map-nodes" class="absolute inset-0 w-full h-full">
+                        <svg id="map-lines" class="absolute inset-0 w-full h-full pointer-events-none opacity-60"></svg>
+                        <div id="player-token" class="absolute z-50 pointer-events-none" style="opacity: 0; transition: left 2s ease-in-out, top 2s ease-in-out, opacity 0.5s ease;">
+                            <div class="relative">
+                                <div id="player-token-ring" class="w-20 h-20 rounded-full border-4 border-brand-400 shadow-[0_0_30px_rgba(34,211,238,0.6)] overflow-hidden bg-black">
+                                    <img id="player-token-img" class="w-full h-full object-cover" src="" alt="Player">
+                                </div>
+                                <div id="token-pulse" class="absolute inset-0 rounded-full border-4 border-brand-400 animate-ping opacity-50"></div>
                             </div>
-                            <div id="token-pulse" class="absolute inset-0 rounded-full border-4 border-brand-400 animate-ping opacity-50"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', mapHTML);
+    },
+
+    ensureMapWorldWrapper() {
+        const host = document.getElementById('map-screen') || document.getElementById('map-nodes');
+        if (!host || document.getElementById('map-world')) return;
+
+        const world = document.createElement('div');
+        world.id = 'map-world';
+
+        const moveIntoWorld = (selector) => {
+            host.querySelectorAll(selector).forEach(el => world.appendChild(el));
+        };
+
+        moveIntoWorld('.map-background');
+        moveIntoWorld('.parallax-layer');
+        moveIntoWorld('.map-node-anchor');
+        moveIntoWorld('.map-node');
+
+        const mapLines = host.querySelector('#map-lines');
+        if (mapLines) world.appendChild(mapLines);
+        const token = host.querySelector('#player-token');
+        if (token) world.appendChild(token);
+
+        host.appendChild(world);
     },
 
     injectMapButton() {
@@ -149,7 +178,8 @@ const MapSystem = {
 
         // Intro Check
         if (currentSlide === 0 && !this.introPlayed) {
-            this.playIntro();
+            this.show();  // Open map overlay first
+            this.playIntro();  // Then play the intro animation
             return;
         }
 
@@ -195,6 +225,61 @@ const MapSystem = {
                 btn.className = "ml-4 px-4 py-2 rounded-xl bg-brand-500/20 hover:bg-brand-500/30 border border-brand-500/30 text-brand-400 font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50";
             }
         }
+
+        this.updateMapCamera();
+    },
+
+    updateMapCamera() {
+        const world = document.getElementById('map-world');
+        if (!world) return;
+
+        const viewport = world.parentElement;
+        if (!viewport) return;
+
+        let zoom = 1.0;
+        let focusNodeId = null;
+
+        if (!this.isNodeUnlocked('HubA')) {
+            zoom = 2.05;
+            focusNodeId = 'N1';
+        } else if (!this.isNodeUnlocked('HubB')) {
+            zoom = 1.55;
+            focusNodeId = 'HubA';
+        } else {
+            zoom = 1.0;
+            focusNodeId = 'HubB';
+        }
+
+        let fx = 0.5;
+        let fy = 0.5;
+        if (focusNodeId && this.mapNodes && this.mapNodes[focusNodeId]) {
+            fx = this.mapNodes[focusNodeId].left / 100;
+            fy = this.mapNodes[focusNodeId].top / 100;
+        }
+
+        const vw = viewport.clientWidth;
+        const vh = viewport.clientHeight;
+        const worldW = vw * zoom;
+        const worldH = vh * zoom;
+
+        const focusX = worldW * fx;
+        const focusY = worldH * fy;
+
+        let tx = (vw * 0.5) - focusX;
+        let ty = (vh * 0.55) - focusY;
+
+        const minTx = vw - worldW;
+        const maxTx = 0;
+        const minTy = vh - worldH;
+        const maxTy = 0;
+
+        if (tx < minTx) tx = minTx;
+        if (tx > maxTx) tx = maxTx;
+        if (ty < minTy) ty = minTy;
+        if (ty > maxTy) ty = maxTy;
+
+        world.style.transformOrigin = 'top left';
+        world.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${zoom})`;
     },
 
     triggerNodeCompletion(nodeId) {
@@ -225,6 +310,7 @@ const MapSystem = {
             }
             this.saveProgress();
         }, 800);
+        this.updateMapCamera();
     },
 
     handleBranchReturn(node) {
@@ -299,7 +385,7 @@ const MapSystem = {
         }
         document.dispatchEvent(new CustomEvent('nodeUnlocked', { detail: { nodeId } }));
 
-        const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+        const nodeEl = document.querySelector(`.map-node[data-node-id="${nodeId}"]`);
         if (nodeEl) {
             nodeEl.classList.add('node-unlocking');
             const lockIcon = nodeEl.querySelector('.node-icon');
@@ -327,24 +413,56 @@ const MapSystem = {
 
     positionTokenOnNode(nodeId, animate = false) {
         const token = document.getElementById('player-token');
-        const node = this.mapNodes[nodeId];
-        if (!token || !node) return;
-        if (!animate) token.style.transition = 'opacity 0.5s ease';
-        token.style.left = `${node.left}%`;
-        token.style.top = `${node.top}%`;
-        token.style.transform = 'translate(-50%, -50%)';
+        const anchor = document.querySelector(`.map-node-anchor[data-node-id="${nodeId}"]`);
+        if (!token || !anchor) return;
+
+        token.style.transition = animate ? 'left 2s ease-in-out, top 2s ease-in-out, opacity 0.5s ease' : 'none';
+
+        // PERFECT CENTERING: use 50% offsets with the translate already in CSS
+        token.style.left = '50%';
+        token.style.top = '50%';
         token.style.opacity = '1';
+
+        anchor.appendChild(token);
         this.updateTokenAvatar();
+
+        // Update CSS state to hide swords
+        document.querySelectorAll('.map-node').forEach(n => n.classList.remove('has-token'));
+        const nodeEl = anchor.querySelector('.map-node');
+        if (nodeEl) nodeEl.classList.add('has-token');
     },
 
     animateTokenToNode(nodeId) {
         const token = document.getElementById('player-token');
-        const node = this.mapNodes[nodeId];
-        if (!token || !node) return;
-        token.style.transition = 'left 2s ease-in-out, top 2s ease-in-out';
-        token.style.left = `${node.left}%`;
-        token.style.top = `${node.top}%`;
-        // SOUND RESTORED
+        const targetNode = this.mapNodes[nodeId];
+        const container = document.getElementById('map-world') || document.getElementById('map-nodes');
+
+        if (!token || !targetNode || !container) return;
+
+        // 1. PRE-SNAP: Calculate the STARTING percentage relative to the map container
+        // to prevent the "zap" when we change parents.
+        const currentAnchor = token.parentElement;
+        if (currentAnchor && currentAnchor.classList.contains('map-node-anchor')) {
+            token.style.left = currentAnchor.style.left;
+            token.style.top = currentAnchor.style.top;
+        }
+
+        // 2. Move token to root container for animation
+        container.appendChild(token);
+
+        // 3. Trigger Glide
+        // Delay slightly to allow the browser to register the new parent
+        requestAnimationFrame(() => {
+            token.style.transition = 'left 2s ease-in-out, top 2s ease-in-out, opacity 0.5s ease';
+            token.style.left = `${targetNode.left}%`;
+            token.style.top = `${targetNode.top}%`;
+        });
+
+        // 4. After animation, re-anchor for hierarchy stability
+        setTimeout(() => {
+            this.positionTokenOnNode(nodeId, false);
+        }, 2100);
+
         if (typeof SoundFX !== 'undefined') SoundFX.playSlide();
     },
 
@@ -362,9 +480,15 @@ const MapSystem = {
     },
 
     renderMap() {
-        const container = document.getElementById('map-nodes');
+        console.log("🧱 renderMap() called");
+        const container = document.getElementById('map-world') || document.getElementById('map-nodes');
         if (!container) return;
-        container.querySelectorAll('.map-node').forEach(n => n.remove());
+        const token = document.getElementById('player-token');
+        const tokenParent = token ? token.parentElement : null;
+        if (token && tokenParent && tokenParent.classList.contains('map-node-anchor')) {
+            container.appendChild(token);
+        }
+        container.querySelectorAll('.map-node-anchor').forEach(n => n.remove());
 
         Object.values(this.mapNodes).forEach(node => {
             const isUnlocked = this.isNodeUnlocked(node.id);
@@ -383,30 +507,49 @@ const MapSystem = {
             if (isCompleted) stateClass = 'node-completed';
             else if (isUnlocked) stateClass = 'node-active';
 
+            const anchor = document.createElement('div');
+            anchor.className = 'map-node-anchor';
+            anchor.style.left = `${node.left}%`;
+            anchor.style.top = `${node.top}%`;
+            anchor.style.zIndex = isCurrent ? '100' : '10'; // Lift current node
+            anchor.dataset.nodeId = node.id;
+
             const el = document.createElement('div');
-            el.className = `map-node absolute flex flex-col items-center gap-2 transition-all duration-300 pointer-events-auto ${stateClass}`;
-            el.style.left = `${node.left}%`;
-            el.style.top = `${node.top}%`;
-            el.style.transform = 'translate(-50%, -50%)';
-            el.style.zIndex = isCurrent ? '20' : '10';
+            el.className = `map-node transition-all duration-300 pointer-events-auto ${stateClass}`;
             el.dataset.nodeId = node.id;
 
+            // SOCKET-AND-POINT: Icon and Label are non-flex siblings.
+            // This ensures the icon stays perfectly locked to the (0,0) coordinate.
             el.innerHTML = `
-                <div class="node-icon w-14 h-14 rounded-full bg-gray-800/90 border-2 ${isCurrent ? 'border-brand-400 shadow-[0_0_20px_rgba(34,211,238,0.6)]' : 'border-white/20'} flex items-center justify-center text-xl shadow-xl cursor-pointer hover:scale-110 transition-all duration-300">
+                <div class="node-icon w-14 h-14 rounded-full bg-gray-800/90 border-2 ${isCurrent ? 'border-brand-400 shadow-[0_0_20px_rgba(34,211,238,0.6)]' : 'border-white/20'} text-xl shadow-xl cursor-pointer hover:scale-110 transition-all duration-300">
                     ${icon}
                 </div>
-                ${!isHub ? `<div class="node-label bg-black/80 px-2 py-1 rounded text-xs text-white border border-white/10 shadow-lg whitespace-nowrap">${node.label}</div>` : ''}
+                ${!isHub ? `<div class="node-label bg-black/80 px-2 py-1 rounded text-xs text-white border border-white/10 shadow-lg">${node.label}</div>` : ''}
             `;
 
+            anchor.appendChild(el);
+
             if (isUnlocked && !isHub && (!isCompleted || node.type === 'branch')) {
-                el.onclick = (e) => { e.stopPropagation(); this.onNodeClick(node.id); };
-                el.style.cursor = 'pointer';
+                anchor.style.cursor = 'pointer';
+                anchor.addEventListener('pointerdown', (e) => {
+                    console.log("🖱️ node pointerdown fired:", node.id);
+                    console.log("🟢 NODE POINTERDOWN:", node.id, "unlocked:", this.isNodeUnlocked(node.id));
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.onNodeClick(node.id);
+                }, { capture: true });
             } else if (!isUnlocked) {
-                el.onclick = (e) => { e.stopPropagation(); this.showLockedMessage(); };
+                anchor.style.cursor = 'not-allowed';
+                anchor.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showLockedMessage();
+                }, { capture: true });
             }
-            container.appendChild(el);
+            container.appendChild(anchor);
         });
         this.positionTokenOnNode(this.state.currentNode, false);
+        this.updateMapCamera();
     },
 
     onNodeClick(nodeId) {
@@ -451,6 +594,7 @@ const MapSystem = {
     },
 
     enterNodeSlides(nodeId) {
+        console.log("🚀 startNode:", nodeId);
         const node = this.mapNodes[nodeId];
         const slides = this.resolveNodeSlides(node);
         if (!node || !slides || slides.length === 0) return;
@@ -498,8 +642,24 @@ const MapSystem = {
         }
         const viewport = document.getElementById('viewport-frame');
         if (viewport && typeof gsap !== 'undefined') gsap.to(viewport, { opacity: 0.3, duration: 0.5 });
-        // SOUND RESTORED
-        if (typeof SoundFX !== 'undefined') SoundFX.playPop();
+        if (typeof SoundFX !== 'undefined') {
+            if (!this.audioInitialized && SoundFX.init) {
+                try {
+                    SoundFX.init();
+                    if (SoundFX.unlock) SoundFX.unlock();
+                } catch (e) {
+                    console.warn('SoundFX init failed', e);
+                }
+                this.audioInitialized = true;
+            }
+            SoundFX.playPop();
+        }
+        console.log("🗺️ Map shown. State:", {
+            currentNode: this.state.currentNode,
+            unlocked: this.state.unlockedNodes,
+            isAnimating: this.isAnimating,
+            introPlayed: this.introPlayed
+        });
     },
 
     hide() {
@@ -526,23 +686,30 @@ const MapSystem = {
         if (this.introPlayed) return;
         this.introPlayed = true;
         this.isAnimating = true;
-        this.show();
+        this.saveProgress();
+
+        // NOTE: show() is NOT called here - it's called by handleMapButtonClick() BEFORE playIntro()
+        // This ensures the map only opens when the user clicks "Start Journey"
+
         const token = document.getElementById('player-token');
         if (token) {
             token.style.transition = 'none';
             token.style.opacity = '0';
             token.style.left = '4%';
             token.style.top = '30%';
+            this.updateTokenAvatar();
             setTimeout(() => {
                 token.style.transition = 'opacity 1s ease-out, top 2s ease-in-out';
                 token.style.opacity = '1';
-                token.style.top = '52%';
-                // SOUND RESTORED
+                token.style.top = '50.1%'; // Exact center of N1
                 if (typeof SoundFX !== 'undefined') SoundFX.playSuccess();
             }, 500);
         }
         setTimeout(() => this.showInstruction('Your adventure begins! Click "The Village" to start.'), 2000);
-        setTimeout(() => { this.isAnimating = false; }, 3000);
+        setTimeout(() => {
+            this.isAnimating = false;
+            this.positionTokenOnNode('N1', true);
+        }, 3000);
     },
 
     // --- RESTORED INSTRUCTION LOGIC (No Toasts) ---
@@ -677,7 +844,7 @@ const MapSystem = {
         const hub = this.mapNodes[hubId];
         if (!hub || hub.type !== 'hub') return;
         if (!this.state.unlockedNodes.includes(hubId)) return;
-        
+
         let needsSave = false;
         hub.children.forEach(childId => {
             if (!this.state.unlockedNodes.includes(childId)) {

@@ -29,6 +29,13 @@
    NODE STATES
    ═══════════════════════════════════════════════════════════════════════════════ */
 
+/* Base node layout */
+.map-node {
+    position: relative;
+    z-index: 100;
+    cursor: pointer;
+}
+
 /* Locked node - grayed out, not interactive */
 .node-locked {
     filter: grayscale(100%) brightness(0.5);
@@ -56,12 +63,12 @@
     0%,
     100% {
         box-shadow: 0 0 10px rgba(34, 211, 238, 0.4), 0 0 20px rgba(34, 211, 238, 0.2);
-        transform: scale(1);
+        transform: translate(-50%, -50%) scale(1) !important;
     }
 
     50% {
         box-shadow: 0 0 25px rgba(34, 211, 238, 0.8), 0 0 40px rgba(34, 211, 238, 0.4);
-        transform: scale(1.05);
+        transform: translate(-50%, -50%) scale(1.05) !important;
     }
 }
 
@@ -88,16 +95,17 @@
 @keyframes unlock-burst {
     0% {
         filter: grayscale(100%) brightness(0.5);
+        transform: translate(-50%, -50%) scale(1) !important;
     }
 
     30% {
         filter: grayscale(0%) brightness(1.5);
-        transform: translate(-50%, -50%) scale(1.2);
+        transform: translate(-50%, -50%) scale(1.2) !important;
     }
 
     100% {
         filter: grayscale(0%) brightness(1);
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(1) !important;
     }
 }
 
@@ -153,7 +161,13 @@
 #player-token {
     /* Smooth gliding transition */
     transition: left 2s ease-in-out, top 2s ease-in-out, opacity 0.5s ease;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 99999 !important;
+    pointer-events: none;
+    /* Let clicks pass through to nodes if needed */
 }
 
 #player-token-ring {
@@ -256,9 +270,16 @@
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    max-width: 80px;
+    max-width: 140px;
     text-align: center;
     line-height: 1.2;
+    position: absolute;
+    top: 36px;
+    /* Explicitly decoupled offset */
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    white-space: nowrap;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -357,6 +378,7 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     /* 2 lines max */
     overflow: hidden;
     text-overflow: ellipsis;
@@ -391,4 +413,59 @@
 
 #mapToast.toast-pulse-active {
     animation: toastPulse 1.5s ease-in-out infinite;
+}
+
+/* 🎥 MAP WORLD CONTAINER (The Camera Target) */
+#map-world {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: center center;
+    transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+}
+
+/* Node Anchors control positioning */
+.map-node-anchor {
+    position: absolute;
+    width: 0;
+    height: 0;
+    z-index: 50;
+    pointer-events: auto;
+}
+
+.map-node {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+}
+
+.node-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    width: 60px;
+    height: 60px;
+}
+
+/* Hide swords when the player token is sitting in this socket */
+.map-node.has-token .node-icon {
+    opacity: 0.1;
+    /* Subtle ghosting of the swords when token is on them */
+    transition: opacity 0.5s ease;
+}
+
+#map-world .parallax-layer,
+#map-world .map-background {
+    transform: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
 }

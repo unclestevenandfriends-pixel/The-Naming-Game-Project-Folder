@@ -112,9 +112,9 @@ function initClassMode() {
   }
 
   const lobby = document.getElementById('lobby-screen');
-  const slideZero = document.getElementById('slide-zero');
+  const slideZero = document.getElementById('slide-0');
   if (lobby) lobby.style.display = 'flex';
-  if (slideZero) slideZero.classList.add('hidden');
+  // Removed slideZero.classList.add('hidden') to ensure SlideRegistry includes it
 
   // --- SCROLL HANDLING (Removed Ghost Busting to Fix Corruption) ---
   let scrollTimeout;
@@ -257,6 +257,7 @@ function startClass() {
 
       const firstSlide = document.getElementById('slide-0');
       if (firstSlide) {
+        firstSlide.classList.remove('hidden');
         firstSlide.classList.add('active');
         const elements = firstSlide.querySelectorAll('h1, h2, p, .glass-panel, img, button, .anim-entry');
         if (typeof gsap !== 'undefined') {
@@ -522,6 +523,11 @@ document.querySelectorAll('.slide').forEach(slide => slideObserver.observe(slide
   }
   function handleMouseMove(e) { mouseX = (e.clientX / window.innerWidth - 0.5) * 2; mouseY = (e.clientY / window.innerHeight - 0.5) * 2; }
   function updateParallax() {
+    const mapOverlay = document.getElementById('world-map-overlay');
+    if (mapOverlay && !mapOverlay.classList.contains('translate-y-full')) {
+      requestAnimationFrame(updateParallax);
+      return;
+    }
     targetX += (mouseX - targetX) * 0.05; targetY += (mouseY - targetY) * 0.05;
     parallaxLayers.forEach(layer => {
       const speed = parseFloat(layer.dataset.speed || 1);
