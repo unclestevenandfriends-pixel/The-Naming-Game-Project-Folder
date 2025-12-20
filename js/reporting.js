@@ -20,6 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
 window.generateNotesSummary = function () {
   console.log('📊 Generating Summary...');
 
+  if (typeof MarkupCoordinator !== 'undefined' && typeof MarkupCoordinator.forceSave === 'function') {
+    MarkupCoordinator.forceSave();
+  }
+
   // Detect Mode
   const params = new URLSearchParams(window.location.search);
   const isReportMode = params.get('mode') === 'report';
@@ -34,7 +38,6 @@ window.generateNotesSummary = function () {
     allNotes = MarkupCoordinator.state.notes || {};
   } else {
     // CLASS/TEACHER MODE: localStorage is king (persistence)
-    MarkupCoordinator.forceSave(); // Sync DOM to State to Storage
     try {
       const savedMarkup = localStorage.getItem('nameGame_markup');
       if (savedMarkup) {
@@ -43,8 +46,7 @@ window.generateNotesSummary = function () {
         console.log('📂 Class Mode: Read notes from localStorage');
       }
     } catch (e) {
-      console.error('Failed to read storage, fallback to memory', e);
-      allNotes = MarkupCoordinator.state.notes;
+      console.error('Failed to read storage', e);
     }
   }
 

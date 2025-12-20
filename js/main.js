@@ -116,56 +116,7 @@ function initClassMode() {
   if (lobby) lobby.style.display = 'flex';
   // Removed slideZero.classList.add('hidden') to ensure SlideRegistry includes it
 
-  // --- SCROLL HANDLING (Removed Ghost Busting to Fix Corruption) ---
-  let scrollTimeout;
-  const slider = document.getElementById('slider');
-
-  if (slider) {
-    slider.addEventListener('scroll', () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        const currentIndex = (window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : 0);
-
-        if (typeof MapSystem !== 'undefined') {
-          MapSystem.updateButtonState(currentIndex);
-          const currentKey = (window.SlideRegistry ? window.SlideRegistry.getCurrentKey() : null);
-          const nodeForSlide = currentKey ? MapSystem.findNodeByKey(currentKey) : null;
-          if (nodeForSlide && MapSystem.state.currentNode !== nodeForSlide.id) {
-            if (MapSystem.isNodeUnlocked(nodeForSlide.id)) {
-              MapSystem.state.currentNode = nodeForSlide.id;
-              MapSystem.saveProgress();
-            }
-          }
-        }
-
-        if (currentKey === 'session_summary' && typeof window.generateNotesSummary === 'function') {
-          console.log("📊 Final Slide Reached: Generating Session Summary...");
-          window.generateNotesSummary();
-        }
-
-        // Prevent crash if setURLHash doesn't exist
-        if (typeof setURLHash === "function") {
-          setURLHash(currentIndex);
-        } else {
-          window.location.hash = `slide=${currentIndex + 1}`;
-        }
-        const currentSaved = localStorage.getItem('nameGame_slide');
-        if (currentSaved !== currentIndex.toString()) {
-          localStorage.setItem('nameGame_slide', currentIndex);
-          if (typeof SoundFX !== 'undefined') SoundFX.playSlide();
-          if (currentIndex === 33 && typeof generateNotesSummary === 'function') generateNotesSummary();
-          if (currentIndex === 1 && typeof generateNotesSummary === 'function') generateNotesSummary();
-        }
-
-        if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(currentIndex);
-        if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.redrawCurrentSlide();
-
-        // Force immediate save on navigation (overrides debouncing in games.js)
-        if (typeof saveProgress === 'function') saveProgress();
-
-      }, 150);
-    }, { passive: true });
-  }
+  // --- SCROLL HANDLING moved to js/navigation_guards.js to fix "Ghosting" ---
 }
 window.initClassMode = initClassMode;
 
@@ -441,44 +392,6 @@ function returnToSlides() {
   if (viewport && typeof gsap !== 'undefined') gsap.to(viewport, { opacity: 1, duration: 0.3 });
 }
 window.returnToSlides = returnToSlides;
-
-function nextSlide() {
-  const slider = document.getElementById('slider');
-  if (!slider) return;
-  const currentIndex = getCurrentSlideIndex();
-  const targetIndex = currentIndex + 1;
-  const navCheck = canNavigateTo(targetIndex);
-
-  if (!navCheck.allowed) {
-    if (navCheck.reason === 'gated' || navCheck.reason === 'locked') { showLockedAlert(); return; }
-    if (navCheck.reason === 'node-exit') {
-      returnToMap(navCheck.nodeId);
-      setTimeout(() => {
-        const currentNode = MapSystem.mapNodes[navCheck.nodeId];
-        const nextNodeEntry = Object.values(MapSystem.mapNodes).find(n => n.parents.includes(navCheck.nodeId));
-        if (nextNodeEntry) {
-          MapSystem.movePlayerToNode(nextNodeEntry.id, true);
-          setTimeout(() => MapSystem.enterNode(nextNodeEntry.id), 2500);
-        }
-      }, 1000);
-      return;
-    }
-    showLockedAlert();
-    return;
-  }
-  const slideWidth = slider.clientWidth;
-  slider.scrollTo({ left: targetIndex * slideWidth, behavior: 'smooth' });
-  if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playSlide);
-}
-window.nextSlide = nextSlide;
-
-function prevSlide() {
-  const slider = document.getElementById('slider');
-  if (!slider) return;
-  slider.scrollBy({ left: -window.innerWidth, behavior: 'smooth' });
-  if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playSlide);
-}
-window.prevSlide = prevSlide;
 
 document.addEventListener('keydown', (e) => {
   if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;

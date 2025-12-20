@@ -103,6 +103,20 @@ const MarkupCoordinator = {
     localStorage.removeItem('annotations');
   },
 
+  // Bridge for Ghosting Protocol (Wipe visuals only)
+  clearCanvas() {
+    if (typeof AnnotationSystem !== 'undefined' && AnnotationSystem.ctx) {
+      AnnotationSystem.ctx.clearRect(0, 0, AnnotationSystem.canvas.width, AnnotationSystem.canvas.height);
+    }
+  },
+
+  clearStickers() {
+    const stampsLayer = document.getElementById('stamps-layer');
+    if (stampsLayer) stampsLayer.innerHTML = '';
+    const commentsLayer = document.getElementById('text-comments-layer');
+    if (commentsLayer) commentsLayer.innerHTML = '';
+  },
+
   // Migration: Wipe old conflicting data to prevent ghost bugs
   migrateOldData() {
     const draft18_notes = localStorage.getItem('draft18_notes');

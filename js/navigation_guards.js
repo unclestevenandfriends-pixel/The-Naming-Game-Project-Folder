@@ -19,6 +19,7 @@ const NavigationGuard = {
 
     // Track the maximum slide index that should be accessible
     _cachedMaxSlide: 0,
+    currentSlideIndex: 0,
 
     init() {
         if (this.initialized) return;
@@ -36,10 +37,95 @@ const NavigationGuard = {
 
         // Initial valid slide calculation
         this.lastValidSlide = this.getCurrentSlide();
+        this.currentSlideIndex = this.lastValidSlide;
         this.updateCachedMaxSlide();
 
+        // CENTRAL SLIDE CHANGE LISTENER (Ghosting Fix)
+        let scrollTimeout;
+        slider.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                this.detectSlideChange();
+            }, 100);
+        }, { passive: true });
+
         this.initialized = true;
-        console.log("🛡️ NavigationGuard v3.0 Initialized - Robust Barrier Enforcement Active");
+        console.log("🛡️ NavigationGuard v3.0: Ghosting Protocols Active");
+    },
+
+    detectSlideChange() {
+        const newIndex = this.getCurrentSlide();
+        if (newIndex !== this.currentSlideIndex) {
+            this.handleSlideTransition(newIndex);
+        }
+    },
+
+    handleSlideTransition(newIndex) {
+        this.currentSlideIndex = newIndex;
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('mode') === 'report') return; // Read-Only Mode
+
+        console.log(`➡️ Slide Transition: ${this.currentSlideIndex} -> ${newIndex}`);
+
+        // 1. SAVE DATA (Safety Guardrail 2)
+        if (window.MarkupCoordinator) {
+            // Force sync visible sticky notes first
+            if (window.StickyNotesSystem && typeof window.StickyNotesSystem.syncVisibleNotesToState === 'function') {
+                window.StickyNotesSystem.syncVisibleNotesToState();
+            }
+            window.MarkupCoordinator.forceSave();
+        }
+
+        // 2. CLEAR GHOSTS (The Red Line - Protocol 1)
+        if (window.MarkupCoordinator) {
+            window.MarkupCoordinator.clearCanvas();
+            window.MarkupCoordinator.clearStickers();
+        }
+
+        // 3. LOAD NEW DATA
+        setTimeout(() => {
+            if (window.StickyNotesSystem) window.StickyNotesSystem.loadNotesForSlide(newIndex);
+
+            // Allow MapSystem to catch up
+            if (window.MapSystem && typeof window.MapSystem.checkSlidePosition === 'function') {
+                window.MapSystem.checkSlidePosition(newIndex);
+            }
+
+            // Redraw any persistent ink for the new slide
+            if (window.AnnotationSystem && typeof window.AnnotationSystem.redrawCurrentSlide === 'function') {
+                window.AnnotationSystem.redrawCurrentSlide();
+            }
+
+            // 5. PERSISTENCE & SYNC (Bridge Logic)
+            localStorage.setItem('nameGame_slide', newIndex);
+
+            // Update URL Hash (Moved from main.js)
+            if (typeof window.setURLHash === "function") {
+                window.setURLHash(newIndex);
+            } else {
+                window.location.hash = `slide=${newIndex + 1}`;
+            }
+
+            if (window.MapSystem) {
+                const currentKey = (window.SlideRegistry ? window.SlideRegistry.getCurrentKey() : null);
+                const nodeForSlide = currentKey ? MapSystem.findNodeByKey(currentKey) : null;
+                if (nodeForSlide && MapSystem.state.currentNode !== nodeForSlide.id) {
+                    if (MapSystem.isNodeUnlocked(nodeForSlide.id)) {
+                        MapSystem.state.currentNode = nodeForSlide.id;
+                        MapSystem.saveProgress();
+                    }
+                }
+
+                // Summary triggers (Moved from main.js)
+                if ((currentKey === 'session_summary' || newIndex === 33 || newIndex === 1) && typeof window.generateNotesSummary === 'function') {
+                    window.generateNotesSummary();
+                }
+            }
+
+            // Final data sync (Standalone Save)
+            if (typeof window.saveProgress === 'function') window.saveProgress();
+        }, 50);
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
@@ -378,7 +464,7 @@ function nextSlide() {
     NavigationGuard.lastValidSlide = targetIndex;
 
     if (typeof SoundFX !== 'undefined' && SoundFX.playSlide) {
-        SoundFX.playSlide();
+        // Sound handled in main.js to avoid double audio
     }
 }
 
@@ -399,7 +485,7 @@ function prevSlide() {
     NavigationGuard.lastValidSlide = targetIndex;
 
     if (typeof SoundFX !== 'undefined' && SoundFX.playSlide) {
-        SoundFX.playSlide();
+        // Sound handled in main.js to avoid double audio
     }
 
     // Stop any map button flash when going backward
