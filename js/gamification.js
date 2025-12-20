@@ -15,6 +15,7 @@ const GameEngine = {
 
     config: {
         characterId: null,
+        disableRewards: false,
         maxHealth: 100,
         currentHealth: 100,
         crystals: 0,
@@ -179,12 +180,51 @@ const GameEngine = {
         });
     },
 
+    // 🛡️ PHASE 2: BRITISH ENGLISH STANDARDIZATION
+    // Enforces capitalization for Titles (Mr, Mrs, Miss, Dr)
+    validateBritishEnglish(text) {
+        if (!text || typeof text !== 'string') return true;
+
+        const titles = ['mr', 'mrs', 'miss', 'ms', 'dr', 'prof'];
+        let source = text;
+
+        if (source.includes('->')) {
+            source = source.split('->').pop().trim();
+        }
+
+        const words = source.split(/\s+/);
+        for (let i = 0; i < words.length; i++) {
+            const cleaned = words[i].replace(/[^a-zA-Z.]/g, '');
+            if (!cleaned) continue;
+
+            const normalized = cleaned.toLowerCase().replace(/\./g, '');
+            if (titles.includes(normalized)) {
+                const originalWord = cleaned.replace(/[^a-zA-Z]/g, '');
+                if (originalWord && originalWord.charAt(0) !== originalWord.charAt(0).toUpperCase()) {
+                    this.showFloatingText("Hint: Titles must be Capitalized!", "#fbbf24");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    },
+
     // ═══════════════════════════════════════════════════════════════════════════════
     // PERFORMANCE TRACKING SYSTEM
     // ═══════════════════════════════════════════════════════════════════════════════
 
     handleCorrect(detail) {
         if (!this.active) return;
+
+        // 🛡️ PROTOCOL 5: XP FARMING CHECK
+        if (this.config.disableRewards) {
+            console.log("🚫 Rewards blocked (Review Mode)");
+            return;
+        }
+
+        const answerText = detail?.answerText || detail?.text || detail?.context || '';
+        if (!this.validateBritishEnglish(answerText)) return;
 
         const slideIndex = parseInt(detail?.slideIndex || this.getCurrentSlideIndex(), 10);
         this.trackProgress(slideIndex, true);

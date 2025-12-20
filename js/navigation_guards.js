@@ -20,6 +20,7 @@ const NavigationGuard = {
     // Track the maximum slide index that should be accessible
     _cachedMaxSlide: 0,
     currentSlideIndex: 0,
+    lastMaxReachedSlide: 0,
 
     init() {
         if (this.initialized) return;
@@ -38,6 +39,7 @@ const NavigationGuard = {
         // Initial valid slide calculation
         this.lastValidSlide = this.getCurrentSlide();
         this.currentSlideIndex = this.lastValidSlide;
+        this.lastMaxReachedSlide = this.getCurrentSlide();
         this.updateCachedMaxSlide();
 
         // CENTRAL SLIDE CHANGE LISTENER (Ghosting Fix)
@@ -62,6 +64,25 @@ const NavigationGuard = {
 
     handleSlideTransition(newIndex) {
         this.currentSlideIndex = newIndex;
+
+        // 🛡️ PROTOCOL 5: BACKWARDS SAFETY MODE
+        if (newIndex < this.lastMaxReachedSlide) {
+            console.log("⏪ Backwards Navigation: Rewards Disabled");
+            if (window.GameEngine) {
+                window.GameEngine.disableRewards = true;
+                if (window.GameEngine.config) {
+                    window.GameEngine.config.disableRewards = true;
+                }
+            }
+        } else if (newIndex > this.lastMaxReachedSlide) {
+            this.lastMaxReachedSlide = newIndex;
+            if (window.GameEngine) {
+                window.GameEngine.disableRewards = false;
+                if (window.GameEngine.config) {
+                    window.GameEngine.config.disableRewards = false;
+                }
+            }
+        }
 
         const params = new URLSearchParams(window.location.search);
         if (params.get('mode') === 'report') return; // Read-Only Mode
