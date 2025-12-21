@@ -101,6 +101,16 @@ li,
   font-weight: 600 !important;
 }
 
+/* Disabled UI State */
+.btn-disabled,
+button:disabled {
+  opacity: 0.5 !important;
+  filter: grayscale(100%) !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+}
+
 /* Slide Container */
 .slides-container {
   display: flex;

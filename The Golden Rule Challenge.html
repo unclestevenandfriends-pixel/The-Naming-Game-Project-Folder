@@ -369,7 +369,9 @@
                 // Allow retry after short delay
                 setTimeout(() => {
                     isLocked = false;
-                    btn.classList.remove('wrong');
+                    const input = document.getElementById('answer-input');
+                    if (input) input.value = '';
+                    btn.classList.remove('wrong', 'shake');
                     feedback.classList.add('text-transparent');
                 }, 1000);
             }

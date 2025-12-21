@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>99 Victory - Course Complete</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        void: '#0B0C15',
+                        brand: {
+                            400: '#22d3ee',
+                            500: '#06b6d4'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Nunito Sans', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito+Sans:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        html {
+            font-size: min(2vh, 1.125vw);
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            width: 100vw;
+            background: #0B0C15;
+            color: #FDFDFD;
+            font-family: 'Nunito Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #viewport-frame {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 177.78vh;
+            max-height: 56.25vw;
+            background: #0B0C15;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .bg-grid {
+            position: absolute;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            background-image:
+                linear-gradient(to right, rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+            background-size: 4rem 4rem;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(34, 211, 238, 0.35);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            filter: grayscale(100%);
+            cursor: not-allowed;
+            pointer-events: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="viewport-frame" class="relative">
+        <div class="bg-grid opacity-60"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-[#0B0C15] via-[#0B0C15] to-[#0F172A] opacity-90 z-0">
+        </div>
+
+        <main class="relative z-10 h-full w-full flex items-center justify-center px-10">
+            <section class="glass-panel w-full max-w-4xl px-12 py-14 text-center">
+                <div
+                    class="inline-flex items-center justify-center px-4 py-1 rounded-full border border-brand-500/30 bg-brand-400/10 text-brand-400 text-xs uppercase tracking-[0.35em] font-bold mb-6">
+                    Course Complete
+                </div>
+                <h1 class="font-display text-5xl text-white font-bold text-glow mb-4">Mission Complete</h1>
+                <p class="text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                    You restored the names and brought order back to the village. Outstanding work, Agent.
+                </p>
+
+                <div class="mt-10">
+                    <button type="button" id="victory-btn"
+                        class="px-10 py-4 rounded-2xl bg-gradient-to-r from-brand-400 to-brand-500 text-black text-lg font-bold uppercase tracking-[0.25em] shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-transform duration-200 hover:scale-105">
+                        Finish
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function handleVictoryClick() {
+            const btn = document.getElementById('victory-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('btn-disabled');
+            }
+
+            if (window.parent && typeof window.parent.returnToMap === 'function') {
+                window.parent.returnToMap('N12');
+            }
+        }
+
+        document.getElementById('victory-btn').addEventListener('click', handleVictoryClick, { once: true });
+    </script>
+</body>
+
+</html>

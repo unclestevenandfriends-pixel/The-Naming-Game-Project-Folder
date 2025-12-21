@@ -203,24 +203,49 @@ function initDetective() {
     { text: "The teacher wrote on the whiteboard.", nouns: ["teacher", "whiteboard"] }
   ];
 
+  const normalizeAnswer = (value) => {
+    if (!value || typeof value !== 'string') return '';
+    return value
+      .trim()
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"');
+  };
+
+  const normalizeToken = (value) => {
+    const normalized = normalizeAnswer(value);
+    return normalized.replace(/[.,]/g, '').replace(/^['"]|['"]$/g, '');
+  };
+
   // Initial Render
   renderSentence();
 
   btn.onclick = () => {
     sentenceIdx++;
     currentFound = 0; // Reset for next sentence
-    if (sentenceIdx >= detectiveSentences.length) {
-      btn.innerHTML = 'Good Job! <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>';
-      btn.disabled = true;
-      btn.classList.add('bg-green-500', 'text-black', 'border-transparent');
-      btn.classList.remove('bg-brand-500/10', 'text-brand-400');
+    if (sentenceIdx < detectiveSentences.length) {
+      renderSentence();
       return;
     }
-    renderSentence();
+    finishDetective();
   };
+
+  function finishDetective() {
+    btn.innerHTML = 'Good Job! <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>';
+    btn.disabled = true;
+    btn.classList.add('bg-green-500', 'text-black', 'border-transparent');
+    btn.classList.remove('bg-brand-500/10', 'text-brand-400');
+
+    if (typeof MapSystem !== 'undefined' && MapSystem.triggerNodeCompletion) {
+      MapSystem.triggerNodeCompletion('N7', { showMap: false });
+    }
+  }
 
   function renderSentence() {
     const data = detectiveSentences[sentenceIdx];
+    if (!data) {
+      finishDetective();
+      return;
+    }
     container.innerHTML = "";
 
     // Reset Button State
@@ -231,8 +256,9 @@ function initDetective() {
 
     const p = document.createElement('p');
     p.className = "text-center";
+    const normalizedNouns = data.nouns.map((noun) => normalizeToken(noun));
     data.text.split(' ').forEach(word => {
-      const clean = word.replace(/[.,]/g, '');
+      const clean = normalizeToken(word);
       const span = document.createElement('span');
       span.innerText = word + " ";
       span.className = "interactive-word cursor-pointer hover:text-brand-400 transition-colors";
@@ -240,7 +266,7 @@ function initDetective() {
         if (span.dataset.clicked) return;
         span.dataset.clicked = "true";
 
-        if (data.nouns.includes(clean)) {
+        if (normalizedNouns.includes(clean)) {
           if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playCorrect);
           span.className = "interactive-word word-correct text-green-400 font-bold";
           if (typeof gsap !== 'undefined') gsap.from(span, { scale: 1.2, duration: 0.3, ease: "back.out(1.7)" });
@@ -325,7 +351,7 @@ function initMuddle() {
       const clean = token.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
       const span = document.createElement('span');
       span.innerText = token;
-      span.className = "cursor-pointer hover:text-[#FDFDFD] transition-colors rounded px-0.5 inline-block";
+      span.className = "cursor-pointer hover:text-[#FDFDFD] transition-colors px-2 py-1 mx-0.5 rounded-md hover:bg-white/10 inline-block";
 
       span.onclick = () => {
         if (span.dataset.clicked) return;
@@ -346,7 +372,7 @@ function initMuddle() {
           if (foundTargetWords === totalTargetWords) {
             console.log(`✅ Muddle ${nodeId} COMPLETE!`);
             if (typeof MapSystem !== 'undefined') {
-              MapSystem.triggerNodeCompletion(nodeId);
+              MapSystem.triggerNodeCompletion(nodeId, { showMap: false });
             }
           }
         } else {
@@ -458,7 +484,7 @@ function initAllQuizzes() {
                   if (questionsCompleted === totalQuestions && nodeId) {
                     console.log(`✅ Quiz ${nodeId} COMPLETE!`);
                     if (typeof MapSystem !== 'undefined') {
-                      MapSystem.triggerNodeCompletion(nodeId);
+                      MapSystem.triggerNodeCompletion(nodeId, { showMap: false });
                     }
                   }
                 }
@@ -545,7 +571,7 @@ function initRiddles() {
           if (solvedRiddlesCount === totalRiddlesCount) {
             console.log(`✅ Riddles COMPLETE! Triggering N11.`);
             if (typeof MapSystem !== 'undefined') {
-              MapSystem.triggerNodeCompletion('N11');
+              MapSystem.triggerNodeCompletion('N11', { showMap: false });
             }
           }
         }
@@ -835,7 +861,7 @@ function huntGameComplete(huntType) {
   // 🧭 SIGNAL MAP SYSTEM: Directly trigger node completion
   if (nodeId && typeof MapSystem !== 'undefined' && MapSystem.triggerNodeCompletion) {
     console.log(`🗺️ Signaling MapSystem to complete node: ${nodeId}`);
-    MapSystem.triggerNodeCompletion(nodeId);
+    MapSystem.triggerNodeCompletion(nodeId, { showMap: false });
   } else if (typeof MapSystem !== 'undefined' && MapSystem.flashMapButton) {
     MapSystem.flashMapButton();
   }

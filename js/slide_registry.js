@@ -41,7 +41,8 @@
         "quiz_specific_dates": "30C",
         "exit_ticket_riddle": "31",
         "mission_complete": "32",
-        "session_summary": "—"
+        "session_summary": "—",
+        "final_victory": "Finish"
     };
 
     // static map to allow title lookup even if the slide iframe/HTML is lazy-loaded
@@ -83,7 +84,8 @@
         "quiz_specific_dates": "Specific Days and Dates",
         "exit_ticket_riddle": "Exit Ticket Riddle Match",
         "mission_complete": "Mission Complete!",
-        "session_summary": "Session Notes Summary"
+        "session_summary": "Session Notes Summary",
+        "final_victory": "Course Complete"
     };
 
     const SlideRegistry = {

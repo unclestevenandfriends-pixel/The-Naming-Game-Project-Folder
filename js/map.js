@@ -44,7 +44,7 @@ const MapSystem = {
         "N10B": { id: "N10B", left: 72, top: 72, label: "Quiz: Places & Streets", type: "branch", slideKeys: ["quiz_places_streets"], exitKey: "quiz_places_streets", parents: ["HubC"], returnTo: "HubC" },
         "N10C": { id: "N10C", left: 81.8, top: 71.8, label: "Quiz: Days & Dates", type: "branch", slideKeys: ["quiz_specific_dates"], exitKey: "quiz_specific_dates", parents: ["HubC"], returnTo: "HubC" },
         "N11": { id: "N11", left: 88.8, top: 50.3, label: "Exit Ticket", type: "gate", slideKeys: ["exit_ticket_riddle"], exitKey: "exit_ticket_riddle", parents: ["N10A", "N10B", "N10C"], children: ["N12"] },
-        "N12": { id: "N12", left: 95.7, top: 50.2, label: "Mission Complete", type: "linear", slideKeys: ["mission_complete", "session_summary"], exitKey: "session_summary", parents: ["N11"], children: [] }
+        "N12": { id: "N12", left: 95.7, top: 50.2, label: "Mission Complete", type: "linear", slideKeys: ["mission_complete", "session_summary", "final_victory"], exitKey: "session_summary", parents: ["N11"], children: [] }
     },
 
     state: {
@@ -293,8 +293,9 @@ const MapSystem = {
         world.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${zoom})`;
     },
 
-    triggerNodeCompletion(nodeId) {
+    triggerNodeCompletion(nodeId, options = {}) {
         nodeId = this.canonicalNodeId(nodeId);
+        const showMap = options.showMap !== false;
         if (this.isAnimating) {
             console.warn("⚠️ MapSystem: triggerNodeCompletion called while animating. Forcing completion if node valid.", { nodeId });
             // If it's a linear node or hub child, we might want to force it
@@ -314,7 +315,12 @@ const MapSystem = {
             NavigationGuard.updateCachedMaxSlide();
         }
 
-        this.show();
+        if (showMap) {
+            this.show();
+        } else {
+            if (!document.getElementById('world-map-overlay')) this.init();
+            this.renderMap();
+        }
 
         setTimeout(() => {
             this.positionTokenOnNode(nodeId, false);

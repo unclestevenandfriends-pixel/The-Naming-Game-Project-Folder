@@ -211,6 +211,10 @@
                 </div>
                 <h1 class="font-display text-4xl text-white font-bold text-glow">Case Closed</h1>
                 <p class="text-slate-400 text-lg">Scroll down to fix the entire story!</p>
+                <div id="case-counter"
+                    class="text-2xl font-bold text-brand-400 mt-4 p-2 bg-black/40 rounded-xl border border-brand-500/30 inline-block shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                    Found: <span id="counter-val">0</span> / 54
+                </div>
             </div>
 
             <!-- PROGRESS -->
@@ -578,6 +582,10 @@
 
         function updateScore() {
             document.getElementById('score-display').textContent = solvedCount;
+            const counterVal = document.getElementById('counter-val');
+            if (counterVal) {
+                counterVal.innerText = solvedCount;
+            }
         }
 
         function showToast(msg, colorClass) {
