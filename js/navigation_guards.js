@@ -134,6 +134,9 @@ const NavigationGuard = {
                 if (nodeForSlide && MapSystem.state.currentNode !== nodeForSlide.id) {
                     if (MapSystem.isNodeUnlocked(nodeForSlide.id)) {
                         MapSystem.state.currentNode = nodeForSlide.id;
+                        if (typeof MapSystem.markNodeAccessed === 'function') {
+                            MapSystem.markNodeAccessed(nodeForSlide.id);
+                        }
                         MapSystem.saveProgress();
                     }
                 }
@@ -275,17 +278,38 @@ const NavigationGuard = {
 
             // Forward movement check
             if (currentSlide > this.lastValidSlide) {
-                // Check if this forward movement is allowed
-                if (!this.isSlideAccessible(currentSlide)) {
-                    console.log(`🛡️ BLOCKED: Attempted slide ${currentSlide}, max allowed ${maxAllowed}`);
+                const target = this.getNextAllowedSlide(this.lastValidSlide);
+                if (target === this.lastValidSlide) {
+                    console.log(`🛡️ BLOCKED: No forward allowed from ${this.lastValidSlide}`);
                     this.enforceSlidePosition(this.lastValidSlide);
                     this.showBlockedFeedback();
                     return;
                 }
+                if (currentSlide !== target) {
+                    this.enforceSlidePosition(target);
+                    if (typeof MapSystem !== 'undefined') {
+                        MapSystem.updateButtonState(target);
+                    }
+                    return;
+                }
             }
 
-            // Update last valid slide if we're now at an allowed position
-            if (this.isSlideAccessible(currentSlide)) {
+            // Backward movement check (active timeline only)
+            if (currentSlide < this.lastValidSlide) {
+                const target = this.getPreviousAllowedSlide(this.lastValidSlide);
+                if (currentSlide !== target) {
+                    this.enforceSlidePosition(target);
+                    if (typeof MapSystem !== 'undefined') {
+                        MapSystem.updateButtonState(target);
+                    }
+                    return;
+                }
+            }
+
+            // Update last valid slide ONLY when landing on an active slide
+            const currentNode = this.getNodeForSlide(currentSlide);
+            const currentNodeId = currentNode ? currentNode.id : null;
+            if (this.isSlideActive(currentSlide, currentNodeId) && this.isSlideAccessible(currentSlide)) {
                 this.lastValidSlide = currentSlide;
             }
 
@@ -367,6 +391,51 @@ const NavigationGuard = {
         return (window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : 0);
     },
 
+    getNodeForSlide(slideIndex) {
+        if (typeof MapSystem === 'undefined') return null;
+        const key = MapSystem.getSlideKeyAtIndex(slideIndex);
+        return MapSystem.findNodeByKey(key);
+    },
+
+    isHubBranchNode(node) {
+        if (!node || node.type !== 'branch' || !Array.isArray(node.parents)) return false;
+        return node.parents.some(parentId => ['HubA', 'HubB', 'HubC'].includes(parentId));
+    },
+
+    isSlideActive(slideIndex, currentNodeId) {
+        if (typeof MapSystem === 'undefined') return true;
+        const node = this.getNodeForSlide(slideIndex);
+        if (!node) return true;
+        if (node.type !== 'branch') return true;
+        if (currentNodeId && node.id === currentNodeId) return true;
+        if (typeof MapSystem.isNodeAccessed === 'function') {
+            return MapSystem.isNodeAccessed(node.id);
+        }
+        if (MapSystem.state.completedNodes.includes(node.id)) return true;
+        return MapSystem.state.accessedNodes && MapSystem.state.accessedNodes.includes(node.id);
+    },
+
+    searchForActiveSlide(fromIndex, direction) {
+        const slides = (window.SlideRegistry ? window.SlideRegistry.getSlides() : []);
+        const currentNode = this.getNodeForSlide(fromIndex);
+        const currentNodeId = currentNode ? currentNode.id : null;
+
+        for (let i = fromIndex + direction; i >= 0 && i < slides.length; i += direction) {
+            if (!this.isSlideActive(i, currentNodeId)) continue;
+            if (!this.isSlideAccessible(i)) continue;
+            return i;
+        }
+        return fromIndex;
+    },
+
+    getPreviousAllowedSlide(fromIndex) {
+        return this.searchForActiveSlide(fromIndex, -1);
+    },
+
+    getNextAllowedSlide(fromIndex) {
+        return this.searchForActiveSlide(fromIndex, 1);
+    },
+
     isSlideAccessible(slideIndex) {
         if (typeof MapSystem === 'undefined') return true;
 
@@ -381,6 +450,9 @@ const NavigationGuard = {
 
         // Check if the node is unlocked
         if (!MapSystem.isNodeUnlocked(node.id)) {
+            if (this.isHubBranchNode(node) && typeof MapSystem.isNodeAccessed === 'function' && MapSystem.isNodeAccessed(node.id)) {
+                return true;
+            }
             return false;
         }
 
@@ -418,8 +490,9 @@ const NavigationGuard = {
             }
         }
 
-        // Check if next slide is accessible
-        return this.isSlideAccessible(currentSlide + 1);
+        const target = this.getNextAllowedSlide(currentSlide);
+        if (target === currentSlide) return false;
+        return this.isSlideAccessible(target);
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
@@ -474,7 +547,11 @@ function nextSlide() {
 
     // Perform the navigation
     const currentIndex = NavigationGuard.getCurrentSlide();
-    const targetIndex = currentIndex + 1;
+    const targetIndex = NavigationGuard.getNextAllowedSlide(currentIndex);
+    if (targetIndex === currentIndex) {
+        NavigationGuard.showBlockedFeedback();
+        return;
+    }
 
     slider.scrollTo({
         left: targetIndex * slider.clientWidth,
@@ -493,9 +570,9 @@ function prevSlide() {
     const slider = document.getElementById('slider');
     if (!slider) return;
 
-    // Backward is always allowed
     const currentIndex = NavigationGuard.getCurrentSlide();
-    const targetIndex = Math.max(0, currentIndex - 1);
+    const targetIndex = NavigationGuard.getPreviousAllowedSlide(currentIndex);
+    if (targetIndex === currentIndex) return;
 
     slider.scrollTo({
         left: targetIndex * slider.clientWidth,

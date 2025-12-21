@@ -51,6 +51,79 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// === FULLSCREEN TOGGLE (Native + Pseudo Fallback) ===
+function isNativeFullscreen() {
+  return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+}
+
+function setPseudoFullscreen(enabled) {
+  document.documentElement.classList.toggle('is-pseudo-fullscreen', enabled);
+  document.body.classList.toggle('is-pseudo-fullscreen', enabled);
+  window.__pseudoFullscreen = enabled;
+}
+
+async function requestNativeFullscreen() {
+  const el = document.documentElement;
+  const request = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+  if (!request) return false;
+  try {
+    const result = request.call(el);
+    if (result && typeof result.then === 'function') await result;
+    return true;
+  } catch (err) {
+    console.warn('Fullscreen request failed', err);
+    return false;
+  }
+}
+
+async function exitNativeFullscreen() {
+  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+  if (!exit) return false;
+  try {
+    const result = exit.call(document);
+    if (result && typeof result.then === 'function') await result;
+    return true;
+  } catch (err) {
+    console.warn('Fullscreen exit failed', err);
+    return false;
+  }
+}
+
+async function toggleFullScreen() {
+  if (window.__pseudoFullscreen) {
+    setPseudoFullscreen(false);
+    return;
+  }
+
+  if (isNativeFullscreen()) {
+    await exitNativeFullscreen();
+    return;
+  }
+
+  const entered = await requestNativeFullscreen();
+  if (!entered) {
+    // iOS Safari fallback: pseudo-fullscreen via CSS
+    setPseudoFullscreen(true);
+  }
+}
+window.toggleFullScreen = toggleFullScreen;
+
+if (!window.__fullscreenKeyListenerAttached) {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && window.__pseudoFullscreen) setPseudoFullscreen(false);
+  });
+  window.__fullscreenKeyListenerAttached = true;
+}
+
+if (!window.__fullscreenChangeListenerAttached) {
+  const handler = () => {
+    if (window.__pseudoFullscreen && isNativeFullscreen()) setPseudoFullscreen(false);
+  };
+  document.addEventListener('fullscreenchange', handler);
+  document.addEventListener('webkitfullscreenchange', handler);
+  window.__fullscreenChangeListenerAttached = true;
+}
+
 // === MARKUP COORDINATOR (Single Source of Truth) ===
 const MarkupCoordinator = {
   state: {

@@ -24,19 +24,6 @@ window.toggleMarkupMode = function () {
   }
 };
 
-function toggleFullScreen() {
-  const doc = window.document;
-  const docEl = doc.documentElement;
-  const requestFullScreen = docEl.requestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
-  const cancelFullScreen = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
-  if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-    if (requestFullScreen) requestFullScreen.call(docEl);
-  } else {
-    if (cancelFullScreen) cancelFullScreen.call(doc);
-  }
-}
-window.toggleFullScreen = toggleFullScreen;
-
 function launchApp(mode, params) {
   if (mode === 'report') {
     if (typeof initReportMode === 'function') initReportMode(params);
@@ -146,6 +133,7 @@ function resumeSession() {
         if (viewport) { viewport.classList.remove('opacity-0'); viewport.style.pointerEvents = 'auto'; }
         if (nav) nav.classList.remove('opacity-0');
         if (slider) slider.style.overflow = '';
+        if (typeof window.dismissIntro === 'function') window.dismissIntro();
 
         if (window.SlideRegistry) SlideRegistry.rebuild();
         if (!restoreBySlideKey()) {

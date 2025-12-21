@@ -38,6 +38,10 @@
             lobby.style.setProperty('opacity', '0', 'important');
             lobby.style.setProperty('pointer-events', 'none', 'important');
           }
+          var intro = document.getElementById('intro-overlay');
+          if (intro) {
+            intro.remove();
+          }
         });
       }
     })();
@@ -45,6 +49,13 @@
   <style>
     /* Hide lobby IMMEDIATELY if report mode detected - Multiple !important overrides */
     html.report-mode #lobby-screen {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      z-index: -9999 !important;
+    }
+    html.report-mode #intro-overlay {
       display: none !important;
       visibility: hidden !important;
       opacity: 0 !important;

@@ -28,21 +28,21 @@ const MapSystem = {
         "N1": { id: "N1", left: 4, top: 50.1, label: "The Village", type: "linear", slideKeys: ["intro_village", "adventure_start", "three_noun_families", "node_n1_exit"], exitKey: "node_n1_exit", parents: [], children: ["N2"] },
         "N2": { id: "N2", left: 11.8, top: 50.1, label: "Three Noun Families", type: "linear", slideKeys: ["norah_detective", "sentence_spotting", "village_checkpoint", "node_n2_exit"], exitKey: "node_n2_exit", parents: ["N1"], children: ["HubA"] },
         "HubA": { id: "HubA", left: 23.6, top: 50.2, type: "hub", label: "Central Hub Camp", parents: ["N2"], children: ["N3A", "N3B", "N3C"], gate: "N4" },
-        "N3A": { id: "N3A", left: 23.7, top: 27.3, label: "People Hunt", type: "branch", slideKeys: ["people_hunt"], exitKey: "people_hunt", parents: ["HubA"], returnTo: "HubA" },
-        "N3B": { id: "N3B", left: 18.4, top: 71.8, label: "Places Hunt", type: "branch", slideKeys: ["places_hunt"], exitKey: "places_hunt", parents: ["HubA"], returnTo: "HubA" },
-        "N3C": { id: "N3C", left: 28.9, top: 72, label: "Things & Animals Hunt", type: "branch", slideKeys: ["things_hunt"], exitKey: "things_hunt", parents: ["HubA"], returnTo: "HubA" },
+        "N3A": { id: "N3A", left: 23.7, top: 27.3, label: "People Hunt", type: "branch", slideKeys: ["people_hunt"], exitKey: "people_hunt", parents: ["HubA"], returnTo: "HubA", returnToMap: false },
+        "N3B": { id: "N3B", left: 18.4, top: 71.8, label: "Places Hunt", type: "branch", slideKeys: ["places_hunt"], exitKey: "places_hunt", parents: ["HubA"], returnTo: "HubA", returnToMap: false },
+        "N3C": { id: "N3C", left: 28.9, top: 72, label: "Things & Animals Hunt", type: "branch", slideKeys: ["things_hunt"], exitKey: "things_hunt", parents: ["HubA"], returnTo: "HubA", returnToMap: false },
         "N4": { id: "N4", left: 31, top: 50.3, label: "Mega-Mix Boss", type: "gate", slideKeys: ["mega_mix_boss"], exitKey: "mega_mix_boss", parents: ["N3A", "N3B", "N3C"], children: ["N5"] },
         "N5": { id: "N5", left: 38.3, top: 50.2, label: "Common Nouns", type: "linear", slideKeys: ["common_nouns_title", "what_is_common_noun", "common_noun_examples", "common_noun_rule", "check_common_nouns"], exitKey: "check_common_nouns", parents: ["N4"], children: ["N6"] },
         "N6": { id: "N6", left: 46, top: 50.2, label: "Proper Nouns", type: "linear", slideKeys: ["proper_nouns_intro", "what_is_proper_noun", "capital_letter_rule", "proper_quick_check_placeholder", "power_specific_people", "power_specific_places", "power_specific_dates", "brands_and_events", "the_vip_list", "the_golden_rule"], exitKey: "the_golden_rule", parents: ["N5"], children: ["N7"] },
         "N7": { id: "N7", left: 53.7, top: 50.3, label: "Case Briefing", type: "linear", slideKeys: ["mr_muddle_intro"], exitKey: "mr_muddle_intro", parents: ["N6"], children: ["HubB"] },
         "HubB": { id: "HubB", left: 60.6, top: 50.2, type: "hub", label: "Detective's Hub", parents: ["N7"], children: ["N9A", "N9B"], gate: "DetectiveBoss" },
-        "N9A": { id: "N9A", left: 60.6, top: 28.4, label: "Evidence A: Locations", type: "branch", slideKeys: ["evidence_a_locations"], exitKey: "evidence_a_locations", parents: ["HubB"], returnTo: "HubB" },
-        "N9B": { id: "N9B", left: 60.7, top: 71.8, label: "Evidence B: People & Dates", type: "branch", slideKeys: ["evidence_b_people_dates"], exitKey: "evidence_b_people_dates", parents: ["HubB"], returnTo: "HubB" },
+        "N9A": { id: "N9A", left: 60.6, top: 28.4, label: "Evidence A: Locations", type: "branch", slideKeys: ["evidence_a_locations"], exitKey: "evidence_a_locations", parents: ["HubB"], returnTo: "HubB", returnToMap: false },
+        "N9B": { id: "N9B", left: 60.7, top: 71.8, label: "Evidence B: People & Dates", type: "branch", slideKeys: ["evidence_b_people_dates"], exitKey: "evidence_b_people_dates", parents: ["HubB"], returnTo: "HubB", returnToMap: false },
         "DetectiveBoss": { id: "DetectiveBoss", left: 68.4, top: 50.4, type: "gate", label: "Case Closed", slideKeys: ["case_closed"], exitKey: "case_closed", parents: ["N9A", "N9B"], children: ["HubC"] },
         "HubC": { id: "HubC", left: 76.9, top: 50, type: "hub", label: "Trial Hub", parents: ["DetectiveBoss"], children: ["N10A", "N10B", "N10C"], gate: "N11" },
-        "N10A": { id: "N10A", left: 76.9, top: 28.3, label: "Quiz: People & I", type: "branch", slideKeys: ["quiz_people_i"], exitKey: "quiz_people_i", parents: ["HubC"], returnTo: "HubC" },
-        "N10B": { id: "N10B", left: 72, top: 72, label: "Quiz: Places & Streets", type: "branch", slideKeys: ["quiz_places_streets"], exitKey: "quiz_places_streets", parents: ["HubC"], returnTo: "HubC" },
-        "N10C": { id: "N10C", left: 81.8, top: 71.8, label: "Quiz: Days & Dates", type: "branch", slideKeys: ["quiz_specific_dates"], exitKey: "quiz_specific_dates", parents: ["HubC"], returnTo: "HubC" },
+        "N10A": { id: "N10A", left: 76.9, top: 28.3, label: "Quiz: People & I", type: "branch", slideKeys: ["quiz_people_i"], exitKey: "quiz_people_i", parents: ["HubC"], returnTo: "HubC", returnToMap: false },
+        "N10B": { id: "N10B", left: 72, top: 72, label: "Quiz: Places & Streets", type: "branch", slideKeys: ["quiz_places_streets"], exitKey: "quiz_places_streets", parents: ["HubC"], returnTo: "HubC", returnToMap: false },
+        "N10C": { id: "N10C", left: 81.8, top: 71.8, label: "Quiz: Days & Dates", type: "branch", slideKeys: ["quiz_specific_dates"], exitKey: "quiz_specific_dates", parents: ["HubC"], returnTo: "HubC", returnToMap: false },
         "N11": { id: "N11", left: 88.8, top: 50.3, label: "Exit Ticket", type: "gate", slideKeys: ["exit_ticket_riddle"], exitKey: "exit_ticket_riddle", parents: ["N10A", "N10B", "N10C"], children: ["N12"] },
         "N12": { id: "N12", left: 95.7, top: 50.2, label: "Mission Complete", type: "linear", slideKeys: ["mission_complete", "session_summary", "final_victory"], exitKey: "session_summary", parents: ["N11"], children: [] }
     },
@@ -51,7 +51,9 @@ const MapSystem = {
         completedNodes: [],
         unlockedNodes: [], // Start empty for cinematic intro
         currentNode: null, // Start null to force a glide from courtyard to N1 on first click
-        pendingUnlock: null
+        pendingUnlock: null,
+        accessedNodes: [],
+        lastBranchByHub: {}
     },
 
     canonicalNodeId(nodeId) {
@@ -61,6 +63,31 @@ const MapSystem = {
         const keys = this.mapNodes ? Object.keys(this.mapNodes) : [];
         const match = keys.find(k => k.toUpperCase() === upper);
         return match || String(nodeId);
+    },
+
+    markNodeAccessed(nodeId) {
+        nodeId = this.canonicalNodeId(nodeId);
+        if (!nodeId || !this.mapNodes[nodeId]) return;
+
+        const node = this.mapNodes[nodeId];
+        if (node.type !== 'branch') return;
+
+        if (!this.state.accessedNodes.includes(nodeId)) {
+            this.state.accessedNodes.push(nodeId);
+        }
+
+        if (node.type === 'branch' && Array.isArray(node.parents)) {
+            const hubId = node.parents.find(parentId => ['HubA', 'HubB', 'HubC'].includes(parentId));
+            if (hubId) {
+                this.state.lastBranchByHub[hubId] = nodeId;
+            }
+        }
+    },
+
+    isNodeAccessed(nodeId) {
+        nodeId = this.canonicalNodeId(nodeId);
+        if (!nodeId) return false;
+        return this.state.accessedNodes.includes(nodeId) || this.state.completedNodes.includes(nodeId);
     },
 
     resolveNodeSlides(node) {
@@ -230,6 +257,11 @@ const MapSystem = {
                 btnText.innerText = 'Continue →';
                 btn.classList.add('map-btn-flash');
                 btn.className = "ml-4 px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50 map-btn-flash";
+            } else if (isExitSlide && this.state.completedNodes.includes(node.id) && node && node.returnToMap === false) {
+                btnIcon.innerText = '🗺️';
+                btnText.innerText = 'Return to Map';
+                btn.classList.add('map-btn-flash');
+                btn.className = "ml-4 px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50 map-btn-flash";
             } else {
                 btnIcon.innerText = '🗺️';
                 btnText.innerText = 'Map';
@@ -295,7 +327,6 @@ const MapSystem = {
 
     triggerNodeCompletion(nodeId, options = {}) {
         nodeId = this.canonicalNodeId(nodeId);
-        const showMap = options.showMap !== false;
         if (this.isAnimating) {
             console.warn("⚠️ MapSystem: triggerNodeCompletion called while animating. Forcing completion if node valid.", { nodeId });
             // If it's a linear node or hub child, we might want to force it
@@ -305,14 +336,21 @@ const MapSystem = {
         this.isAnimating = true;
         const node = this.mapNodes[nodeId];
         if (!node) return;
+        const showMap = options.showMap !== undefined ? options.showMap : node.returnToMap !== false;
 
         if (!this.state.completedNodes.includes(nodeId)) {
             this.state.completedNodes.push(nodeId);
         }
+        this.markNodeAccessed(nodeId);
 
         // CRITICAL: Update NavigationGuard when completion status changes
         if (typeof NavigationGuard !== 'undefined') {
             NavigationGuard.updateCachedMaxSlide();
+        }
+
+        // Update map button immediately if we stay on the slide
+        if (!showMap) {
+            this.updateButtonState(this.getCurrentSlideIndex());
         }
 
         if (showMap) {
@@ -628,6 +666,7 @@ const MapSystem = {
         const node = this.mapNodes[nodeId];
         const slides = this.resolveNodeSlides(node);
         if (!node || !slides || slides.length === 0) return;
+        this.markNodeAccessed(nodeId);
         this.hide();
         const slider = document.getElementById('slider');
         if (slider) {
@@ -915,7 +954,9 @@ const MapSystem = {
             completedNodes: this.state.completedNodes,
             unlockedNodes: this.state.unlockedNodes,
             currentNode: this.state.currentNode,
-            introPlayed: this.introPlayed
+            introPlayed: this.introPlayed,
+            accessedNodes: this.state.accessedNodes,
+            lastBranchByHub: this.state.lastBranchByHub
         };
         localStorage.setItem('naming_game_map_v4', JSON.stringify(data));
     },
@@ -957,6 +998,28 @@ const MapSystem = {
                     .filter(Boolean);
 
                 this.state.currentNode = data.currentNode === null ? null : (canon(data.currentNode || "N1") || "N1");
+                const accessedRaw = (data.accessedNodes || [])
+                    .map(canon)
+                    .filter(Boolean);
+                this.state.accessedNodes = Array.from(new Set([...accessedRaw, ...this.state.completedNodes]));
+                const lastBranch = data.lastBranchByHub || {};
+                this.state.lastBranchByHub = Object.entries(lastBranch).reduce((acc, [hubId, branchId]) => {
+                    const canonHub = this.canonicalNodeId(hubId);
+                    const canonBranch = this.canonicalNodeId(branchId);
+                    if (canonHub && canonBranch && this.mapNodes[canonBranch]) {
+                        acc[canonHub] = canonBranch;
+                    }
+                    return acc;
+                }, {});
+                if (Object.keys(this.state.lastBranchByHub).length === 0 && this.state.accessedNodes.length) {
+                    this.state.accessedNodes.forEach((id) => {
+                        const node = this.mapNodes[id];
+                        if (node && node.type === 'branch' && Array.isArray(node.parents)) {
+                            const hubId = node.parents.find(parentId => ['HubA', 'HubB', 'HubC'].includes(parentId));
+                            if (hubId) this.state.lastBranchByHub[hubId] = id;
+                        }
+                    });
+                }
                 this.introPlayed = !!data.introPlayed;
             } catch (e) {
                 console.warn("MapSystem.loadProgress parse error:", e);
@@ -979,7 +1042,7 @@ const MapSystem = {
     },
 
     resetProgress() {
-        this.state = { completedNodes: [], unlockedNodes: ['N1'], currentNode: 'N1', pendingUnlock: null };
+        this.state = { completedNodes: [], unlockedNodes: ['N1'], currentNode: 'N1', pendingUnlock: null, accessedNodes: [], lastBranchByHub: {} };
         this.introPlayed = false;
         localStorage.removeItem('naming_game_map_v4');
     },
