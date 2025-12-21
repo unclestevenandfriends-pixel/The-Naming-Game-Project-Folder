@@ -17,8 +17,8 @@ const RewardsEngine = {
         'proper_quick_check_placeholder': 4,
         // Detective Hub & Trial Hub
         'mr_muddle_intro': 10,
-        'evidence_a_locations': 9,
-        'evidence_b_people_dates': 6,
+        'evidence_a_locations': 12,
+        'evidence_b_people_dates': 8,
         'case_closed': 54,
         'quiz_people_i': 4,
         'quiz_places_streets': 4,
@@ -103,11 +103,11 @@ const RewardsEngine = {
 
         if (accuracy === 1.0) {
             this.fireCrystalRain('gold');
-            this.showBigText("PERFECT! 💎", "#22d3ee"); // Cyan
+            this.showBigText("Perfect!", "#22d3ee"); // Cyan
             if (window.SoundFX) SoundFX.playSuccess();
         } else if (accuracy >= 0.7) {
             this.fireCrystalRain('silver');
-            this.showBigText("Great Job! ⭐", "#fbbf24"); // Gold
+            this.showBigText("Great Job!", "#fbbf24"); // Gold
         } else {
             this.showBigText("Completed!", "#a3e635"); // Green
         }
@@ -163,23 +163,59 @@ const RewardsEngine = {
     },
 
     showBigText(text, color) {
+        const icon = text.toLowerCase().includes('perfect')
+            ? 'sparkles'
+            : text.toLowerCase().includes('great')
+                ? 'award'
+                : 'check-circle-2';
+
+        if (typeof window.showStandardCompletionOverlay === 'function') {
+            window.showStandardCompletionOverlay({
+                title: text,
+                message: '',
+                icon,
+                duration: 2600
+            });
+            return;
+        }
+
         const id = 'reward-text-overlay';
         const existing = document.getElementById(id);
         if (existing) existing.remove();
 
-        const el = document.createElement('div');
-        el.id = id;
-        el.innerText = text;
-        el.style.cssText = `
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            font-family: 'Fredoka', sans-serif; font-size: 6rem; font-weight: 800;
-            color: ${color}; text-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            z-index: 10003; pointer-events: none; 
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        const overlay = document.createElement('div');
+        overlay.id = id;
+        overlay.className = 'completion-overlay';
+        overlay.setAttribute('aria-live', 'polite');
+        overlay.innerHTML = `
+            <div class="completion-card">
+                <i data-lucide="${icon}" class="completion-icon"></i>
+                <div class="completion-title text-xl font-bold text-brand-400 cursor-default select-none">${text}</div>
+            </div>
         `;
-        document.body.appendChild(el);
-        requestAnimationFrame(() => el.style.transform = 'translate(-50%, -50%) scale(1)');
-        setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translate(-50%, -120%) scale(1.2)'; setTimeout(() => el.remove(), 600); }, 2200);
+        document.body.appendChild(overlay);
+
+        const card = overlay.querySelector('.completion-card');
+        requestAnimationFrame(() => {
+            overlay.classList.add('is-visible');
+            card.classList.add('is-visible');
+        });
+
+        if (card) {
+            card.onclick = null;
+            card.setAttribute('tabindex', '-1');
+            card.classList.add('cursor-default', 'select-none');
+        }
+
+        if (window.lucide && window.lucide.createIcons) {
+            window.lucide.createIcons();
+        }
+
+        setTimeout(() => {
+            overlay.classList.remove('is-visible');
+            card.classList.remove('is-visible');
+            setTimeout(() => overlay.remove(), 350);
+        }, 2600);
     },
 
     getCurrentSlideIndex() {

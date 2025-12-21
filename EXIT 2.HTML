@@ -23,9 +23,7 @@
         }
     </script>
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito+Sans:wght@400;600;700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="css/parallax.css">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -42,8 +40,7 @@
         }
 
         body {
-            background-color: #000;
-            /* Outer void */
+            background-color: #0B0C15;
             color: #FDFDFD;
             margin: 0;
             font-family: 'Nunito Sans', sans-serif;
@@ -179,6 +176,21 @@
 <body>
 
     <div id="viewport-frame">
+        <!-- PARALLAX BACKGROUND -->
+        <div class="parallax-stack">
+            <div class="parallax-layer">
+                <div class="nebula-gradient"></div>
+            </div>
+            <div class="parallax-layer">
+                <div class="glow-swirl glow-1"></div>
+                <div class="glow-swirl glow-2"></div>
+            </div>
+            <div class="parallax-layer" data-depth="0.2">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
         <!-- BACKGROUND GRID -->
         <div class="absolute inset-0 z-0 opacity-20 pointer-events-none"
             style="background-image: linear-gradient(#22d3ee 1px, transparent 1px), linear-gradient(90deg, #22d3ee 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black, transparent 80%);">
@@ -248,12 +260,9 @@
             class="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-500">
             <div class="glass-card p-12 text-center transform scale-90 transition-transform duration-500"
                 id="success-content">
-                <div class="text-6xl mb-4">🎉</div>
-                <h2 class="font-display text-4xl text-cyan-400 font-bold mb-2">Fantastic!</h2>
-                <p class="text-white text-xl mb-6">You sorted all the Nouns correctly.</p>
-                <div class="text-xl font-bold text-brand-400 cursor-default">
-                    Node 2 Complete
-                </div>
+                <i data-lucide="check-circle-2" class="w-16 h-16 text-brand-400 mb-4 mx-auto"></i>
+                <h2 class="font-display text-4xl text-brand-400 font-bold mb-2">Challenge Complete</h2>
+                <p class="text-white text-xl mb-6">Return to Map to continue.</p>
             </div>
         </div>
 
@@ -276,6 +285,7 @@
         // State Tracking
         let correctCount = 0;
         const totalItems = nounSorterData.items.length;
+        let hasCompleted = false;
 
         // Initialize Icons
         lucide.createIcons();
@@ -386,30 +396,67 @@
         }
 
         function checkWinCondition() {
-            if (correctCount === totalItems) {
-                setTimeout(() => {
-                    const modal = document.getElementById('success-modal');
-                    const content = document.getElementById('success-content');
+            if (hasCompleted || correctCount !== totalItems) return;
+            hasCompleted = true;
 
-                    modal.classList.remove('opacity-0', 'pointer-events-none');
-                    content.classList.remove('scale-90');
-                    content.classList.add('scale-100');
-
-                    // Trigger "Confetti" logic here if available
-                    // confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-
-                    console.log("Game Complete - Signal Map Unlock");
-                    if (window.parent && window.parent.MapSystem) {
-                        window.parent.MapSystem.completeNode('N2');
-                    }
-                }, 500);
+            console.log("Game Complete - Signal Map Unlock");
+            let completionSent = false;
+            try {
+                if (window.parent && window.parent.MapSystem) {
+                    window.parent.MapSystem.completeNode('N2', { showMap: false });
+                    completionSent = true;
+                }
+            } catch (e) {
+                completionSent = false;
             }
+            if (!completionSent && window.parent && window.parent.postMessage) {
+                window.parent.postMessage({ type: 'CLASS_CHALLENGE_COMPLETE', nodeId: 'N2' }, '*');
+            }
+
+            setTimeout(() => {
+                showLocalCompletion();
+            }, 500);
+        }
+
+        function showLocalCompletion() {
+            const modal = document.getElementById('success-modal');
+            const content = document.getElementById('success-content');
+            if (!modal || !content || modal.dataset.visible === 'true') return;
+            modal.dataset.visible = 'true';
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-90');
+            content.classList.add('scale-100');
         }
 
         // Start the game
         initGame();
 
+        // Initialize
+        lucide.createIcons();
+
+        // --- PREMIUM ENHANCEMENTS ---
+        window.addEventListener('load', () => {
+            // Cinematic Entrance
+            gsap.to("#viewport-frame", {
+                opacity: 1,
+                duration: 1.2,
+                ease: "power2.out"
+            });
+
+            // Mouse Interactive Depth
+            document.addEventListener('mousemove', (e) => {
+                const xPos = (e.clientX / window.innerWidth - 0.5) * 20;
+                const yPos = (e.clientY / window.innerHeight - 0.5) * 20;
+                gsap.to(".parallax-layer", {
+                    x: xPos,
+                    y: yPos,
+                    duration: 2,
+                    ease: "power2.out"
+                });
+            });
+        });
     </script>
 </body>
 
 </html>
+```

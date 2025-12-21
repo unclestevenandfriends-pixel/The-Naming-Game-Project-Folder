@@ -188,6 +188,8 @@ const MarkupCoordinator = {
     if (stampsLayer) stampsLayer.innerHTML = '';
     const commentsLayer = document.getElementById('text-comments-layer');
     if (commentsLayer) commentsLayer.innerHTML = '';
+    const stickyLayer = document.getElementById('sticky-notes-layer');
+    if (stickyLayer) stickyLayer.innerHTML = '';
   },
 
   // Migration: Wipe old conflicting data to prevent ghost bugs

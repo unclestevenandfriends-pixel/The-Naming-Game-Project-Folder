@@ -356,22 +356,37 @@ const GameEngine = {
     // ═══════════════════════════════════════════════════════════════════════════════
     // CHARACTER SELECTION SCREEN
     // ═══════════════════════════════════════════════════════════════════════════════
-    showCharacterSelect() {
+    showCharacterSelect(skipAnimation = false) {
         const lobby = document.getElementById('lobby-screen');
         if (!lobby) { console.error("❌ Could not find lobby-screen"); return; }
 
-        lobby.style.background = 'transparent';
+        lobby.style.background = '#0B0C15';
         lobby.style.backdropFilter = 'none';
 
         const characterSelectHTML = `
         <div id="character-select-container" class="relative w-full h-full flex flex-col items-center justify-center p-4 md:p-8">
-            <div class="absolute inset-0 bg-[#0B0C15]">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="parallax-layer" data-speed="0.2">
+                    <div class="nebula-gradient"></div>
+                </div>
+                <div class="parallax-layer" data-speed="0.5">
+                    <div class="glow-swirl glow-1"></div>
+                    <div class="glow-swirl glow-2"></div>
+                </div>
+                <div class="parallax-layer" data-speed="0.7">
+                    <div class="shape shape-1"></div>
+                    <div class="shape shape-2"></div>
+                    <div class="shape shape-3"></div>
+                </div>
+            </div>
+            <div class="absolute inset-0 bg-transparent">
                 <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/20 rounded-full blur-[120px] animate-pulse"></div>
                 <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[120px] animate-pulse" style="animation-delay: 1s;"></div>
                 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[150px] animate-pulse" style="animation-delay: 2s;"></div>
                 <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(34,211,238,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(34,211,238,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_80%)]"></div>
             </div>
             <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/40 pointer-events-none"></div>
+
             
             <div class="relative z-10 text-center mb-4 md:mb-6">
                 <p class="text-brand-400/70 text-xs md:text-sm font-bold uppercase tracking-[0.3em] mb-1 md:mb-2">Mission Briefing</p>
@@ -400,7 +415,20 @@ const GameEngine = {
 
         lobby.innerHTML = characterSelectHTML;
         const container = document.getElementById('character-select-container');
-        if (container) { container.style.opacity = '0'; container.style.transform = 'translateY(20px)'; setTimeout(() => { container.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)'; container.style.opacity = '1'; container.style.transform = 'translateY(0)'; }, 50); }
+        if (container) {
+            if (skipAnimation) {
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            } else {
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    container.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }, 50);
+            }
+        }
     },
 
     _buildCharacterStrips() {
@@ -441,7 +469,7 @@ const GameEngine = {
         if (typeof classData !== 'undefined') { classData.studentName = savedName; classData.classDate = savedDate; }
         this.config.characterId = id;
         this.saveGameState();
-        this.showCharacterSelect();
+        this.showCharacterSelect(true);
         setTimeout(() => { const newNameInput = document.getElementById('student-name'); const newDateInput = document.getElementById('class-date'); if (newNameInput) newNameInput.value = savedName; if (newDateInput) newDateInput.value = savedDate; }, 50);
         console.log(`🎮 Selected: ${this.characters[id].name}`);
     },
@@ -481,9 +509,11 @@ const GameEngine = {
         this.saveGameState();
         this.injectHUD();
 
-        // --- HIDE LOBBY & SHOW APP ---
+        // --- HIDE LOBBY & SHOW INTRO ---
         const lobby = document.getElementById('lobby-screen');
         if (lobby) lobby.style.display = 'none';
+        const introOverlay = document.getElementById('intro-overlay');
+        if (introOverlay) introOverlay.classList.remove('hidden');
 
         const viewport = document.getElementById('viewport-frame');
         const nav = document.querySelector('nav');

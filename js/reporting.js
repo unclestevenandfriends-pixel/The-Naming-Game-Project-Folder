@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
 window.generateNotesSummary = function () {
   console.log('📊 Generating Summary...');
 
+  // CRITICAL: Sync current visible notes before saving/reading
+  if (window.StickyNotesSystem && typeof window.StickyNotesSystem.syncVisibleNotesToState === 'function') {
+    window.StickyNotesSystem.syncVisibleNotesToState();
+  }
+
   if (typeof MarkupCoordinator !== 'undefined' && typeof MarkupCoordinator.forceSave === 'function') {
     MarkupCoordinator.forceSave();
   }

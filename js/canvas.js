@@ -800,11 +800,12 @@ const VoiceSystem = {
   targetInput: null, // Tracks which input is receiving text
 
   init() {
-    if ('webkitSpeechRecognition' in window) {
-      this.recognition = new webkitSpeechRecognition();
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRec) {
+      this.recognition = new SpeechRec();
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
-      this.recognition.lang = 'en-GB'; // British English
+      this.recognition.lang = 'en-GB';
 
       this.recognition.onstart = () => {
         this.isRecording = true;
@@ -814,18 +815,22 @@ const VoiceSystem = {
       this.recognition.onend = () => {
         this.isRecording = false;
         this.updateUI(false);
-        this.targetInput = null;
+        // Don't clear targetInput immediately to allow final tokens
+      };
+
+      this.recognition.onerror = (e) => {
+        console.error("VoiceSystem error:", e.error);
+        this.isRecording = false;
+        this.updateUI(false);
       };
 
       this.recognition.onresult = (event) => {
         let finalTranscript = '';
-
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript;
           }
         }
-
         if (finalTranscript) {
           this.insertText(finalTranscript);
         }
@@ -848,13 +853,18 @@ const VoiceSystem = {
 
   insertText(text) {
     if (this.targetInput) {
-      const start = this.targetInput.selectionStart;
-      const end = this.targetInput.selectionEnd;
-      const original = this.targetInput.value;
+      const input = this.targetInput;
+      const start = input.selectionStart || 0;
+      const end = input.selectionEnd || 0;
+      const original = input.value;
       const newText = original.substring(0, start) + text + original.substring(end);
 
-      this.targetInput.value = newText;
-      this.targetInput.dispatchEvent(new Event('input')); // Trigger autosave
+      input.value = newText;
+
+      // Safety: Use the element's own context to create the event if it's from an iframe
+      const doc = input.ownerDocument || document;
+      const event = new doc.defaultView.Event('input', { bubbles: true });
+      input.dispatchEvent(event);
     }
   },
 

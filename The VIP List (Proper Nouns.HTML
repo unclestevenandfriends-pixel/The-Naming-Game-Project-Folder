@@ -23,9 +23,7 @@
         }
     </script>
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito+Sans:wght@400;600;700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="css/parallax.css">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -44,7 +42,7 @@
         }
 
         body {
-            background-color: #000;
+            background-color: #0B0C15;
             color: #FDFDFD;
             margin: 0;
             font-family: 'Nunito Sans', sans-serif;
@@ -56,16 +54,13 @@
             justify-content: center;
         }
 
-        /* 16:9 VIEWPORT FRAME */
+        /* FULLSCREEN VIEWPORT FRAME */
         #viewport-frame {
             position: relative;
             width: 100vw;
             height: 100vh;
-            max-width: 177.78vh;
-            max-height: 56.25vw;
             background: var(--brand-bg);
             overflow: hidden;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
         }
 
         .font-display {
@@ -102,25 +97,6 @@
             box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5);
         }
 
-        /* NEXT BUTTON */
-        .btn-next {
-            background: linear-gradient(135deg, #22d3ee, #06b6d4);
-            color: #000;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .btn-next:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(34, 211, 238, 0.6);
-        }
-
-        .btn-next:active {
-            transform: scale(0.98);
-        }
 
         /* CATEGORY SPECIFIC STYLES */
         .card-people {
@@ -154,6 +130,21 @@
 <body>
 
     <div id="viewport-frame" class="flex flex-col relative">
+        <!-- PARALLAX BACKGROUND -->
+        <div class="parallax-stack">
+            <div class="parallax-layer">
+                <div class="nebula-gradient"></div>
+            </div>
+            <div class="parallax-layer">
+                <div class="glow-swirl glow-1"></div>
+                <div class="glow-swirl glow-2"></div>
+            </div>
+            <div class="parallax-layer" data-depth="0.2">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
         <!-- BACKGROUND LAYER -->
         <div class="absolute inset-0 z-0 bg-grid opacity-50 pointer-events-none"></div>
         <div
@@ -243,20 +234,33 @@
             </div>
         </main>
 
-        <!-- FOOTER / NAV -->
-        <footer class="relative z-20 w-full p-8 flex justify-end items-center">
-            <button class="btn-next rounded-full px-8 py-3 flex items-center gap-2 group"
-                onclick="if(window.parent && window.parent.nextSlide) window.parent.nextSlide()">
-                Next <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-            </button>
-        </footer>
 
     </div>
 
     <script>
         // Initialize Icons
         lucide.createIcons();
+
+        // --- PREMIUM ENHANCEMENTS ---
+        window.addEventListener('load', () => {
+            gsap.to("#viewport-frame", {
+                opacity: 1,
+                duration: 1.2,
+                ease: "power2.out"
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                const xPos = (e.clientX / window.innerWidth - 0.5) * 15;
+                const yPos = (e.clientY / window.innerHeight - 0.5) * 15;
+                gsap.to(".parallax-layer", {
+                    x: xPos,
+                    y: yPos,
+                    duration: 2,
+                    ease: "power2.out"
+                });
+            });
+        });
     </script>
 </body>
 
-</html>
+</html>```

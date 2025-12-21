@@ -34,6 +34,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito+Sans:wght@400;600;700&display=swap"
         rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
         html {
@@ -79,6 +80,19 @@
             z-index: 0;
         }
 
+        .global-matte {
+            background: radial-gradient(circle at 30% 25%, rgba(34, 211, 238, 0.1), rgba(8, 10, 20, 0.4) 55%), linear-gradient(180deg, rgba(5, 7, 16, 0.3), rgba(0, 0, 0, 0.2));
+            /* Removed mix-blend-mode: multiply */
+        }
+
+        .hero-gradient {
+            background:
+                radial-gradient(circle at 40% 30%, rgba(34, 211, 238, 0.12), rgba(10, 12, 24, 0) 60%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08), rgba(10, 12, 24, 0) 55%),
+                linear-gradient(180deg, rgba(5, 7, 16, 0.85), rgba(12, 14, 24, 0.95));
+            opacity: 0.8;
+        }
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(16px);
@@ -95,11 +109,10 @@
 </head>
 
 <body>
+    <div class="fixed inset-0 global-matte pointer-events-none"></div>
     <div id="viewport-frame" class="relative">
         <div class="bg-grid opacity-60"></div>
-        <div
-            class="absolute inset-0 bg-gradient-to-br from-[#0B0C15] via-[#0B0C15] to-[#0F172A] opacity-90 z-0">
-        </div>
+        <div class="absolute inset-0 hero-gradient pointer-events-none"></div>
 
         <main class="relative z-10 h-full w-full flex items-center justify-center px-10">
             <section class="glass-panel w-full max-w-4xl px-12 py-14 text-center">
@@ -148,6 +161,25 @@
         }
 
         document.getElementById('start-mission').addEventListener('click', startMission);
+        // --- PREMIUM ENHANCEMENTS ---
+        window.addEventListener('load', () => {
+            gsap.to("#viewport-frame", {
+                opacity: 1,
+                duration: 1.2,
+                ease: "power2.out"
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                const xPos = (e.clientX / window.innerWidth - 0.5) * 20;
+                const yPos = (e.clientY / window.innerHeight - 0.5) * 20;
+                gsap.to(".parallax-layer", {
+                    x: xPos,
+                    y: yPos,
+                    duration: 2,
+                    ease: "power2.out"
+                });
+            });
+        });
     </script>
 </body>
 

@@ -274,7 +274,7 @@
             // ADVANCED / TRICKY
             { text: "Look at...", options: ["jupiter", "Jupiter"], correct: 1, explanation: "Proper Noun (Specific Planet)" },
             { text: "I want...", options: ["lego", "LEGO"], correct: 1, explanation: "Proper Noun (Brand Name)" },
-            { text: "Where is my...", options: ["dad", "Dad"], correct: 0, explanation: "Common Noun (After 'my' it's common!)" },
+            { text: "Where is my...?", options: ["dad", "Dad"], correct: 0, explanation: "Common Noun (After 'my' it's common!)" },
             { text: "Can we go, ...", options: ["dad", "Dad"], correct: 1, explanation: "Proper Noun (Using it as a name)" }
         ];
 
@@ -409,6 +409,25 @@
         lucide.createIcons();
         loadQuestion();
 
+        // --- PREMIUM ENHANCEMENTS ---
+        window.addEventListener('load', () => {
+            gsap.to("#viewport-frame", {
+                opacity: 1,
+                duration: 1.2,
+                ease: "power2.out"
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                const xPos = (e.clientX / window.innerWidth - 0.5) * 15;
+                const yPos = (e.clientY / window.innerHeight - 0.5) * 15;
+                gsap.to(".parallax-layer", {
+                    x: xPos,
+                    y: yPos,
+                    duration: 2,
+                    ease: "power2.out"
+                });
+            });
+        });
     </script>
 </body>
 

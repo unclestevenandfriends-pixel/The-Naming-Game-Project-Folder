@@ -7,6 +7,56 @@ function debouncedSave() {
   }, 2000);
 }
 
+function showStandardCompletionOverlay(options = {}) {
+  const {
+    title = 'Challenge Complete',
+    message = '',
+    icon = 'check-circle-2',
+    duration = 2600
+  } = options;
+
+  const existing = document.querySelector('.completion-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'completion-overlay';
+  overlay.setAttribute('aria-live', 'polite');
+  overlay.innerHTML = `
+    <div class="completion-card">
+      <i data-lucide="${icon}" class="completion-icon"></i>
+      <div class="completion-title text-xl font-bold text-brand-400 cursor-default select-none">${title}</div>
+      ${message ? `<div class="completion-sub cursor-default select-none text-white/70">${message}</div>` : ''}
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const card = overlay.querySelector('.completion-card');
+  requestAnimationFrame(() => {
+    overlay.classList.add('is-visible');
+    card.classList.add('is-visible');
+  });
+
+  if (card) {
+    card.onclick = null;
+    card.setAttribute('tabindex', '-1');
+    card.classList.add('cursor-default', 'select-none');
+  }
+
+  if (window.lucide && window.lucide.createIcons) {
+    window.lucide.createIcons();
+  }
+
+  setTimeout(() => {
+    overlay.classList.remove('is-visible');
+    card.classList.remove('is-visible');
+    setTimeout(() => overlay.remove(), 350);
+  }, duration);
+}
+
+if (typeof window !== 'undefined') {
+  window.showStandardCompletionOverlay = showStandardCompletionOverlay;
+}
+
 // --- GAMEPLAY LOGIC (SCORING) ---
 function recordAnswer(isCorrect, context) {
   // Global Duplicate Check (Prevents Score Overflow on Refresh)
@@ -57,6 +107,9 @@ function initSpotNounGrid() {
     { word: 'eagle', isNoun: true }, { word: 'bright', isNoun: false },
     { word: 'parrot', isNoun: true }, { word: 'although', isNoun: false }
   ];
+  const totalNouns = nouns.filter(item => item.isNoun).length;
+  let foundNouns = 0;
+  let completionShown = false;
 
   nouns.forEach(item => {
     const btn = document.createElement('button');
@@ -70,6 +123,18 @@ function initSpotNounGrid() {
         btn.className = "bg-green-500 text-black h-32 flex items-center justify-center rounded-2xl text-2xl font-bold shadow-[0_0_20px_rgba(34,197,94,0.5)] transition-all transform scale-105";
         if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playCorrect);
         recordAnswer(true, `Found Noun: ${item.word}`);
+        foundNouns++;
+        if (foundNouns === totalNouns && !completionShown) {
+          completionShown = true;
+          if (typeof showStandardCompletionOverlay === 'function') {
+            showStandardCompletionOverlay({
+              title: 'Challenge Complete',
+              message: 'Continue to the next slide',
+              icon: 'check-circle-2',
+              duration: 2600
+            });
+          }
+        }
       } else {
         btn.className = "bg-red-500/20 text-red-400 h-32 flex items-center justify-center rounded-2xl text-2xl border border-red-500/50 transition-all";
         if (typeof gsap !== 'undefined') gsap.to(btn, { x: 5, duration: 0.05, yoyo: true, repeat: 3 });
@@ -95,6 +160,9 @@ function initInteractiveSentences() {
     { text: "Norah sat on the carpet.", nouns: ["Norah", "carpet"] },
     { text: "The youngster looked at the beautiful eagle.", nouns: ["youngster", "eagle"] }
   ];
+  const totalNouns = sentences.reduce((sum, item) => sum + item.nouns.length, 0);
+  let foundNouns = 0;
+  let completionShown = false;
 
   sentences.forEach((item, index) => {
     const box = document.createElement('div');
@@ -122,6 +190,18 @@ function initInteractiveSentences() {
           if (typeof gsap !== 'undefined') gsap.from(span, { scale: 1.2, duration: 0.3 });
           if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playCorrect);
           recordAnswer(true, `Sentence Noun: ${cleanWord}`);
+          foundNouns++;
+          if (foundNouns === totalNouns && !completionShown) {
+            completionShown = true;
+            if (typeof showStandardCompletionOverlay === 'function') {
+              showStandardCompletionOverlay({
+                title: 'Challenge Complete',
+                message: 'Continue to the next slide',
+                icon: 'check-circle-2',
+                duration: 2600
+              });
+            }
+          }
         } else {
           span.classList.add('text-red-400', 'line-through');
           if (typeof gsap !== 'undefined') gsap.to(span, { x: 5, duration: 0.05, yoyo: true, repeat: 3 });
@@ -146,6 +226,7 @@ function initCommonCheck() {
 
   const checkHint = document.getElementById('common-check-hint');
   let checkCount = 0; // Local Scope
+  let completionShown = false;
 
   const checkWords = [
     { word: 'mouse', isCommon: true }, { word: 'Paris', isCommon: false },
@@ -177,6 +258,15 @@ function initCommonCheck() {
       if (checkCount === checkWords.length && checkHint) {
         checkHint.classList.remove('hidden');
         setTimeout(() => checkHint.classList.remove('opacity-0'), 100);
+        if (!completionShown && typeof showStandardCompletionOverlay === 'function') {
+          completionShown = true;
+          showStandardCompletionOverlay({
+            title: 'Challenge Complete',
+            message: 'Continue to the next slide',
+            icon: 'check-circle-2',
+            duration: 2600
+          });
+        }
       }
     }
     checkContainer.appendChild(btn);
@@ -190,6 +280,11 @@ function initDetective() {
   const container = document.getElementById('detective-sentences');
   const btn = document.getElementById('next-sentence-btn');
   if (!container || !btn) return;
+
+  // Reset button listeners (avoids duplicate handlers if scripts re-run)
+  const btnClone = btn.cloneNode(true);
+  btn.parentNode.replaceChild(btnClone, btn);
+  const btnEl = btnClone;
 
   // Reset State (Scoped Here)
   let sentenceIdx = 0;
@@ -216,11 +311,22 @@ function initDetective() {
     return normalized.replace(/[.,]/g, '').replace(/^['"]|['"]$/g, '');
   };
 
+  const storedIdx = parseInt(localStorage.getItem('muddle_idx') || '0', 10);
+  if (!Number.isNaN(storedIdx)) {
+    sentenceIdx = Math.max(0, Math.min(storedIdx, detectiveSentences.length));
+  }
+
+  function setSentenceIdx(idx) {
+    sentenceIdx = idx;
+    localStorage.setItem('muddle_idx', String(sentenceIdx));
+  }
+
   // Initial Render
   renderSentence();
 
-  btn.onclick = () => {
-    sentenceIdx++;
+  btnEl.onclick = () => {
+    const nextIdx = sentenceIdx + 1;
+    setSentenceIdx(nextIdx);
     currentFound = 0; // Reset for next sentence
     if (sentenceIdx < detectiveSentences.length) {
       renderSentence();
@@ -230,10 +336,11 @@ function initDetective() {
   };
 
   function finishDetective() {
-    btn.innerHTML = 'Good Job! <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>';
-    btn.disabled = true;
-    btn.classList.add('bg-green-500', 'text-black', 'border-transparent');
-    btn.classList.remove('bg-brand-500/10', 'text-brand-400');
+    localStorage.removeItem('muddle_idx');
+    btnEl.innerHTML = 'Good Job! <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>';
+    btnEl.disabled = true;
+    btnEl.classList.add('bg-green-500', 'text-black', 'border-transparent');
+    btnEl.classList.remove('bg-brand-500/10', 'text-brand-400');
 
     if (typeof MapSystem !== 'undefined' && MapSystem.triggerNodeCompletion) {
       MapSystem.triggerNodeCompletion('N7', { showMap: false });
@@ -249,10 +356,11 @@ function initDetective() {
     container.innerHTML = "";
 
     // Reset Button State
-    btn.disabled = true;
-    btn.innerHTML = 'Find all nouns first...';
-    btn.classList.add('opacity-50', 'cursor-not-allowed');
-    btn.classList.remove('hover:bg-brand-500/20');
+    currentFound = 0;
+    btnEl.disabled = true;
+    btnEl.innerHTML = 'Find all nouns first...';
+    btnEl.classList.add('opacity-50', 'cursor-not-allowed');
+    btnEl.classList.remove('hover:bg-brand-500/20');
 
     const p = document.createElement('p');
     p.className = "text-center";
@@ -274,10 +382,10 @@ function initDetective() {
 
           currentFound++;
           if (currentFound === data.nouns.length) {
-            btn.disabled = false;
-            btn.innerHTML = 'Next Sentence <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
-            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            btn.classList.add('hover:bg-brand-500/20');
+            btnEl.disabled = false;
+            btnEl.innerHTML = 'Next Sentence <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+            btnEl.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnEl.classList.add('hover:bg-brand-500/20');
           }
         } else {
           if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playIncorrect);
@@ -309,11 +417,16 @@ function initMuddle() {
     "oliver": "Oliver", "sophie": "Sophie", "miss muddle": "Miss Muddle",
     "london": "London", "friday": "Friday", "february": "February"
   };
+  const normalizeMuddleToken = (value) => value.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
   const singleWordMap = {};
   Object.keys(muddleWords).forEach(k => {
     const parts = k.split(' ');
     const correctParts = muddleWords[k].split(' ');
-    parts.forEach((p, i) => { element = correctParts[i]; singleWordMap[p] = element; });
+    parts.forEach((p, i) => {
+      const key = normalizeMuddleToken(p);
+      const element = correctParts[i] || correctParts[0];
+      if (key) singleWordMap[key] = element;
+    });
   });
 
   const muddleSourceA = "I went to blue avenue in muddleton. Later I flew to asia, then france, greece, and turkey. I visited london and saw big ben. I swam in the aegean sea.";
@@ -336,8 +449,8 @@ function initMuddle() {
 
     // First pass: Count total targets
     text.split(/(\n|\s+)/).forEach(token => {
-      const clean = token.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      if (clean && muddleWords[clean]) totalTargetWords++;
+      const clean = normalizeMuddleToken(token);
+      if (clean && singleWordMap[clean]) totalTargetWords++;
     });
 
     console.log(`🔍 Muddle ${nodeId}: Target count is ${totalTargetWords}`);
@@ -348,7 +461,7 @@ function initMuddle() {
         return;
       }
 
-      const clean = token.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const clean = normalizeMuddleToken(token);
       const span = document.createElement('span');
       span.innerText = token;
       span.className = "cursor-pointer hover:text-[#FDFDFD] transition-colors px-2 py-1 mx-0.5 rounded-md hover:bg-white/10 inline-block";
@@ -361,7 +474,10 @@ function initMuddle() {
           if (typeof SoundFX !== 'undefined') SoundFX._play(SoundFX.playCorrect);
           recordAnswer(true, `Muddle Fix: ${clean} -> ${singleWordMap[clean]}`);
           const correctWord = singleWordMap[clean];
-          const newContent = token.replace(/[a-zA-Z0-9]+/g, correctWord);
+          const replacement = token.includes('.') && correctWord.endsWith('.')
+            ? correctWord.slice(0, -1)
+            : correctWord;
+          const newContent = token.replace(/[a-zA-Z0-9]+/g, replacement);
           span.innerText = newContent;
 
           span.classList.add('text-green-400', 'font-bold');
@@ -398,19 +514,19 @@ function initMuddle() {
 function initAllQuizzes() {
   const quizData = {
     q1: [
-      { text: "we were waiting for ryan to finish library.", nouns: ["ryan"] },
-      { text: "my brother and i have a pet rabbit.", nouns: ["i"] },
-      { text: "i think lucy is very good at painting.", nouns: ["i", "lucy"] }
+      { text: "We were waiting for ryan to finish library.", nouns: ["ryan"] },
+      { text: "My brother and i have a pet rabbit.", nouns: ["i"] },
+      { text: "I think lucy is very good at painting.", nouns: ["lucy"] }
     ],
     q2: [
-      { text: "my best friend lives on hillside road.", nouns: ["hillside", "road"] },
-      { text: "i am going to greece this summer.", nouns: ["greece"] },
-      { text: "last year, i took a holiday to scotland.", nouns: ["scotland"] }
+      { text: "My best friend lives on hillside road.", nouns: ["hillside", "road"] },
+      { text: "I am going to greece this summer.", nouns: ["greece"] },
+      { text: "Last year, I took a holiday to scotland.", nouns: ["scotland"] }
     ],
     q3: [
-      { text: "mum and i sometimes play badminton on mondays.", nouns: ["mondays"] },
-      { text: "i am going to holiday this sunday.", nouns: ["sunday"] },
-      { text: "on july 4th, we watched fireworks.", nouns: ["july"] }
+      { text: "Mum and I sometimes play badminton on mondays.", nouns: ["mondays"] },
+      { text: "I am going to holiday this sunday.", nouns: ["sunday"] },
+      { text: "On july 4th, we watched fireworks.", nouns: ["july"] }
     ]
   };
 
@@ -422,6 +538,18 @@ function initAllQuizzes() {
     const container = document.getElementById(containerId);
     if (!container || container.dataset.initialized === "true") return;
     container.dataset.initialized = "true";
+
+    function capitalizeTargets(token, nouns) {
+      let updated = token;
+      nouns.forEach((noun) => {
+        const escaped = noun.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(escaped, 'i');
+        if (re.test(updated)) {
+          updated = updated.replace(re, (match) => match.charAt(0).toUpperCase() + match.slice(1));
+        }
+      });
+      return updated;
+    }
 
     // 🏆 Completion Tracking
     let questionsCompleted = 0;
@@ -466,6 +594,7 @@ function initAllQuizzes() {
             if (isTarget) {
               span.dataset.clicked = "true";
               if (typeof SoundFX !== 'undefined') SoundFX.playCorrect();
+              span.innerText = `${capitalizeTargets(word, q.nouns)} `;
               span.classList.add('text-brand-400', 'font-bold');
               recordAnswer(true, `Quiz Correct: ${clean}`);
               foundCount++;
@@ -865,33 +994,6 @@ function huntGameComplete(huntType) {
   } else if (typeof MapSystem !== 'undefined' && MapSystem.flashMapButton) {
     MapSystem.flashMapButton();
   }
-
-  // Show completion overlay
-  const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none';
-  overlay.innerHTML = `
-        <div class="bg-black/90 backdrop-blur-xl px-12 py-10 rounded-3xl border border-green-500/50 shadow-[0_0_80px_rgba(34,197,94,0.5)] text-center transform scale-90 opacity-0" id="hunt-complete-box">
-            <div class="text-7xl mb-4">🎉</div>
-            <h3 class="text-3xl font-display text-green-400 mb-3">Hunt Complete!</h3>
-            <p class="text-lg text-white/70">Press the <span class="text-brand-400 font-bold animate-pulse">Map</span> button to continue</p>
-        </div>
-    `;
-  document.body.appendChild(overlay);
-
-  // Animate in
-  const box = document.getElementById('hunt-complete-box');
-  requestAnimationFrame(() => {
-    box.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    box.style.transform = 'scale(1)';
-    box.style.opacity = '1';
-  });
-
-  // Remove after delay
-  setTimeout(() => {
-    box.style.transform = 'scale(0.9)';
-    box.style.opacity = '0';
-    setTimeout(() => overlay.remove(), 400);
-  }, 3000);
 }
 
 // ═════════════════════════════════════════════════════════════════════

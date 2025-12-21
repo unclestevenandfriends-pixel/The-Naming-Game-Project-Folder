@@ -90,6 +90,12 @@ const MapSystem = {
         return this.state.accessedNodes.includes(nodeId) || this.state.completedNodes.includes(nodeId);
     },
 
+    checkHubCompletion(hubId, childIds) {
+        hubId = this.canonicalNodeId(hubId);
+        if (!hubId || !Array.isArray(childIds) || childIds.length === 0) return false;
+        return childIds.every(childId => this.state.completedNodes.includes(childId));
+    },
+
     resolveNodeSlides(node) {
         if (!node.slideKeys || !node.slideKeys.length) return node.slides || null;
 
@@ -193,16 +199,35 @@ const MapSystem = {
 
     injectMapButton() {
         const nav = document.querySelector('nav');
-        if (nav && !document.getElementById('map-nav-btn')) {
+        if (nav && !document.getElementById('map-nav-group')) {
             const counter = document.getElementById('slide-counter');
-            const btnHTML = `
-            <button id="map-nav-btn" onclick="MapSystem.handleMapButtonClick()" 
-                class="ml-4 px-6 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50">
-                <span id="map-btn-icon">🚀</span>
-                <span id="map-btn-text">Start Journey</span>
-            </button>`;
-            if (counter) counter.insertAdjacentHTML('afterend', btnHTML);
-            else nav.insertAdjacentHTML('beforeend', btnHTML);
+            const groupHTML = `
+            <div id="map-nav-group" class="ml-3 flex items-center gap-2">
+                <button id="prev-arrow" data-nav="prev" onclick="if(window.prevSlide){window.prevSlide()}" type="button"
+                    class="nav-arrow-btn w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm border border-white/5 text-brand-400 transition-all hover:bg-black/50 hover:text-[#FDFDFD] flex items-center justify-center cursor-pointer pointer-events-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
+                <button id="next-arrow" data-nav="next" onclick="if(window.nextSlide){window.nextSlide()}" type="button"
+                    class="nav-arrow-btn w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm border border-white/5 text-brand-400 transition-all hover:bg-black/50 hover:text-[#FDFDFD] flex items-center justify-center cursor-pointer pointer-events-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </button>
+                <button id="map-nav-btn" onclick="MapSystem.handleMapButtonClick()" type="button"
+                    class="px-6 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50">
+                    <span id="map-btn-icon">🚀</span>
+                    <span id="map-btn-text">Start Journey</span>
+                </button>
+            </div>`;
+            if (counter) counter.insertAdjacentHTML('afterend', groupHTML);
+            else nav.insertAdjacentHTML('beforeend', groupHTML);
+            if (window.NavigationGuard && typeof window.NavigationGuard.updateGhostButtons === 'function') {
+                window.NavigationGuard.updateGhostButtons();
+            }
         }
     },
 
@@ -245,7 +270,7 @@ const MapSystem = {
         if (slideIndex === 0 && !this.introPlayed) {
             btnIcon.innerText = '🚀';
             btnText.innerText = 'Start Journey';
-            btn.className = "ml-4 px-6 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50";
+            btn.className = "px-6 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-400 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50";
         } else {
             const currentKey = this.getSlideKeyAtIndex(slideIndex);
             const node = this.findNodeByKey(currentKey);
@@ -256,16 +281,16 @@ const MapSystem = {
                 btnIcon.innerText = '🗺️';
                 btnText.innerText = 'Continue →';
                 btn.classList.add('map-btn-flash');
-                btn.className = "ml-4 px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50 map-btn-flash";
+                btn.className = "px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50 map-btn-flash";
             } else if (isExitSlide && this.state.completedNodes.includes(node.id) && node && node.returnToMap === false) {
                 btnIcon.innerText = '🗺️';
                 btnText.innerText = 'Return to Map';
                 btn.classList.add('map-btn-flash');
-                btn.className = "ml-4 px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50 map-btn-flash";
+                btn.className = "px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-black font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50 map-btn-flash";
             } else {
                 btnIcon.innerText = '🗺️';
                 btnText.innerText = 'Map';
-                btn.className = "ml-4 px-4 py-2 rounded-xl bg-brand-500/20 hover:bg-brand-500/30 border border-brand-500/30 text-brand-400 font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50";
+                btn.className = "px-4 py-2 rounded-xl bg-brand-500/20 hover:bg-brand-500/30 border border-brand-500/30 text-brand-400 font-bold text-sm uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 cursor-pointer pointer-events-auto z-50";
             }
         }
 
@@ -337,11 +362,24 @@ const MapSystem = {
         const node = this.mapNodes[nodeId];
         if (!node) return;
         const showMap = options.showMap !== undefined ? options.showMap : node.returnToMap !== false;
+        const silent = options.silent === true;
 
-        if (!this.state.completedNodes.includes(nodeId)) {
+        const wasCompleted = this.state.completedNodes.includes(nodeId);
+        if (!wasCompleted) {
             this.state.completedNodes.push(nodeId);
         }
         this.markNodeAccessed(nodeId);
+
+        const params = new URLSearchParams(window.location.search);
+        const isReportMode = params.get('mode') === 'report';
+        if (!silent && !wasCompleted && !isReportMode && typeof window.showStandardCompletionOverlay === 'function') {
+            window.showStandardCompletionOverlay({
+                title: 'Challenge Complete',
+                message: 'Return to Map to continue',
+                icon: 'check-circle-2',
+                duration: 2600
+            });
+        }
 
         // CRITICAL: Update NavigationGuard when completion status changes
         if (typeof NavigationGuard !== 'undefined') {
@@ -558,6 +596,7 @@ const MapSystem = {
             const isCurrent = this.state.currentNode === node.id;
             const isHub = node.type === 'hub';
             const isGate = node.type === 'gate';
+            const isHubComplete = isHub && this.checkHubCompletion(node.id, node.children);
 
             let icon = '🔒';
             if (isHub) icon = '◆';
@@ -579,6 +618,9 @@ const MapSystem = {
             const el = document.createElement('div');
             el.className = `map-node transition-all duration-300 pointer-events-auto ${stateClass}`;
             el.dataset.nodeId = node.id;
+            if (isHubComplete) {
+                el.classList.add('node-complete');
+            }
 
             // SOCKET-AND-POINT: Icon and Label are non-flex siblings.
             // This ensures the icon stays perfectly locked to the (0,0) coordinate.
@@ -1073,9 +1115,9 @@ const MapSystem = {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     // Alias for triggerNodeCompletion
-    completeNode(nodeId) {
+    completeNode(nodeId, options = {}) {
         console.log("🗺️ Legacy API call: completeNode -> triggerNodeCompletion");
-        this.triggerNodeCompletion(nodeId);
+        this.triggerNodeCompletion(nodeId, options);
     },
 
     // Alias for positionTokenOnNode/animateTokenToNode
@@ -1092,6 +1134,17 @@ const MapSystem = {
 
 window.MapSystem = MapSystem;
 document.addEventListener('DOMContentLoaded', () => { setTimeout(() => MapSystem.init(), 100); });
+
+window.addEventListener('message', (event) => {
+    const data = event.data || {};
+    if (!data || data.type !== 'CLASS_CHALLENGE_COMPLETE') return;
+    if (!data.nodeId) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'report') return;
+    if (window.MapSystem && typeof MapSystem.completeNode === 'function') {
+        MapSystem.completeNode(data.nodeId, { showMap: false });
+    }
+});
 
 window.DEBUG_PrintVisibleSlides = function () {
     const slider = document.getElementById('slider');

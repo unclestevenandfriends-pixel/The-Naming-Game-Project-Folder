@@ -23,9 +23,16 @@
         }
     </script>
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito+Sans:wght@400;600;700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="css/parallax.css">
+    <style>
+        :root {
+            --parallax-cyan: rgba(192, 132, 252, 0.15);
+            /* VIOLET */
+            --parallax-glow-1: rgba(192, 132, 252, 0.2);
+            --parallax-glow-2: rgba(251, 191, 36, 0.1);
+            /* GOLD ACCENT */
+        }
+    </style>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -43,7 +50,7 @@
         }
 
         body {
-            background-color: #000;
+            background-color: #0B0C15;
             color: #FDFDFD;
             margin: 0;
             font-family: 'Nunito Sans', sans-serif;
@@ -56,16 +63,13 @@
             user-select: none;
         }
 
-        /* 16:9 VIEWPORT FRAME */
+        /* FULLSCREEN VIEWPORT FRAME */
         #viewport-frame {
             position: relative;
             width: 100vw;
             height: 100vh;
-            max-width: 177.78vh;
-            max-height: 56.25vw;
             background: var(--brand-bg);
             overflow: hidden;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
         }
 
         .font-display {
@@ -197,6 +201,21 @@
 <body>
 
     <div id="viewport-frame" class="flex flex-col relative">
+        <!-- PARALLAX BACKGROUND -->
+        <div class="parallax-stack">
+            <div class="parallax-layer">
+                <div class="nebula-gradient"></div>
+            </div>
+            <div class="parallax-layer">
+                <div class="glow-swirl glow-1"></div>
+                <div class="glow-swirl glow-2"></div>
+            </div>
+            <div class="parallax-layer" data-depth="0.2">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
         <!-- BACKGROUND GRID -->
         <div class="absolute inset-0 z-0 opacity-20 pointer-events-none"
             style="background-image: linear-gradient(#22d3ee 1px, transparent 1px), linear-gradient(90deg, #22d3ee 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black, transparent 80%);">
@@ -378,7 +397,23 @@
         };
 
         let solvedCount = 0;
-        const totalTargets = caseClosedData.targets.length;
+        const multiWordGroups = {
+            g1: ['p2', 'p3'],   // Uncle Steven
+            g2: ['p4', 'p5'],   // Captain Potato
+            g3: ['p10', 'p11'], // Eiffel Tower
+            g4: ['p12', 'p13'], // Harry Potter
+            g5: ['p19', 'p20'], // New York
+            g6: ['p24', 'p25'], // Disney World
+            g7: ['p26', 'p27']  // Mickey Mouse
+        };
+        const groupById = {};
+        Object.entries(multiWordGroups).forEach(([groupId, ids]) => {
+            ids.forEach(id => { groupById[id] = groupId; });
+        });
+        const groupScores = {};
+        const groupPartialAttempts = {};
+        const groupSolved = new Set();
+        const totalTargets = caseClosedData.targets.length - Object.keys(multiWordGroups).length;
         const solvedIds = new Set();
 
         // ═══════════════════════════════════════════════════════════════════════════════
@@ -387,6 +422,10 @@
         function initEditor() {
             // Update Score Display Max
             document.getElementById('total-display').textContent = `/ ${totalTargets}`;
+            const counterVal = document.getElementById('counter-val');
+            if (counterVal) {
+                counterVal.innerText = solvedCount;
+            }
 
             // Populate Line Numbers (approximate based on expected length)
             const lineNumContainer = document.getElementById('line-numbers');
@@ -483,29 +522,117 @@
 
             // Identify touched elements
             const tokens = document.querySelectorAll('.word-token');
+            const tokenById = {};
+            tokens.forEach(t => { tokenById[t.dataset.id] = t; });
             let actionTaken = false;
+            const touchedTokens = Array.from(tokens).filter(token => selection.containsNode(token, true));
+            if (!touchedTokens.length) return;
+            const touchedIds = new Set(touchedTokens.map(token => token.dataset.id));
+            const processedGroups = new Set();
 
-            tokens.forEach(token => {
-                // If we have duplicate words (e.g. 2 'pizza's), both might have same data-id if we aren't careful.
-                // But in `applyLogic`, we add to `solvedIds`. If ID is reused, marking one marks both.
-                // For this game, that is actually a fine mechanic (solve one, solve all instances).
-                if (solvedIds.has(token.dataset.id)) return;
+            touchedTokens.forEach(token => {
+                const targetId = token.dataset.id;
+                const targetData = caseClosedData.targets.find(t => t.id === targetId);
+                if (!targetData) return;
 
-                if (selection.containsNode(token, true)) {
-                    // This token is touched by selection
-                    const targetId = token.dataset.id;
-                    const targetData = caseClosedData.targets.find(t => t.id === targetId);
+                if (targetData.type === 'proper' && groupById[targetId]) {
+                    const groupId = groupById[targetId];
+                    if (processedGroups.has(groupId)) return;
+                    processedGroups.add(groupId);
 
-                    if (targetData) {
-                        applyLogic(token, targetData, direction);
+                    const groupIds = multiWordGroups[groupId];
+                    const groupTouched = groupIds.filter(id => touchedIds.has(id));
+                    if (!groupTouched.length) return;
+
+                    if (direction !== 'RTL') {
+                        groupTouched.forEach(id => {
+                            const el = tokenById[id];
+                            if (el) triggerError(el, "Needs Capitalization! Drag R←L");
+                        });
                         actionTaken = true;
+                        return;
                     }
+
+                    if (groupTouched.length === groupIds.length) {
+                        completeGroup(groupId, groupIds);
+                    } else {
+                        partialGroup(groupId, groupTouched, groupIds);
+                    }
+                    actionTaken = true;
+                    return;
                 }
+
+                if (solvedIds.has(targetId)) return;
+                applyLogic(token, targetData, direction);
+                actionTaken = true;
             });
 
             // Clear selection immediately to reset for next interaction
             if (actionTaken) {
                 selection.removeAllRanges();
+            }
+        }
+
+        function completeGroup(groupId, groupIds) {
+            if (groupSolved.has(groupId)) return;
+            groupIds.forEach(id => {
+                const data = caseClosedData.targets.find(t => t.id === id);
+                if (!data) return;
+                const el = document.querySelector(`.word-token[data-id="${id}"]`);
+                if (el && !solvedIds.has(id)) {
+                    markCorrect(el, data, 'proper', 0);
+                } else if (el) {
+                    const duplicates = document.querySelectorAll(`.word-token[data-id="${id}"]`);
+                    duplicates.forEach(node => {
+                        node.classList.add('status-proper');
+                        node.textContent = data.corrected;
+                    });
+                }
+            });
+
+            const currentScore = groupScores[groupId] || 0;
+            const delta = 1 - currentScore;
+            if (delta > 0) {
+                solvedCount += delta;
+                updateScore();
+            }
+            groupScores[groupId] = 1;
+            groupSolved.add(groupId);
+            showToast("Proper noun fixed!", 'text-cyan-400');
+
+            if (solvedCount >= totalTargets) {
+                setTimeout(() => {
+                    const modal = document.getElementById('victory-modal');
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    modal.querySelector('div').classList.remove('scale-90');
+                    if (window.parent && window.parent.MapSystem) {
+                        window.parent.MapSystem.completeNode('DetectiveBoss');
+                    }
+                }, 1000);
+            }
+        }
+
+        function partialGroup(groupId, touchedIds, groupIds) {
+            groupPartialAttempts[groupId] = (groupPartialAttempts[groupId] || 0) + 1;
+            touchedIds.forEach(id => {
+                const data = caseClosedData.targets.find(t => t.id === id);
+                if (!data) return;
+                const el = document.querySelector(`.word-token[data-id="${id}"]`);
+                if (el && !solvedIds.has(id)) {
+                    markCorrect(el, data, 'proper', 0);
+                }
+            });
+
+            const currentScore = groupScores[groupId] || 0;
+            if (currentScore < 0.5) {
+                solvedCount += 0.5;
+                groupScores[groupId] = 0.5;
+                updateScore();
+            }
+
+            showToast("Is that all?", 'text-cyan-400');
+            if (groupPartialAttempts[groupId] >= 2) {
+                showProperNounPointer();
             }
         }
 
@@ -533,10 +660,12 @@
             }
         }
 
-        function markCorrect(element, data, type) {
+        function markCorrect(element, data, type, scoreDelta = 1) {
             solvedIds.add(data.id);
-            solvedCount++;
-            updateScore();
+            if (scoreDelta > 0) {
+                solvedCount += scoreDelta;
+                updateScore();
+            }
 
             // If there are other tokens with same ID (duplicates), update them too
             const duplicates = document.querySelectorAll(`.word-token[data-id="${data.id}"]`);
@@ -558,7 +687,7 @@
             console.log("Audio: Ding");
 
             // Check Win
-            if (solvedCount >= totalTargets) {
+            if (scoreDelta > 0 && solvedCount >= totalTargets) {
                 setTimeout(() => {
                     const modal = document.getElementById('victory-modal');
                     modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -581,11 +710,43 @@
         }
 
         function updateScore() {
-            document.getElementById('score-display').textContent = solvedCount;
+            const displayValue = Number.isInteger(solvedCount) ? solvedCount : solvedCount.toFixed(1);
+            document.getElementById('score-display').textContent = displayValue;
             const counterVal = document.getElementById('counter-val');
             if (counterVal) {
-                counterVal.innerText = solvedCount;
+                counterVal.innerText = displayValue;
             }
+        }
+
+        function showProperNounPointer() {
+            let pointer = document.getElementById('proper-noun-pointer');
+            if (!pointer) {
+                pointer = document.createElement('div');
+                pointer.id = 'proper-noun-pointer';
+                pointer.style.cssText = `
+                    position: absolute;
+                    right: 32px;
+                    bottom: 32px;
+                    z-index: 60;
+                    background: rgba(8, 145, 178, 0.15);
+                    border: 1px solid rgba(34, 211, 238, 0.6);
+                    color: #e2e8f0;
+                    padding: 14px 16px;
+                    border-radius: 14px;
+                    max-width: 260px;
+                    font-size: 0.9rem;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                pointer.innerHTML = `
+                    <div style="font-weight:700;color:#22d3ee;margin-bottom:6px;">Proper Noun Tip</div>
+                    Multi‑word names are one proper noun. You must select both words together.
+                `;
+                document.getElementById('viewport-frame').appendChild(pointer);
+            }
+            pointer.style.opacity = '1';
+            setTimeout(() => { pointer.style.opacity = '0'; }, 3500);
         }
 
         function showToast(msg, colorClass) {
@@ -603,6 +764,25 @@
         lucide.createIcons();
         initEditor();
 
+        // --- PREMIUM ENHANCEMENTS ---
+        window.addEventListener('load', () => {
+            gsap.to("#viewport-frame", {
+                opacity: 1,
+                duration: 1.2,
+                ease: "power2.out"
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                const xPos = (e.clientX / window.innerWidth - 0.5) * 10;
+                const yPos = (e.clientY / window.innerHeight - 0.5) * 10;
+                gsap.to(".parallax-layer", {
+                    x: xPos,
+                    y: yPos,
+                    duration: 2,
+                    ease: "power2.out"
+                });
+            });
+        });
     </script>
 </body>
 

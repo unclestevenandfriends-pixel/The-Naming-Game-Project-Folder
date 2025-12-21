@@ -21,6 +21,8 @@ const NavigationGuard = {
     _cachedMaxSlide: 0,
     currentSlideIndex: 0,
     lastMaxReachedSlide: 0,
+    lastSlideSoundAt: 0,
+    slideSoundCooldownMs: 250,
 
     init() {
         if (this.initialized) return;
@@ -58,8 +60,33 @@ const NavigationGuard = {
     detectSlideChange() {
         const newIndex = this.getCurrentSlide();
         if (newIndex !== this.currentSlideIndex) {
+            this.playSlideSound();
             this.handleSlideTransition(newIndex);
+            this.updateGhostButtons();
         }
+    },
+
+    playSlideSound() {
+        const now = Date.now();
+        if (now - this.lastSlideSoundAt < this.slideSoundCooldownMs) return;
+        this.lastSlideSoundAt = now;
+        if (typeof SoundFX !== 'undefined' && SoundFX.playSlide) {
+            SoundFX.playSlide();
+        }
+    },
+
+    updateGhostButtons() {
+        const currentSlide = this.getCurrentSlide();
+        const nextSelectors = ['#next-arrow', '#next-btn', '.nav-next', '[data-nav="next"]'];
+        const prevSelectors = ['#prev-arrow', '#prev-btn', '.nav-prev', '[data-nav="prev"]'];
+        const nextBtn = document.querySelector(nextSelectors.join(','));
+        const prevBtn = document.querySelector(prevSelectors.join(','));
+
+        const nextBlocked = !this.canNavigateForward();
+        const prevBlocked = this.getPreviousAllowedSlide(currentSlide) === currentSlide;
+
+        if (nextBtn) nextBtn.classList.toggle('btn-disabled', nextBlocked);
+        if (prevBtn) prevBtn.classList.toggle('btn-disabled', prevBlocked);
     },
 
     handleSlideTransition(newIndex) {
@@ -164,6 +191,7 @@ const NavigationGuard = {
         }
         this._cachedMaxSlide = this.calculateMaxAllowedSlide();
         console.log(`🛡️ Max accessible slide updated: ${this._cachedMaxSlide}`);
+        this.updateGhostButtons();
     },
 
     calculateMaxAllowedSlide() {

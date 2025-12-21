@@ -1,0 +1,152 @@
+/* 
+  Correct "Outline" Parallax Aesthetic for Standalone Iframe Screens. 
+  Matches Draft 3 Brand Protocol.
+*/
+:root {
+    --parallax-cyan: rgba(34, 211, 238, 0.15);
+    --parallax-purple: rgba(192, 132, 252, 0.12);
+    --parallax-green: rgba(52, 211, 153, 0.1);
+    --parallax-glow-1: rgba(34, 211, 238, 0.2);
+    --parallax-glow-2: rgba(14, 165, 233, 0.15);
+}
+
+.parallax-stack {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.parallax-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    will-change: transform;
+}
+
+/* Layer 1: Subtle Nebula */
+.nebula-gradient {
+    position: absolute;
+    inset: -20%;
+    width: 140%;
+    height: 140%;
+    background:
+        radial-gradient(ellipse at 30% 40%, var(--parallax-cyan), transparent 60%),
+        radial-gradient(ellipse at 70% 60%, var(--parallax-purple), transparent 60%);
+    filter: blur(60px);
+    opacity: 0.6;
+    animation: bgNebula 30s ease-in-out infinite alternate;
+}
+
+@keyframes bgNebula {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(-3%, 3%) scale(1.05);
+    }
+}
+
+/* Layer 2: Outline Shapes (Crucial Fix) */
+.shape {
+    position: absolute;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    /* THE OUTLINE */
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    filter: blur(2px);
+    opacity: 0.8;
+    animation: bgFloat 35s ease-in-out infinite alternate;
+}
+
+.shape-1 {
+    width: 400px;
+    height: 400px;
+    top: 10%;
+    left: 15%;
+    border-color: rgba(34, 211, 238, 0.2);
+}
+
+.shape-2 {
+    width: 300px;
+    height: 300px;
+    top: 60%;
+    right: 20%;
+    border-color: rgba(192, 132, 252, 0.15);
+    animation-delay: -10s;
+}
+
+.shape-3 {
+    width: 200px;
+    height: 200px;
+    bottom: 20%;
+    left: 40%;
+    border-color: rgba(52, 211, 153, 0.15);
+    animation-delay: -20s;
+}
+
+@keyframes bgFloat {
+    0% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: translate(40px, -30px) rotate(180deg) scale(1.1);
+    }
+
+    100% {
+        transform: translate(-30px, 40px) rotate(360deg) scale(0.9);
+    }
+}
+
+/* Layer 3: Ambient Glows */
+.glow-swirl {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    mix-blend-mode: screen;
+    animation: bgGlow 25s ease-in-out infinite;
+}
+
+.glow-1 {
+    background: radial-gradient(circle, var(--parallax-glow-1) 0%, transparent 70%);
+    top: 10%;
+    left: -5%;
+}
+
+.glow-2 {
+    background: radial-gradient(circle, var(--parallax-glow-2) 0%, transparent 70%);
+    bottom: 0%;
+    right: -10%;
+    animation-delay: -12s;
+}
+
+@keyframes bgGlow {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.12;
+    }
+
+    50% {
+        transform: translate(60px, -40px) scale(1.15);
+        opacity: 0.18;
+    }
+}
+
+/* Performance */
+.parallax-stack,
+.parallax-layer,
+.shape,
+.glow-swirl,
+.nebula-gradient {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
