@@ -122,6 +122,7 @@ const AnnotationSystem = {
   isDrawing: false,
   lastX: 0,
   lastY: 0,
+  initialized: false,
 
   // Tool settings
   penColor: '#FF0000',
@@ -133,6 +134,7 @@ const AnnotationSystem = {
   redoStacks: {}, // slideIndex: []
 
   init() {
+    if (this.initialized) return;
     this.canvas = document.getElementById('annotation-canvas');
     if (!this.canvas) {
       console.warn("Annotation canvas not found");
@@ -146,6 +148,7 @@ const AnnotationSystem = {
     this.redrawCurrentSlide();
 
     window.addEventListener('resize', () => this.resizeCanvas());
+    this.initialized = true;
   },
 
   resizeCanvas() {

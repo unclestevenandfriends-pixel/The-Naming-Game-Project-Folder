@@ -321,6 +321,49 @@
     </div>
 
     <script>
+        function getNameGameSessionId() {
+            try {
+                const raw = localStorage.getItem('nameGame_data');
+                if (!raw) return 'anon';
+                const parsed = JSON.parse(raw);
+                const name = (parsed?.studentName || '').trim();
+                const date = (parsed?.classDate || '').trim();
+                return [name || 'anon', date || 'nodate'].join('|');
+            } catch (e) {
+                return 'anon';
+            }
+        }
+
+        function storageKey(suffix) {
+            return `nameGame_iframe_case_closed::${getNameGameSessionId()}::${suffix}`;
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(storageKey('state'));
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function saveState() {
+            try {
+                const payload = {
+                    version: 1,
+                    solvedIds: Array.from(solvedIds),
+                    solvedCount,
+                    groupScores,
+                    groupPartialAttempts: groupPartialAttempts,
+                    groupSolved: Array.from(groupSolved),
+                    errors
+                };
+                localStorage.setItem(storageKey('state'), JSON.stringify(payload));
+            } catch (e) { }
+        }
+
+        let errors = 0;
+
         // ═══════════════════════════════════════════════════════════════════════════════
         // DATA & CONFIG
         // ═══════════════════════════════════════════════════════════════════════════════
@@ -415,6 +458,21 @@
         const groupSolved = new Set();
         const totalTargets = caseClosedData.targets.length - Object.keys(multiWordGroups).length;
         const solvedIds = new Set();
+        const persisted = loadState();
+        if (persisted?.version === 1) {
+            try {
+                (persisted.solvedIds || []).forEach(id => solvedIds.add(id));
+                solvedCount = Number.isFinite(persisted.solvedCount) ? persisted.solvedCount : solvedCount;
+                if (persisted.groupScores && typeof persisted.groupScores === 'object') {
+                    Object.keys(persisted.groupScores).forEach(k => { groupScores[k] = persisted.groupScores[k]; });
+                }
+                if (persisted.groupPartialAttempts && typeof persisted.groupPartialAttempts === 'object') {
+                    Object.keys(persisted.groupPartialAttempts).forEach(k => { groupPartialAttempts[k] = persisted.groupPartialAttempts[k]; });
+                }
+                (persisted.groupSolved || []).forEach(id => groupSolved.add(id));
+                errors = Number.isFinite(persisted.errors) ? persisted.errors : 0;
+            } catch (e) { }
+        }
 
         // ═══════════════════════════════════════════════════════════════════════════════
         // INITIALIZATION
@@ -495,6 +553,27 @@
             // Attach Event Listeners to the container for selection handling
             const editorArea = document.getElementById('editor-area');
             editorArea.addEventListener('mouseup', handleSelection);
+
+            restoreSolvedTokens();
+            updateScore();
+        }
+
+        function restoreSolvedTokens() {
+            try {
+                solvedIds.forEach((id) => {
+                    const data = caseClosedData.targets.find(t => t.id === id);
+                    if (!data) return;
+                    const tokens = document.querySelectorAll(`.word-token[data-id="${id}"]`);
+                    tokens.forEach((el) => {
+                        if (data.type === 'proper') {
+                            el.classList.add('status-proper');
+                            el.textContent = data.corrected;
+                        } else {
+                            el.classList.add('status-common');
+                        }
+                    });
+                });
+            } catch (e) { }
         }
 
         // ═══════════════════════════════════════════════════════════════════════════════
@@ -599,6 +678,7 @@
             groupScores[groupId] = 1;
             groupSolved.add(groupId);
             showToast("Proper noun fixed!", 'text-cyan-400');
+            saveState();
 
             if (solvedCount >= totalTargets) {
                 setTimeout(() => {
@@ -634,6 +714,7 @@
             if (groupPartialAttempts[groupId] >= 2) {
                 showProperNounPointer();
             }
+            saveState();
         }
 
         function applyLogic(element, data, direction) {
@@ -685,6 +766,7 @@
             }
 
             console.log("Audio: Ding");
+            saveState();
 
             // Check Win
             if (scoreDelta > 0 && solvedCount >= totalTargets) {
@@ -707,6 +789,8 @@
                 element.classList.remove('status-error');
             }, 500);
             console.log("Audio: Buzz");
+            errors += 1;
+            saveState();
         }
 
         function updateScore() {

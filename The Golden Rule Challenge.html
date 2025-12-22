@@ -245,10 +245,62 @@
 
     </div>
 
-    <script>
-        // ═══════════════════════════════════════════════════════════════════════════════
-        // GAME DATA & STATE
-        // ═══════════════════════════════════════════════════════════════════════════════
+	    <script>
+	        function getNameGameSessionId() {
+	            try {
+	                const raw = localStorage.getItem('nameGame_data');
+	                if (!raw) return 'anon';
+	                const parsed = JSON.parse(raw);
+	                const name = (parsed?.studentName || '').trim();
+	                const date = (parsed?.classDate || '').trim();
+	                return [name || 'anon', date || 'nodate'].join('|');
+	            } catch (e) {
+	                return 'anon';
+	            }
+	        }
+
+	        function storageKey(suffix) {
+	            return `nameGame_iframe_golden_rule::${getNameGameSessionId()}::${suffix}`;
+	        }
+
+	        function loadState() {
+	            try {
+	                const raw = localStorage.getItem(storageKey('state'));
+	                return raw ? JSON.parse(raw) : null;
+	            } catch (e) {
+	                return null;
+	            }
+	        }
+
+	        function saveState() {
+	            try {
+	                const payload = {
+	                    version: 1,
+	                    currentQ,
+	                    wrongAttempts,
+	                    completedQuestions,
+	                    victoryShown
+	                };
+	                localStorage.setItem(storageKey('state'), JSON.stringify(payload));
+	            } catch (e) { }
+	        }
+
+	        function recordToParent(isCorrect, context) {
+	            try {
+	                if (window.parent && typeof window.parent.recordAnswer === 'function') {
+	                    window.parent.recordAnswer(isCorrect, context);
+	                }
+	            } catch (e) { }
+	            try {
+	                if (window.parent && typeof window.parent.flushSessionToStorage === 'function') {
+	                    window.parent.flushSessionToStorage('iframe:golden_rule');
+	                }
+	            } catch (e) { }
+	        }
+
+	        // ═══════════════════════════════════════════════════════════════════════════════
+	        // GAME DATA & STATE
+	        // ═══════════════════════════════════════════════════════════════════════════════
 
         // MOCK AUDIO (In case audio.js is missing in this preview)
         const SoundFX = window.SoundFX || {
@@ -278,9 +330,20 @@
             { text: "Can we go, ...", options: ["dad", "Dad"], correct: 1, explanation: "Proper Noun (Using it as a name)" }
         ];
 
-        let currentQ = 0;
-        let isLocked = false;
-        let currentMapping = [0, 1]; // Maps physical button index to option index
+	        let currentQ = 0;
+	        let isLocked = false;
+	        let currentMapping = [0, 1]; // Maps physical button index to option index
+	        let wrongAttempts = [];
+	        let completedQuestions = [];
+	        let victoryShown = false;
+
+	        const persisted = loadState();
+	        if (persisted?.version === 1) {
+	            currentQ = Number.isFinite(persisted.currentQ) ? persisted.currentQ : 0;
+	            wrongAttempts = Array.isArray(persisted.wrongAttempts) ? persisted.wrongAttempts : [];
+	            completedQuestions = Array.isArray(persisted.completedQuestions) ? persisted.completedQuestions : [];
+	            victoryShown = !!persisted.victoryShown;
+	        }
 
         // ═══════════════════════════════════════════════════════════════════════════════
         // LOGIC
@@ -330,9 +393,9 @@
             card.classList.add('question-anim');
         }
 
-        function handleChoice(btnIndex) {
-            if (isLocked) return;
-            isLocked = true;
+	        function handleChoice(btnIndex) {
+	            if (isLocked) return;
+	            isLocked = true;
 
             const q = questions[currentQ];
             const selectedOptionIndex = currentMapping[btnIndex]; // Get actual option index from mapping
@@ -345,7 +408,7 @@
             const feedback = document.getElementById('feedback-text');
             const slot = document.getElementById('answer-slot');
 
-            if (isCorrect) {
+	            if (isCorrect) {
                 // SUCCESS
                 SoundFX.playCorrect();
                 btn.classList.add('correct');
@@ -354,17 +417,23 @@
                 slot.textContent = q.options[q.correct];
                 slot.className = "text-green-400 font-bold border-b-4 border-green-500 px-4";
 
-                feedback.textContent = `Correct! ${q.explanation}`;
-                feedback.className = "h-8 mt-6 text-xl font-bold text-green-400 transition-all duration-300";
+	                feedback.textContent = `Correct! ${q.explanation}`;
+	                feedback.className = "h-8 mt-6 text-xl font-bold text-green-400 transition-all duration-300";
 
-                setTimeout(nextQuestion, 1500);
-            } else {
+	                completedQuestions[currentQ] = true;
+	                saveState();
+	                recordToParent(true, `Golden Rule: Q${currentQ + 1} Correct`);
+	                setTimeout(nextQuestion, 1500);
+	            } else {
                 // FAIL
                 SoundFX.playIncorrect();
                 btn.classList.add('wrong');
 
-                feedback.textContent = "Oops! Look closely at the capitalization.";
-                feedback.className = "h-8 mt-6 text-xl font-bold text-red-400 transition-all duration-300";
+	                feedback.textContent = "Oops! Look closely at the capitalization.";
+	                feedback.className = "h-8 mt-6 text-xl font-bold text-red-400 transition-all duration-300";
+	                wrongAttempts[currentQ] = (wrongAttempts[currentQ] || 0) + 1;
+	                saveState();
+	                recordToParent(false, `Golden Rule: Q${currentQ + 1} Wrong #${wrongAttempts[currentQ]}`);
 
                 // Allow retry after short delay
                 setTimeout(() => {
@@ -386,28 +455,46 @@
             });
         }
 
-        function nextQuestion() {
-            currentQ++;
-            if (currentQ < questions.length) {
-                loadQuestion();
-            } else {
-                showVictory();
-            }
-        }
+	        function nextQuestion() {
+	            currentQ++;
+	            saveState();
+	            if (currentQ < questions.length) {
+	                loadQuestion();
+	            } else {
+	                showVictory();
+	            }
+	        }
 
-        function showVictory() {
-            SoundFX.playFanfare();
-            const modal = document.getElementById('victory-screen');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
+	        function showVictory() {
+	            SoundFX.playFanfare();
+	            const modal = document.getElementById('victory-screen');
+	            modal.classList.remove('opacity-0', 'pointer-events-none');
+	            victoryShown = true;
+	            saveState();
+	            recordToParent(true, "Golden Rule: Complete");
 
             // Update last pill
             const pills = document.querySelectorAll('.progress-pill');
             pills[pills.length - 1].classList.add('completed');
         }
 
-        // Initialize
-        lucide.createIcons();
-        loadQuestion();
+	        // Initialize
+	        lucide.createIcons();
+	        loadQuestion();
+	        restoreProgressPills();
+	        if (victoryShown) showVictory();
+	        window.addEventListener('beforeunload', saveState, { capture: true });
+	        window.addEventListener('pagehide', saveState, { capture: true });
+
+	        function restoreProgressPills() {
+	            const pills = document.querySelectorAll('.progress-pill');
+	            pills.forEach((pill, idx) => {
+	                pill.className = 'progress-pill';
+	                if (completedQuestions[idx]) pill.classList.add('completed');
+	                if (!victoryShown && idx === currentQ) pill.classList.add('active');
+	                if (victoryShown) pill.classList.add('completed');
+	            });
+	        }
 
         // --- PREMIUM ENHANCEMENTS ---
         window.addEventListener('load', () => {

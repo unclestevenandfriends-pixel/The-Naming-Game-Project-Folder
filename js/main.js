@@ -115,11 +115,14 @@ window.resumeSessionWithSound = function () {
 
 function resumeSession() {
   if (typeof GameEngine !== 'undefined') GameEngine.restoreSession();
-  const savedData = localStorage.getItem('nameGame_data');
+  const savedDataRaw = localStorage.getItem('nameGame_data');
+  const hasSavedData = !!savedDataRaw;
+  if (hasSavedData && typeof window.loadClassDataFromStorage === 'function') {
+    window.loadClassDataFromStorage();
+  }
   const savedSlide = localStorage.getItem('nameGame_slide');
 
-  if (savedData) {
-    classData = JSON.parse(savedData);
+  if (hasSavedData) {
     if (typeof replayVisuals === 'function') replayVisuals(classData.answersLog);
     const lobby = document.getElementById('lobby-screen');
     const viewport = document.getElementById('viewport-frame');
@@ -136,14 +139,23 @@ function resumeSession() {
         if (typeof window.dismissIntro === 'function') window.dismissIntro();
 
         if (window.SlideRegistry) SlideRegistry.rebuild();
-        if (!restoreBySlideKey()) {
-          if (savedSlide && slider) {
-            const idx = parseInt(savedSlide);
-            slider.scrollLeft = idx * slider.clientWidth;
-            if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.init();
-            if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(idx);
-            if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.redrawCurrentSlide();
-          }
+        const restoredByKey = restoreBySlideKey();
+        if (!restoredByKey && savedSlide && slider) {
+          const idx = parseInt(savedSlide, 10);
+          if (Number.isFinite(idx)) slider.scrollLeft = idx * slider.clientWidth;
+        }
+
+        // Ensure markup systems reflect the restored slide, even when restoredByKey succeeds.
+        const currentIdx = (window.SlideRegistry && typeof SlideRegistry.getCurrentIndex === 'function')
+          ? SlideRegistry.getCurrentIndex()
+          : (slider ? Math.round(slider.scrollLeft / (slider.clientWidth || 1)) : 0);
+
+        if (typeof AnnotationSystem !== 'undefined') {
+          if (!AnnotationSystem.ctx && typeof AnnotationSystem.init === 'function') AnnotationSystem.init();
+          if (typeof AnnotationSystem.redrawCurrentSlide === 'function') AnnotationSystem.redrawCurrentSlide();
+        }
+        if (typeof StickyNotesSystem !== 'undefined' && typeof StickyNotesSystem.loadNotesForSlide === 'function') {
+          StickyNotesSystem.loadNotesForSlide(currentIdx);
         }
       }
     });
@@ -156,8 +168,15 @@ window.resumeSession = resumeSession;
 
 function startNewClass() {
   if (confirm("Are you sure? This will delete ALL progress.")) {
+    window.__skipSessionFlush = true;
     const keysToRemove = ['nameGame_data', 'nameGame_slide', 'nameGame_character', 'map_data', 'naming_game_map_v4', 'stickyNotes', 'annotations', 'nameGame_markup', 'gameEngine_state', 'classData'];
     keysToRemove.forEach(key => localStorage.removeItem(key));
+    try {
+      Object.keys(localStorage).forEach((k) => {
+        if (k.startsWith('nameGame_iframe_')) localStorage.removeItem(k);
+        if (k.startsWith('nameGame_teacher_note::')) localStorage.removeItem(k);
+      });
+    } catch (e) { }
     if (typeof MarkupCoordinator !== 'undefined') try { MarkupCoordinator.clearAll(); } catch (e) { }
     if (typeof MapSystem !== 'undefined') try { MapSystem.resetProgress(); } catch (e) { }
     if (typeof GameEngine !== 'undefined') try { GameEngine.active = false; GameEngine.config = { characterId: null, currentHealth: 100, maxHealth: 100, crystals: 0, comboCount: 0, powerups: {} }; } catch (e) { }
@@ -182,6 +201,12 @@ function startClass() {
   classData.studentName = nameInput.value;
   classData.classDate = dateInput.value;
   localStorage.removeItem('stickyNotes'); localStorage.removeItem('annotations'); localStorage.removeItem('nameGame_markup'); localStorage.removeItem('nameGame_slide');
+  try {
+    Object.keys(localStorage).forEach((k) => {
+      if (k.startsWith('nameGame_iframe_')) localStorage.removeItem(k);
+      if (k.startsWith('nameGame_teacher_note::')) localStorage.removeItem(k);
+    });
+  } catch (e) { }
   if (typeof MarkupCoordinator !== 'undefined') MarkupCoordinator.clearAll();
   if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.clearAll();
   if (typeof saveProgress === 'function') saveProgress();
@@ -261,11 +286,14 @@ function restoreBySlideKey() {
   const key = localStorage.getItem("nameGame_slide_key");
   if (!key || !window.SlideRegistry?.idx) return false;
 
+  const sliderEl = document.getElementById('slider');
+  if (!sliderEl) return false;
+
   const idx = window.SlideRegistry.idx(key);
   if (!Number.isInteger(idx)) return false;
 
   // Use your existing go-to-slide/scroll function; do NOT create a new navigation system.
-  slider.scrollTo({ left: idx * (slider.clientWidth || window.innerWidth), behavior: "auto" });
+  sliderEl.scrollTo({ left: idx * (sliderEl.clientWidth || window.innerWidth), behavior: "auto" });
   return true;
 }
 if (slider) slider.addEventListener('scroll', () => window.requestAnimationFrame(updateCounter));

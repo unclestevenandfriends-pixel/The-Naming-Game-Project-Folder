@@ -288,6 +288,58 @@
     </div>
 
     <script>
+        function getNameGameSessionId() {
+            try {
+                const raw = localStorage.getItem('nameGame_data');
+                if (!raw) return 'anon';
+                const parsed = JSON.parse(raw);
+                const name = (parsed?.studentName || '').trim();
+                const date = (parsed?.classDate || '').trim();
+                return [name || 'anon', date || 'nodate'].join('|');
+            } catch (e) {
+                return 'anon';
+            }
+        }
+
+        function storageKey(suffix) {
+            return `nameGame_iframe_mega_mix_boss::${getNameGameSessionId()}::${suffix}`;
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(storageKey('state'));
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function saveState() {
+            try {
+                const payload = {
+                    version: 1,
+                    order: persistedOrder,
+                    buttonStates,
+                    attemptCounters,
+                    completed: !!completed
+                };
+                localStorage.setItem(storageKey('state'), JSON.stringify(payload));
+            } catch (e) { }
+        }
+
+        function recordToParent(isCorrect, context) {
+            try {
+                if (window.parent && typeof window.parent.recordAnswer === 'function') {
+                    window.parent.recordAnswer(isCorrect, context);
+                }
+            } catch (e) { }
+            try {
+                if (window.parent && typeof window.parent.flushSessionToStorage === 'function') {
+                    window.parent.flushSessionToStorage('iframe:mega_mix_boss');
+                }
+            } catch (e) { }
+        }
+
         // ═══════════════════════════════════════════════════════════════════════════════
         // DATA & CONFIG
         // ═══════════════════════════════════════════════════════════════════════════════
@@ -321,20 +373,49 @@
             { text: "In", type: "prep" }, { text: "On", type: "prep" }
         ];
 
+        let persistedOrder = null;
+        let buttonStates = [];
+        let attemptCounters = { correct: 0, wrong: 0 };
+        let completed = false;
+
+        const persisted = loadState();
+        if (persisted?.version === 1 && Array.isArray(persisted.order) && Array.isArray(persisted.buttonStates)) {
+            persistedOrder = persisted.order;
+            buttonStates = persisted.buttonStates;
+            attemptCounters = persisted.attemptCounters || attemptCounters;
+            completed = !!persisted.completed;
+        }
+
         // ═══════════════════════════════════════════════════════════════════════════════
         // INIT
         // ═══════════════════════════════════════════════════════════════════════════════
         lucide.createIcons();
         initGrid();
+        hydrateFromSavedState();
+        window.addEventListener('beforeunload', saveState, { capture: true });
+        window.addEventListener('pagehide', saveState, { capture: true });
 
         function initGrid() {
             const grid = document.getElementById('game-grid');
-            const shuffled = [...wordList].sort(() => Math.random() - 0.5);
+            const shuffled = persistedOrder ? [...persistedOrder] : [...wordList].sort(() => Math.random() - 0.5);
+            if (!persistedOrder) {
+                persistedOrder = shuffled;
+            }
+            if (!Array.isArray(buttonStates) || buttonStates.length !== shuffled.length) {
+                buttonStates = new Array(shuffled.length).fill(null);
+            }
 
             shuffled.forEach(item => {
                 const btn = document.createElement('button');
                 btn.className = "glass-card word-btn w-full h-full flex items-center justify-center text-lg md:text-xl font-bold text-slate-200 shadow-lg";
                 btn.textContent = item.text;
+                btn.dataset.itemKey = `${item.text}::${item.type}`;
+                btn.dataset.itemIndex = String(grid.children.length);
+
+                const idx = parseInt(btn.dataset.itemIndex, 10);
+                const state = buttonStates[idx];
+                if (state === 'correct') btn.classList.add('correct');
+                if (state === 'wrong') btn.classList.add('wrong');
 
                 // Touch/Click Handler
                 btn.onclick = () => handleInteraction(btn, item);
@@ -343,12 +424,54 @@
             });
         }
 
+        function hydrateFromSavedState() {
+            const grid = document.getElementById('game-grid');
+            if (!grid) return;
+
+            let found = 0;
+            let wrong = 0;
+            buttonStates.forEach((s) => {
+                if (s === 'correct') found += 1;
+                if (s === 'wrong') wrong += 1;
+            });
+            gameState.found = found;
+            gameState.health = Math.max(0, gameConfig.playerMaxHealth - (wrong * gameConfig.damagePerHit));
+            gameState.active = !(gameState.health <= 0 || gameState.found >= gameConfig.totalNouns);
+            updateBossHealth();
+            updatePlayerHealth();
+
+            if (gameState.found >= gameConfig.totalNouns || completed) {
+                completed = true;
+                gameState.active = false;
+                const modal = document.getElementById('victory-modal');
+                if (modal) {
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    const inner = modal.querySelector('div');
+                    if (inner) inner.classList.remove('scale-90');
+                }
+                saveState();
+                return;
+            }
+
+            if (gameState.health <= 0) {
+                const modal = document.getElementById('gameover-modal');
+                if (modal) {
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    const inner = modal.querySelector('div');
+                    if (inner) inner.classList.remove('scale-90');
+                }
+                saveState();
+            }
+        }
+
         function handleInteraction(el, item) {
             if (!gameState.active || el.classList.contains('correct') || el.classList.contains('wrong')) return;
+            const idx = parseInt(el.dataset.itemIndex || '-1', 10);
 
             if (item.type === 'noun') {
                 // SUCCESS LOGIC
                 el.classList.add('correct');
+                if (Number.isInteger(idx) && idx >= 0) buttonStates[idx] = 'correct';
 
                 // Particle FX (Simulated)
                 createParticles(el);
@@ -358,11 +481,14 @@
                 checkWin();
 
                 // Simulate "Class Data" update for the backend
-                console.log(`Score Up: Found ${item.text}`);
+                attemptCounters.correct = (attemptCounters.correct || 0) + 1;
+                recordToParent(true, `Mega Mix Boss: Found ${item.text}`);
+                saveState();
 
             } else {
                 // FAILURE LOGIC
                 el.classList.add('wrong');
+                if (Number.isInteger(idx) && idx >= 0) buttonStates[idx] = 'wrong';
                 triggerDamageEffect();
 
                 gameState.health -= gameConfig.damagePerHit;
@@ -370,7 +496,9 @@
                 checkLoss();
 
                 // Simulate "Class Data" update
-                console.log(`Damage Taken: Clicked ${item.text} (${item.type})`);
+                attemptCounters.wrong = (attemptCounters.wrong || 0) + 1;
+                recordToParent(false, `Mega Mix Boss Wrong #${attemptCounters.wrong}: ${item.text} (${item.type})`);
+                saveState();
             }
         }
 
@@ -450,6 +578,8 @@
         function checkWin() {
             if (gameState.found >= gameConfig.totalNouns) {
                 gameState.active = false;
+                completed = true;
+                saveState();
                 setTimeout(() => {
                     const modal = document.getElementById('victory-modal');
                     modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -465,6 +595,7 @@
         function checkLoss() {
             if (gameState.health <= 0) {
                 gameState.active = false;
+                saveState();
                 setTimeout(() => {
                     const modal = document.getElementById('gameover-modal');
                     modal.classList.remove('opacity-0', 'pointer-events-none');

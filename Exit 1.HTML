@@ -379,12 +379,77 @@
         let timeLeft = DURATION;
         let timerInterval = null;
         let isScanning = false;
+        let scanUnlocked = false;
+        let gateAnswered = false;
+        let gateCorrect = false;
+
+        function getNameGameSessionId() {
+            try {
+                const raw = localStorage.getItem('nameGame_data');
+                if (!raw) return 'anon';
+                const parsed = JSON.parse(raw);
+                const name = (parsed?.studentName || '').trim();
+                const date = (parsed?.classDate || '').trim();
+                return [name || 'anon', date || 'nodate'].join('|');
+            } catch (e) {
+                return 'anon';
+            }
+        }
+
+        function storageKey(suffix) {
+            return `nameGame_iframe_exit1_gatekeeper::${getNameGameSessionId()}::${suffix}`;
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(storageKey('state'));
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function saveState() {
+            try {
+                const payload = {
+                    version: 1,
+                    gateAnswered,
+                    gateCorrect,
+                    scanUnlocked,
+                    isScanning,
+                    scanStartAt,
+                    scanFinishedAt,
+                    timeLeft
+                };
+                localStorage.setItem(storageKey('state'), JSON.stringify(payload));
+            } catch (e) { }
+        }
+
+        function recordToParent(isCorrect, context) {
+            try {
+                if (window.parent && typeof window.parent.recordAnswer === 'function') {
+                    window.parent.recordAnswer(isCorrect, context);
+                }
+            } catch (e) { }
+            try {
+                if (window.parent && typeof window.parent.flushSessionToStorage === 'function') {
+                    window.parent.flushSessionToStorage('iframe:exit1');
+                }
+            } catch (e) { }
+        }
+
+        let scanStartAt = null;
+        let scanFinishedAt = null;
 
         // --- PHASE 1: CHECK GATEKEEPER ---
         function checkAnswer(btn, isCorrect) {
             const allBtns = document.querySelectorAll('.option-btn');
             allBtns.forEach(b => b.classList.add('pointer-events-none'));
             allBtns.forEach(b => b.classList.remove('bg-red-500/20', 'bg-brand-500/20', 'border-red-500', 'border-brand-400'));
+
+            gateAnswered = true;
+            gateCorrect = !!isCorrect;
+            saveState();
 
             if (isCorrect) {
                 // SUCCESS
@@ -398,6 +463,7 @@
 
                 lucide.createIcons();
                 console.log("🔊 Play: Correct Answer Ding");
+                recordToParent(true, "Exit 1: Gatekeeper Correct");
 
                 // UNLOCK PHASE 2
                 setTimeout(unlockRealityScan, 800);
@@ -410,6 +476,8 @@
                     allBtns.forEach(b => b.classList.remove('pointer-events-none'));
                 }, 500);
                 console.log("🔊 Play: Wrong Buzzer");
+                recordToParent(false, "Exit 1: Gatekeeper Wrong");
+                saveState();
             }
         }
 
@@ -430,12 +498,17 @@
             gatekeeperPanel.classList.add('opacity-40', 'grayscale');
 
             console.log("🔊 Play: Mechanical Unlock Sound");
+            scanUnlocked = true;
+            saveState();
         }
 
         // --- PHASE 3: RUN SCANNER ---
         function startRealityScan() {
             if (isScanning) return;
             isScanning = true;
+            scanStartAt = Date.now();
+            scanFinishedAt = null;
+            saveState();
 
             const btn = document.getElementById('btn-start-scan');
             btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
@@ -448,6 +521,7 @@
             timerInterval = setInterval(() => {
                 timeLeft--;
                 updateTimerUI(timeLeft);
+                saveState();
 
                 if (timeLeft <= 5) {
                     const text = document.getElementById('timer-text');
@@ -472,6 +546,8 @@
 
         function finishScan() {
             console.log("🔊 Play: Level Complete Chime");
+            scanFinishedAt = Date.now();
+            saveState();
 
             // Visual Flash
             const frame = document.getElementById('viewport-frame');
@@ -491,7 +567,93 @@
             if (window.parent && window.parent.MapSystem) {
                 window.parent.MapSystem.completeNode('N1');
             }
+            recordToParent(true, "Exit 1: Reality Scan Complete");
         }
+
+        function applyUnlockedStateNoAnim() {
+            const scanPanel = document.getElementById('scan-panel');
+            const overlay = document.getElementById('lock-overlay');
+            const gatekeeperPanel = document.getElementById('gatekeeper-panel');
+            if (overlay) overlay.remove();
+            if (scanPanel) {
+                scanPanel.classList.remove('opacity-40', 'grayscale', 'pointer-events-none', 'border-dashed');
+                scanPanel.classList.add('border-accent-400/50', 'shadow-[0_0_50px_rgba(244,114,182,0.15)]');
+            }
+            if (gatekeeperPanel) gatekeeperPanel.classList.add('opacity-40', 'grayscale');
+        }
+
+        function applyGateAnsweredState() {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.classList.add('pointer-events-none'));
+        }
+
+        function resumeScanFromState() {
+            if (!isScanning || !scanStartAt || scanFinishedAt) return;
+            const elapsed = Math.floor((Date.now() - scanStartAt) / 1000);
+            const remaining = Math.max(0, DURATION - elapsed);
+            timeLeft = remaining;
+
+            const btn = document.getElementById('btn-start-scan');
+            if (btn) {
+                btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+                btn.innerHTML = `<span class="flex items-center gap-3"><i data-lucide="loader" class="animate-spin w-6 h-6"></i> SCANNING...</span>`;
+                lucide.createIcons();
+            }
+
+            document.getElementById('scan-panel').classList.add('scanning');
+            updateTimerUI(timeLeft);
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI(timeLeft);
+                saveState();
+                if (timeLeft <= 5) {
+                    const text = document.getElementById('timer-text');
+                    text.classList.remove('text-white');
+                    text.classList.add('text-red-500', 'animate-pulse');
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishScan();
+                }
+            }, 1000);
+        }
+
+        function applyFinishedState() {
+            const btn = document.getElementById('btn-start-scan');
+            if (btn) {
+                btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+            }
+            document.getElementById('scan-panel').classList.remove('scanning');
+            document.getElementById('timer-text').innerText = "DONE";
+            document.getElementById('timer-text').classList.remove('text-red-500', 'animate-pulse');
+            document.getElementById('timer-text').classList.add('text-brand-400');
+            document.getElementById('timer-text').classList.add('text-glow');
+            const ring = document.getElementById('timer-ring');
+            if (ring) ring.style.strokeDashoffset = CIRCUMFERENCE;
+        }
+
+        const persisted = loadState();
+        if (persisted?.version === 1) {
+            gateAnswered = !!persisted.gateAnswered;
+            gateCorrect = !!persisted.gateCorrect;
+            scanUnlocked = !!persisted.scanUnlocked;
+            isScanning = !!persisted.isScanning;
+            scanStartAt = persisted.scanStartAt || null;
+            scanFinishedAt = persisted.scanFinishedAt || null;
+            timeLeft = Number.isFinite(persisted.timeLeft) ? persisted.timeLeft : DURATION;
+        }
+        if (gateAnswered) applyGateAnsweredState();
+        if (scanUnlocked) applyUnlockedStateNoAnim();
+        if (scanFinishedAt) {
+            isScanning = false;
+            applyFinishedState();
+        } else if (scanUnlocked && isScanning) {
+            resumeScanFromState();
+        }
+        window.addEventListener('beforeunload', saveState, { capture: true });
+        window.addEventListener('pagehide', saveState, { capture: true });
 
         // --- PREMIUM ENHANCEMENTS ---
         window.addEventListener('load', () => {

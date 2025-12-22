@@ -269,6 +269,60 @@
     </div>
 
     <script>
+        function getNameGameSessionId() {
+            try {
+                const raw = localStorage.getItem('nameGame_data');
+                if (!raw) return 'anon';
+                const parsed = JSON.parse(raw);
+                const name = (parsed?.studentName || '').trim();
+                const date = (parsed?.classDate || '').trim();
+                return [name || 'anon', date || 'nodate'].join('|');
+            } catch (e) {
+                return 'anon';
+            }
+        }
+
+        function storageKey(suffix) {
+            return `nameGame_iframe_exit2_nounsorter::${getNameGameSessionId()}::${suffix}`;
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(storageKey('state'));
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function saveState() {
+            try {
+                const payload = {
+                    version: 1,
+                    order: persistedOrder,
+                    placements,
+                    correctCount,
+                    hasCompleted,
+                    wrongDrops,
+                    wrongDropLog
+                };
+                localStorage.setItem(storageKey('state'), JSON.stringify(payload));
+            } catch (e) { }
+        }
+
+        function recordToParent(isCorrect, context) {
+            try {
+                if (window.parent && typeof window.parent.recordAnswer === 'function') {
+                    window.parent.recordAnswer(isCorrect, context);
+                }
+            } catch (e) { }
+            try {
+                if (window.parent && typeof window.parent.flushSessionToStorage === 'function') {
+                    window.parent.flushSessionToStorage('iframe:exit2');
+                }
+            } catch (e) { }
+        }
+
         // ═══════════════════════════════════════════════════════════════════════════════
         // DATA & CONFIG
         // ═══════════════════════════════════════════════════════════════════════════════
@@ -286,9 +340,22 @@
         let correctCount = 0;
         const totalItems = nounSorterData.items.length;
         let hasCompleted = false;
+        let placements = {}; // word -> categoryId
+        let wrongDrops = 0;
+        let wrongDropLog = [];
+        let persistedOrder = null;
 
         // Initialize Icons
         lucide.createIcons();
+        const persisted = loadState();
+        if (persisted?.version === 1) {
+            correctCount = Number.isFinite(persisted.correctCount) ? persisted.correctCount : 0;
+            hasCompleted = !!persisted.hasCompleted;
+            placements = (persisted.placements && typeof persisted.placements === 'object') ? persisted.placements : {};
+            wrongDrops = Number.isFinite(persisted.wrongDrops) ? persisted.wrongDrops : 0;
+            wrongDropLog = Array.isArray(persisted.wrongDropLog) ? persisted.wrongDropLog : [];
+            persistedOrder = Array.isArray(persisted.order) ? persisted.order : null;
+        }
 
         // ═══════════════════════════════════════════════════════════════════════════════
         // GAME LOGIC
@@ -298,7 +365,8 @@
             const wordBank = document.getElementById('word-bank');
 
             // Shuffle items
-            const shuffledItems = [...nounSorterData.items].sort(() => Math.random() - 0.5);
+            const shuffledItems = persistedOrder ? [...persistedOrder] : [...nounSorterData.items].sort(() => Math.random() - 0.5);
+            if (!persistedOrder) persistedOrder = shuffledItems;
 
             shuffledItems.forEach(item => {
                 const el = document.createElement('div');
@@ -306,6 +374,7 @@
                 el.draggable = true;
                 el.textContent = item.word;
                 el.dataset.category = item.category; // Store the correct answer
+                el.dataset.word = item.word;
 
                 // Drag Events
                 el.addEventListener('dragstart', handleDragStart);
@@ -379,6 +448,12 @@
 
             // Track Progress
             correctCount++;
+            try {
+                const word = (item.dataset.word || item.textContent || '').trim();
+                if (word) placements[word] = parseInt(zone.dataset.categoryId, 10);
+            } catch (e) { }
+            recordToParent(true, `Exit 2: Sorted ${item.textContent}`);
+            saveState();
             checkWinCondition();
         }
 
@@ -393,6 +468,12 @@
 
             // Play Sound (Placeholder)
             console.log("Audio: Buzz!");
+            wrongDrops += 1;
+            try {
+                wrongDropLog.push({ word: (item.dataset.word || item.textContent || '').trim(), at: Date.now() });
+            } catch (e) { }
+            recordToParent(false, `Exit 2 Wrong #${wrongDrops}: ${item.textContent}`);
+            saveState();
         }
 
         function checkWinCondition() {
@@ -412,6 +493,7 @@
             if (!completionSent && window.parent && window.parent.postMessage) {
                 window.parent.postMessage({ type: 'CLASS_CHALLENGE_COMPLETE', nodeId: 'N2' }, '*');
             }
+            saveState();
 
             setTimeout(() => {
                 showLocalCompletion();
@@ -430,9 +512,38 @@
 
         // Start the game
         initGame();
+        restoreFromState();
 
         // Initialize
         lucide.createIcons();
+        window.addEventListener('beforeunload', saveState, { capture: true });
+        window.addEventListener('pagehide', saveState, { capture: true });
+
+        function restoreFromState() {
+            try {
+                const zones = Array.from(document.querySelectorAll('.drop-zone'));
+                const bank = document.getElementById('word-bank');
+                const tokens = Array.from(document.querySelectorAll('#word-bank .token-item'));
+                tokens.forEach((token) => {
+                    const word = (token.dataset.word || token.textContent || '').trim();
+                    if (!word) return;
+                    const cat = placements[word];
+                    if (!Number.isInteger(cat)) return;
+                    const zone = zones.find(z => parseInt(z.dataset.categoryId, 10) === cat);
+                    const contentArea = zone ? zone.querySelector('.content-area') : null;
+                    if (!contentArea) return;
+
+                    token.draggable = false;
+                    token.classList.remove('bg-slate-800', 'border-slate-600', 'token-item');
+                    token.classList.add('bg-cyan-500/20', 'border-cyan-400', 'text-cyan-200', 'pop-in', 'text-center', 'w-full', 'mb-2', 'py-2', 'text-sm');
+                    contentArea.appendChild(token);
+                });
+
+                if (hasCompleted) {
+                    showLocalCompletion();
+                }
+            } catch (e) { }
+        }
 
         // --- PREMIUM ENHANCEMENTS ---
         window.addEventListener('load', () => {

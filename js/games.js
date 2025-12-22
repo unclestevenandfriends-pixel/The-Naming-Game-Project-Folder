@@ -1,10 +1,50 @@
-// --- DEBOUNCED SAVE HELPER ---
-let saveTimeout;
-function debouncedSave() {
-  clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => {
-    if (typeof saveProgress === 'function') saveProgress();
-  }, 2000);
+function getSavedAnswersLog() {
+  return Array.isArray(classData?.answersLog) ? classData.answersLog : [];
+}
+
+function getQuickCheckSelections() {
+  const selections = new Map();
+  const re = /Quick Check \((\d+)\):\s*(.*)$/;
+  getSavedAnswersLog().forEach((entry) => {
+    if (!entry || typeof entry !== 'string') return;
+    if (!entry.startsWith('Correct:')) return;
+    if (!entry.includes('Quick Check (')) return;
+    const m = entry.match(re);
+    if (!m) return;
+    const idx = parseInt(m[1], 10);
+    if (!Number.isFinite(idx)) return;
+    const text = (m[2] || '').trim();
+    if (!text) return;
+    if (!selections.has(idx)) selections.set(idx, new Set());
+    selections.get(idx).add(text);
+  });
+  return selections;
+}
+
+function getHuntLogState(huntLabel) {
+  const correct = new Set();
+  const wrong = new Set();
+  const token = `${huntLabel} Hunt:`;
+  getSavedAnswersLog().forEach((entry) => {
+    if (!entry || typeof entry !== 'string' || !entry.includes(token)) return;
+    const isWrong = entry.startsWith('Wrong:');
+    const idx = entry.indexOf(token);
+    const after = entry.slice(idx + token.length).trim();
+    const word = after.split('(')[0].trim().toLowerCase();
+    if (!word) return;
+    if (isWrong) wrong.add(word);
+    else correct.add(word);
+  });
+  return { correct, wrong };
+}
+
+function ensureMapNodeCompleted(nodeId) {
+  try {
+    if (!nodeId || typeof MapSystem === 'undefined' || !MapSystem?.triggerNodeCompletion) return;
+    const already = Array.isArray(MapSystem?.state?.completedNodes) && MapSystem.state.completedNodes.includes(nodeId);
+    if (already) return;
+    MapSystem.triggerNodeCompletion(nodeId, { showMap: false, silent: true });
+  } catch (e) { }
 }
 
 function showStandardCompletionOverlay(options = {}) {
@@ -89,7 +129,8 @@ function recordAnswer(isCorrect, context) {
     console.log("Current State:", classData);
   }
 
-  debouncedSave(); // Use debounced version instead of immediate saveProgress()
+  // Save immediately so refresh can't lose answers.
+  if (typeof saveProgress === 'function') saveProgress();
 }
 
 // ═════════════════════════════════════════════════════════════════════
@@ -746,6 +787,7 @@ function initRiddles() {
 function initQuickCheck() {
   // Fix: Use filter to find ALL matching slides, not just first
   const qcSlides = Array.from(document.querySelectorAll('.slide')).filter(s => s.innerHTML.includes('Quick Check'));
+  const selected = getQuickCheckSelections();
 
   qcSlides.forEach((slide, sIdx) => {
     // Avoid double init if already setup? 
@@ -770,6 +812,13 @@ function initQuickCheck() {
         div.dataset.interactive = "true";
 
         div.style.cursor = 'pointer';
+
+        const divText = div.innerText.trim();
+        if (divText && selected.get(sIdx)?.has(divText)) {
+          div.dataset.clicked = "true";
+          div.classList.add('bg-green-500/20', 'text-green-400', 'font-bold');
+        }
+
         div.onclick = () => {
           if (div.dataset.clicked) return;
           div.dataset.clicked = "true";
@@ -813,13 +862,23 @@ function initThingsHuntGrid() {
     { word: 'library', correct: false, hint: 'place noun' }
   ].sort(() => Math.random() - 0.5);
 
-  let found = 0;
+  const saved = getHuntLogState('Things');
+  let found = saved.correct.size;
   const target = 5;
 
   cards.forEach(card => {
     const btn = document.createElement('button');
     btn.className = 'hunt-card glass-panel h-20 md:h-24 flex items-center justify-center text-white/90 hover:bg-white/10 transition-all rounded-xl text-lg md:text-xl font-medium border border-white/10';
     btn.textContent = card.word;
+
+    const normalized = card.word.toLowerCase();
+    if (saved.correct.has(normalized)) {
+      btn.dataset.clicked = 'true';
+      btn.className = 'hunt-card bg-green-500 text-black h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl font-bold shadow-[0_0_25px_rgba(34,197,94,0.6)] transform scale-105';
+    } else if (saved.wrong.has(normalized)) {
+      btn.dataset.clicked = 'true';
+      btn.className = 'hunt-card bg-red-500/30 text-red-300 h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl border-2 border-red-500/50';
+    }
 
     btn.onclick = () => {
       if (btn.dataset.clicked) return;
@@ -846,6 +905,10 @@ function initThingsHuntGrid() {
 
     grid.appendChild(btn);
   });
+
+  const scoreEl = document.getElementById('things-hunt-score');
+  if (scoreEl) scoreEl.textContent = String(Math.min(found, target));
+  if (found >= target) ensureMapNodeCompleted('N3C');
 }
 
 /**
@@ -872,13 +935,23 @@ function initPeopleHuntGrid() {
     { word: 'elephant', correct: false, hint: 'animal noun' }
   ].sort(() => Math.random() - 0.5);
 
-  let found = 0;
+  const saved = getHuntLogState('People');
+  let found = saved.correct.size;
   const target = 5;
 
   cards.forEach(card => {
     const btn = document.createElement('button');
     btn.className = 'hunt-card glass-panel h-20 md:h-24 flex items-center justify-center text-white/90 hover:bg-white/10 transition-all rounded-xl text-lg md:text-xl font-medium border border-white/10';
     btn.textContent = card.word;
+
+    const normalized = card.word.toLowerCase();
+    if (saved.correct.has(normalized)) {
+      btn.dataset.clicked = 'true';
+      btn.className = 'hunt-card bg-green-500 text-black h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl font-bold shadow-[0_0_25px_rgba(34,197,94,0.6)] transform scale-105';
+    } else if (saved.wrong.has(normalized)) {
+      btn.dataset.clicked = 'true';
+      btn.className = 'hunt-card bg-red-500/30 text-red-300 h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl border-2 border-red-500/50';
+    }
 
     btn.onclick = () => {
       if (btn.dataset.clicked) return;
@@ -905,6 +978,10 @@ function initPeopleHuntGrid() {
 
     grid.appendChild(btn);
   });
+
+  const scoreEl = document.getElementById('people-hunt-score');
+  if (scoreEl) scoreEl.textContent = String(Math.min(found, target));
+  if (found >= target) ensureMapNodeCompleted('N3A');
 }
 
 /**
@@ -931,13 +1008,23 @@ function initPlacesHuntGrid() {
     { word: 'builder', correct: false, hint: 'person noun' }
   ].sort(() => Math.random() - 0.5);
 
-  let found = 0;
+  const saved = getHuntLogState('Places');
+  let found = saved.correct.size;
   const target = 5;
 
   cards.forEach(card => {
     const btn = document.createElement('button');
     btn.className = 'hunt-card glass-panel h-20 md:h-24 flex items-center justify-center text-white/90 hover:bg-white/10 transition-all rounded-xl text-lg md:text-xl font-medium border border-white/10';
     btn.textContent = card.word;
+
+    const normalized = card.word.toLowerCase();
+    if (saved.correct.has(normalized)) {
+      btn.dataset.clicked = 'true';
+      btn.className = 'hunt-card bg-green-500 text-black h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl font-bold shadow-[0_0_25px_rgba(34,197,94,0.6)] transform scale-105';
+    } else if (saved.wrong.has(normalized)) {
+      btn.dataset.clicked = 'true';
+      btn.className = 'hunt-card bg-red-500/30 text-red-300 h-20 md:h-24 flex items-center justify-center rounded-xl text-lg md:text-xl border-2 border-red-500/50';
+    }
 
     btn.onclick = () => {
       if (btn.dataset.clicked) return;
@@ -964,6 +1051,10 @@ function initPlacesHuntGrid() {
 
     grid.appendChild(btn);
   });
+
+  const scoreEl = document.getElementById('places-hunt-score');
+  if (scoreEl) scoreEl.textContent = String(Math.min(found, target));
+  if (found >= target) ensureMapNodeCompleted('N3B');
 }
 
 /**

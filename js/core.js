@@ -20,6 +20,30 @@ let classData = {
   answersLog: []
 };
 
+function loadClassDataFromStorage() {
+  try {
+    const savedData = localStorage.getItem('nameGame_data');
+    if (!savedData) return false;
+
+    const parsed = JSON.parse(savedData);
+    if (!parsed || typeof parsed !== 'object') return false;
+
+    classData.studentName = typeof parsed.studentName === 'string' ? parsed.studentName : "";
+    classData.classDate = typeof parsed.classDate === 'string' ? parsed.classDate : "";
+    classData.totalScore = Number.isFinite(parsed.totalScore) ? parsed.totalScore : 0;
+    classData.totalQuestions = Number.isFinite(parsed.totalQuestions) ? parsed.totalQuestions : 0;
+    classData.answersLog = Array.isArray(parsed.answersLog) ? parsed.answersLog : [];
+
+    return true;
+  } catch (e) {
+    console.warn("⚠️ Failed to load saved class data:", e);
+    return false;
+  }
+}
+window.loadClassDataFromStorage = loadClassDataFromStorage;
+// Hydrate ASAP so premature saves don't overwrite good data.
+loadClassDataFromStorage();
+
 // === GLOBAL TEACHER SHORTCUTS ===
 document.addEventListener('keydown', (e) => {
   // Alt + T (Option + T on Mac)
@@ -126,6 +150,7 @@ if (!window.__fullscreenChangeListenerAttached) {
 
 // === MARKUP COORDINATOR (Single Source of Truth) ===
 const MarkupCoordinator = {
+  _initialized: false,
   state: {
     version: 2.0,
     notes: {},       // { slideIndex: [ {id, x, y, width, height, color, text} ] }
@@ -136,6 +161,8 @@ const MarkupCoordinator = {
 
   // Initialize and Load Data
   init() {
+    if (this._initialized) return;
+    this._initialized = true;
     this.migrateOldData(); // Clean up Draft 18 mess
     const saved = localStorage.getItem('nameGame_markup');
     if (saved) {
@@ -445,6 +472,13 @@ function saveProgress() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('mode') === 'report') return;
 
+  // Prevent overwriting good saved data with empty defaults (e.g. during refresh races).
+  if (!classData?.studentName || !String(classData.studentName).trim()) {
+    // Best-effort hydrate; if still empty, skip saving entirely.
+    loadClassDataFromStorage();
+    if (!classData?.studentName || !String(classData.studentName).trim()) return;
+  }
+
   const json = JSON.stringify(classData);
   localStorage.setItem('nameGame_data', json);
   if (DEBUG_MODE) console.log("Progress Saved");
@@ -452,6 +486,108 @@ function saveProgress() {
 window.saveProgress = saveProgress;
 
 if (DEBUG_MODE) console.log("✅ core.js loaded - Foundation systems ready");
+
+function flushSessionToStorage(reason = "unknown") {
+  if (window.__skipSessionFlush) return;
+  try {
+    if (window.StickyNotesSystem && typeof window.StickyNotesSystem.syncVisibleNotesToState === 'function') {
+      window.StickyNotesSystem.syncVisibleNotesToState();
+    }
+  } catch (e) { }
+
+  try {
+    if (window.MarkupCoordinator && typeof window.MarkupCoordinator.forceSave === 'function') {
+      window.MarkupCoordinator.forceSave();
+    }
+  } catch (e) { }
+
+  try {
+    if (typeof window.saveProgress === 'function') {
+      window.saveProgress();
+    }
+  } catch (e) { }
+
+  try {
+    if (window.MapSystem && typeof window.MapSystem.saveProgress === 'function') {
+      window.MapSystem.saveProgress();
+    }
+  } catch (e) { }
+
+  try {
+    if (window.GameEngine && typeof window.GameEngine.saveGameState === 'function') {
+      window.GameEngine.saveGameState();
+    }
+  } catch (e) { }
+
+  if (DEBUG_MODE) console.log("💾 Flush complete:", reason);
+}
+window.flushSessionToStorage = flushSessionToStorage;
+
+if (!window.__sessionFlushListenersAttached) {
+  window.addEventListener('beforeunload', () => flushSessionToStorage('beforeunload'), { capture: true });
+  window.addEventListener('pagehide', () => flushSessionToStorage('pagehide'), { capture: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushSessionToStorage('visibilitychange');
+  }, { capture: true });
+  window.__sessionFlushListenersAttached = true;
+}
+
+function getSessionStorageId() {
+  try {
+    const raw = localStorage.getItem('nameGame_data');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const name = (parsed?.studentName || '').trim();
+      const date = (parsed?.classDate || '').trim();
+      if (name || date) return [name || 'anon', date || 'nodate'].join('|');
+    }
+  } catch (e) { }
+  const name = (classData?.studentName || '').trim();
+  const date = (classData?.classDate || '').trim();
+  return [name || 'anon', date || 'nodate'].join('|');
+}
+
+function persistTeacherNote() {
+  const el = document.getElementById('teacher-note-input');
+  if (!el) return;
+  try {
+    localStorage.setItem(`nameGame_teacher_note::${getSessionStorageId()}`, el.value || '');
+  } catch (e) { }
+}
+window.persistTeacherNote = persistTeacherNote;
+
+function restoreTeacherNote() {
+  const el = document.getElementById('teacher-note-input');
+  if (!el) return;
+  if (el.value && el.value.trim()) return;
+  try {
+    const saved = localStorage.getItem(`nameGame_teacher_note::${getSessionStorageId()}`);
+    if (saved) el.value = saved;
+  } catch (e) { }
+}
+window.restoreTeacherNote = restoreTeacherNote;
+
+if (!window.__teacherNotePersistenceAttached) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('teacher-note-input');
+    if (!el) return;
+    restoreTeacherNote();
+    el.addEventListener('input', () => {
+      persistTeacherNote();
+    });
+    el.addEventListener('blur', () => {
+      persistTeacherNote();
+    });
+  });
+  window.__teacherNotePersistenceAttached = true;
+}
+
+// Initialize markup persistence early so navigation can't wipe it before main.js runs.
+try {
+  MarkupCoordinator.init();
+} catch (e) {
+  console.warn("⚠️ MarkupCoordinator init failed:", e);
+}
 
 
 // SLIDE_REGISTRY moved to js/slide_registry.js for consolidation
