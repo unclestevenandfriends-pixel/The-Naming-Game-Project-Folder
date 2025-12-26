@@ -9,8 +9,11 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-  <!-- PDF Export Library (Only jsPDF needed now) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- TextBoard Export Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   <!-- LZString Compression Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 
@@ -65,9 +68,11 @@
     }
   </style>
 
-  <!-- BRAND FONT FAMILY: Fredoka (Headings), Quicksand (Body), Caveat Brush (Accents) ONLY -->
+  <!-- BRAND FONT FAMILY: Complete stack for both main app and TextBoard -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&amp;family=Nunito+Sans:wght@300;400;600;700&amp;family=Caveat+Brush&amp;display=swap"
+    href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@300;400;500;600;700&family=Indie+Flower&family=Kalam:wght@400;700&family=Lexend:wght@300;400;500;700&family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Patrick+Hand&display=swap"
     rel="stylesheet">
 
   <script>
@@ -106,6 +111,7 @@
 
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/map_styles.css">
+  <link rel="stylesheet" href="css/textboard.css">
   <!-- BIBLE-APPROVED FONTS ONLY: Fredoka, Nunito Sans, Caveat Brush -->
 </head>
 
@@ -167,36 +173,33 @@
     <!-- Right: Music Controls + Slide Counter -->
     <div class="flex items-center gap-6">
       <!-- Markup Mode Toggle -->
-      <!-- Markup Mode Toggle -->
       <button id="markup-toggle-btn" onclick="toggleMarkupMode()"
-        class="flex items-center gap-3 bg-black/30 backdrop-blur-sm p-1.5 pr-4 rounded-full border border-white/5 transition-all hover:bg-black/50 group mr-6"
+        class="flex items-center gap-2 bg-black/30 backdrop-blur-sm p-1 pr-2 rounded-full border border-white/5 transition-all hover:bg-black/50 group mr-2"
         title="Toggle Annotations">
         <div id="markup-indicator"
-          class="w-7 h-7 flex items-center justify-center rounded-full bg-brand-500 text-black transition-all shadow-[0_0_15px_rgba(45,212,191,0.5)]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          class="w-6 h-6 flex items-center justify-center rounded-full bg-brand-500 text-black transition-all shadow-[0_0_10px_rgba(45,212,191,0.5)]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 6 9 17l-5-5" />
           </svg>
         </div>
         <span
-          class="hidden md:inline text-xs font-bold uppercase tracking-widest text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Markup
-          Mode</span>
+          class="hidden lg:inline text-[10px] font-bold uppercase tracking-wider text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Markup</span>
       </button>
 
       <!-- Full Screen Toggle -->
       <button id="fullscreen-btn" onclick="toggleFullScreen()"
-        class="flex items-center gap-3 bg-black/30 backdrop-blur-sm p-1.5 pr-4 rounded-full border border-white/5 transition-all hover:bg-black/50 group mr-6"
+        class="flex items-center gap-2 bg-black/30 backdrop-blur-sm p-1 pr-2 rounded-full border border-white/5 transition-all hover:bg-black/50 group mr-2"
         title="Toggle Full Screen">
         <div
-          class="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-brand-500 group-hover:text-black text-[#FDFDFD] transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          class="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-brand-500 group-hover:text-black text-[#FDFDFD] transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
           </svg>
         </div>
         <span
-          class="hidden md:inline text-xs font-bold uppercase tracking-widest text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Full
-          Screen</span>
+          class="hidden lg:inline text-[10px] font-bold uppercase tracking-wider text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Full</span>
       </button>
 
       <!-- Music Controls (Integrated) -->
@@ -211,6 +214,26 @@
           class="w-16 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-500/80 opacity-50 group-hover:opacity-100 transition-opacity"
           oninput="setMusicVolume(this.value)">
       </div>
+
+      <!-- TextBoard Toggle (Projector) -->
+      <button id="projector-toggle-btn" onclick="toggleTextBoard()"
+        class="flex items-center gap-2 bg-black/30 backdrop-blur-sm p-1 pr-2 rounded-full border border-white/5 transition-all hover:bg-black/50 group ml-2"
+        title="Toggle Projector">
+        <div
+          class="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-cyan-500 group-hover:text-black text-[#FDFDFD] transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 7 3 5" />
+            <path d="M9 6V3" />
+            <path d="m13 7 2-2" />
+            <circle cx="9" cy="13" r="3" />
+            <path d="M11.83 12H20a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2.17" />
+            <path d="M16 16h2" />
+          </svg>
+        </div>
+        <span
+          class="hidden lg:inline text-[10px] font-bold uppercase tracking-wider text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Proj</span>
+      </button>
 
       <!-- Slide Counter -->
       <div class="font-body text-xs md:text-sm text-brand-500 opacity-100" id="slide-counter" style="opacity: 1;">
@@ -1890,6 +1913,270 @@
       </div>
     </section>
 
+    <div id="textboard-overlay" class="hidden">
+      <div id="textboard-toolbar">
+        <!-- ROW 1: AI Tools & Actions -->
+        <div class="tb-toolbar-row">
+          <div class="tb-toolbar-scroll">
+            <!-- Mode Buttons -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn" id="btn-mode-blank" title="Blank Textboard">Blank</button>
+              <button class="tb-btn" id="btn-mode-convo" title="Conversation Mode">Convo</button>
+              <button class="tb-btn" id="btn-mode-dynamic" title="Dynamic Conversation Mode">Dynamic</button>
+            </div>
+            <div class="tb-separator"></div>
+
+            <!-- Punctuation -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn" id="btn-punct-check" title="Punctuation Check">P?</button>
+              <button class="tb-btn" id="btn-punct-correct" title="Punctuation Correct">P✓</button>
+            </div>
+            <div class="tb-separator"></div>
+
+            <!-- Spelling -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn" id="btn-spell-check" title="Spelling Check">S?</button>
+              <button class="tb-btn" id="btn-spell-correct" title="Spelling Correct">S✓</button>
+            </div>
+            <div class="tb-separator"></div>
+
+            <!-- Grammar -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn" id="btn-grammar-check" title="Grammar Check">G?</button>
+              <button class="tb-btn" id="btn-grammar-correct" title="Grammar Correct">G✓</button>
+            </div>
+            <div class="tb-separator"></div>
+
+            <!-- SPAG Combined -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn" id="btn-spag-check" title="SPAG Check">✨?</button>
+              <button class="tb-btn" id="btn-spag-correct" title="SPAG Correct">✨✓</button>
+            </div>
+            <div class="tb-separator"></div>
+
+            <!-- Spoken Grammar (RESTORED) -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn" id="btn-spoken-grammar-check" title="Spoken Grammar Check">SG?</button>
+              <button class="tb-btn" id="btn-spoken-grammar-correct" title="Spoken Grammar Correct">SG✓</button>
+            </div>
+            <div class="tb-separator"></div>
+
+            <!-- Mode Toggle, Comment, Paraphrase -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn tb-toggle" id="btn-mode-toggle" title="Toggle Replace/Insert Below">↔️</button>
+              <button class="tb-btn" id="btn-comment" title="Comment">💬</button>
+              <button class="tb-btn" id="btn-paraphrase" title="Paraphrase">Para</button>
+              <select id="paraphrase-style" class="tb-dropdown" title="Paraphrase Style">
+                <option value="Formal">Formal</option>
+                <option value="Creative">Creative</option>
+                <option value="Advanced vocabulary">Advanced</option>
+                <option value="Casual (spoken)">Casual</option>
+                <option value="Uncle Steven style">Uncle Steven</option>
+                <option value="Custom">Custom...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Actions (Right Side) -->
+          <div class="tb-toolbar-actions">
+            <!-- Projector Toggle (RESTORED) -->
+            <button class="tb-btn" id="btn-projector" title="Toggle Projector">📽️</button>
+
+            <!-- Undo/Redo -->
+            <button class="tb-btn" id="btn-undo" title="Undo">↩️</button>
+            <button class="tb-btn" id="btn-redo" title="Redo">↪️</button>
+
+            <!-- Voice Tools (RESTORED) -->
+            <button id="tb-mic-btn" class="tb-btn" title="Voice Type">🎤</button>
+            <button id="tb-mic-spag-btn" class="tb-btn" title="Voice + Auto SPAG">🎤✨</button>
+
+            <!-- AI Status (RESTORED with Apply/Discard) -->
+            <div id="ai-status" class="tb-ai-status hidden">
+              <span class="tb-ai-spinner" aria-hidden="true"></span>
+              <span id="ai-status-text">Marking...</span>
+              <button id="ai-apply-btn" class="tb-btn tb-btn-mini" title="Apply AI Result">Apply</button>
+              <button id="ai-discard-btn" class="tb-btn tb-btn-mini" title="Dismiss AI Result">Dismiss</button>
+            </div>
+
+            <div class="tb-separator"></div>
+
+            <!-- Export -->
+            <button class="tb-btn" id="btn-export-img" title="Export as Image">📷</button>
+            <button class="tb-btn" id="btn-export-pdf" title="Export as PDF">📄</button>
+            <button class="tb-btn" id="btn-export-docx" title="Export as Word">📝</button>
+
+            <div class="tb-separator"></div>
+
+            <!-- Clear & Close -->
+            <button class="tb-btn hover:text-red-400" id="btn-clear" title="Clear">🗑️</button>
+            <button class="tb-btn hover:text-white" id="btn-close" title="Close">✕</button>
+          </div>
+        </div>
+
+        <!-- ROW 2: Formatting Tools -->
+        <div class="tb-toolbar-row">
+          <div class="tb-toolbar-scroll">
+            <!-- Stamps (ALL 5 RESTORED) -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn stamp-btn" data-stamp="✅" title="Correct">✅</button>
+              <button class="tb-btn stamp-btn" data-stamp="❌" title="Incorrect">❌</button>
+              <button class="tb-btn stamp-btn" data-stamp="⭐" title="Excellent">⭐</button>
+              <button class="tb-btn stamp-btn" data-stamp="⚠️" title="Needs work">⚠️</button>
+              <button class="tb-btn stamp-btn" data-stamp="❓" title="Question">❓</button>
+            </div>
+
+            <div class="tb-separator"></div>
+
+            <!-- Font Dropdown (RESTORED) -->
+            <div class="tb-dropdown-container">
+              <button class="tb-btn" id="font-btn" title="Font">
+                <span id="current-font-label" class="mr-2">Nunito Sans</span> ▼
+              </button>
+              <div id="font-menu" class="tb-dropdown-menu">
+                <button class="tb-dropdown-item" style="font-family: 'Nunito Sans';" data-font="Nunito Sans">Nunito
+                  Sans</button>
+                <button class="tb-dropdown-item" style="font-family: 'Fredoka';" data-font="Fredoka">Fredoka</button>
+                <button class="tb-dropdown-item" style="font-family: 'Lexend';" data-font="Lexend">Lexend</button>
+                <button class="tb-dropdown-item" style="font-family: 'Courier Prime';" data-font="Courier Prime">Courier
+                  Prime</button>
+                <div class="h-px bg-white/10 my-1"></div>
+                <button class="tb-dropdown-item" style="font-family: 'Caveat Brush';" data-font="Caveat Brush">Caveat
+                  Brush</button>
+                <button class="tb-dropdown-item" style="font-family: 'Kalam';" data-font="Kalam">Kalam</button>
+                <button class="tb-dropdown-item" style="font-family: 'Patrick Hand';" data-font="Patrick Hand">Patrick
+                  Hand</button>
+                <button class="tb-dropdown-item" style="font-family: 'Indie Flower';" data-font="Indie Flower">Indie
+                  Flower</button>
+              </div>
+            </div>
+
+            <!-- Size Dropdown (RESTORED) -->
+            <div class="tb-dropdown-container">
+              <button class="tb-btn" id="size-btn" title="Font Size">
+                <span id="current-size-label" class="mr-1">Size 3</span> ▼
+              </button>
+              <div id="size-menu" class="tb-dropdown-menu" style="min-width: 140px;">
+                <button class="tb-dropdown-item text-xs" data-size="1">Size 1</button>
+                <button class="tb-dropdown-item text-sm" data-size="2">Size 2</button>
+                <button class="tb-dropdown-item text-base" data-size="3">Size 3</button>
+                <button class="tb-dropdown-item text-lg" data-size="4">Size 4</button>
+                <button class="tb-dropdown-item text-xl" data-size="5">Size 5</button>
+                <button class="tb-dropdown-item text-2xl" data-size="6">Size 6</button>
+                <button class="tb-dropdown-item text-3xl" data-size="7">Size 7</button>
+              </div>
+            </div>
+
+            <div class="tb-separator"></div>
+
+            <!-- Formatting: Bold, Italic, Underline, Strikethrough (ALL 4 RESTORED) -->
+            <button class="tb-btn" id="btn-bold" title="Bold"><b>B</b></button>
+            <button class="tb-btn" id="btn-italic" title="Italic"><i>I</i></button>
+            <button class="tb-btn" id="btn-underline" title="Underline"><u>U</u></button>
+            <button class="tb-btn" id="btn-strike" title="Strikethrough"><s>S</s></button>
+
+            <div class="tb-separator"></div>
+
+            <!-- Text Color (RESTORED) -->
+            <div class="tb-dropdown-container">
+              <button class="tb-btn" id="color-btn" title="Text Color">
+                A <span id="color-indicator"
+                  style="display:inline-block;width:12px;height:12px;background:white;border-radius:2px;margin-left:4px;border:1px solid rgba(255,255,255,0.3);"></span>
+              </button>
+              <div id="color-menu" class="tb-dropdown-menu">
+                <div class="p-2 text-xs text-slate-400">Text Color</div>
+                <div class="tb-color-grid" id="text-color-grid"></div>
+              </div>
+            </div>
+
+            <!-- Highlight Color (RESTORED) -->
+            <div class="tb-dropdown-container">
+              <button class="tb-btn" id="hilite-btn" title="Highlight">
+                🖍️ <span id="hilite-indicator"
+                  style="display:inline-block;width:12px;height:12px;background:transparent;border-radius:2px;margin-left:4px;border:1px solid rgba(255,255,255,0.3);"></span>
+              </button>
+              <div id="hilite-menu" class="tb-dropdown-menu">
+                <div class="p-2 text-xs text-slate-400">Highlight</div>
+                <div class="tb-dropdown-item" data-hilite="transparent">🚫 None</div>
+                <div class="tb-color-grid" id="hilite-color-grid"></div>
+              </div>
+            </div>
+
+            <div class="tb-separator"></div>
+
+            <!-- Alignment (RESTORED) -->
+            <button class="tb-btn" id="btn-left" title="Align Left">⬅️</button>
+            <button class="tb-btn" id="btn-center" title="Center">↔️</button>
+            <button class="tb-btn" id="btn-right" title="Align Right">➡️</button>
+
+            <div class="tb-separator"></div>
+
+            <!-- Lists -->
+            <button class="tb-btn" id="btn-ul" title="Bullet List">• List</button>
+            <button class="tb-btn" id="btn-ol" title="Numbered List">1. List</button>
+
+            <!-- Indent/Outdent (RESTORED) -->
+            <button class="tb-btn" id="btn-indent" title="Indent">→|</button>
+            <button class="tb-btn" id="btn-outdent" title="Outdent">|←</button>
+
+            <div class="tb-separator"></div>
+
+            <!-- Drawing Tools (RESTORED) -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn" id="btn-pen" title="Pen (Toggle Drawing Mode)">🖊️</button>
+              <button class="tb-btn drawing-size-btn" data-size="2" title="Small">S</button>
+              <button class="tb-btn drawing-size-btn active" data-size="4" title="Medium">M</button>
+              <button class="tb-btn drawing-size-btn" data-size="8" title="Large">L</button>
+            </div>
+
+            <!-- Drawing Colors (RESTORED) -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn drawing-color-btn active" data-color="#000000" title="Black">⚫</button>
+              <button class="tb-btn drawing-color-btn" data-color="#ef4444" title="Red">🔴</button>
+              <button class="tb-btn drawing-color-btn" data-color="#3b82f6" title="Blue">🔵</button>
+              <button class="tb-btn drawing-color-btn" data-color="#22c55e" title="Green">🟢</button>
+              <button class="tb-btn drawing-color-btn" data-color="#eab308" title="Yellow">🟡</button>
+              <button class="tb-btn drawing-color-btn" data-color="#a855f7" title="Purple">🟣</button>
+            </div>
+
+            <!-- Eraser & Clear Drawing (RESTORED) -->
+            <div class="tb-group flex items-center gap-1">
+              <button class="tb-btn" id="btn-eraser" title="Eraser">🧽</button>
+              <button class="tb-btn" id="btn-clear-drawing" title="Clear Drawing">🗑️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editor Area -->
+      <div id="textboard-editor" contenteditable="true" spellcheck="false" placeholder="Type or speak here..."></div>
+
+      <!-- Drawing Canvas (RESTORED) -->
+      <canvas id="drawing-canvas"></canvas>
+
+      <!-- Image Resizer (RESTORED) -->
+      <div id="image-resizer" class="tb-image-resizer">
+        <div class="tb-resizer-handle tl" data-handle="tl"></div>
+        <div class="tb-resizer-handle tr" data-handle="tr"></div>
+        <div class="tb-resizer-handle bl" data-handle="bl"></div>
+        <div class="tb-resizer-handle br" data-handle="br"></div>
+      </div>
+    </div>
+
+    <!-- Tooltip (RESTORED) -->
+    <div id="tb-tooltip"></div>
+
+    <!-- Custom Style Modal -->
+    <div id="custom-style-overlay" class="tb-modal-overlay hidden"></div>
+    <div id="custom-style-modal" class="tb-modal hidden">
+      <div style="color:#22d3ee; font-weight:bold; margin-bottom:12px;">Custom Paraphrase Style</div>
+      <textarea id="custom-style-input"
+        placeholder="Describe your style, e.g., 'Write like a pirate' or 'Use very formal academic language'..."></textarea>
+      <div class="tb-modal-buttons">
+        <button class="tb-modal-cancel" id="custom-style-cancel">Cancel</button>
+        <button class="tb-modal-apply" id="custom-style-apply">Apply &amp; Paraphrase</button>
+      </div>
+    </div>
+
     <script src="js/core.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/canvas.js"></script>
@@ -1901,6 +2188,7 @@
     <script src="js/rewards.js"></script>
     <script src="js/pressure.js"></script>
     <script src="js/reporting.js"></script>
+    <script src="js/textboard.js"></script>
     <script src="js/main.js"></script>
     <script>
       window.dismissIntro = function () {

@@ -1,0 +1,183 @@
+/* * AI TEACHER PROXY - V2 (ARCHITECT VERSION)
+ * Matches Client Modes: punctuate_check, grammar_correct, etc.
+ * Model: gemini-2.0-flash-001
+ */
+
+const PROPS = PropertiesService.getScriptProperties();
+const GEMINI_API_KEY = PROPS.getProperty("GEMINI_API_KEY");
+const GAME_PASSWORD = PROPS.getProperty("GAME_PASSWORD");
+
+function doPost(e) {
+  // 1. CORS & Setup
+  const output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+  
+  try {
+    if (!e || !e.postData) throw new Error("No data received");
+    
+    const data = JSON.parse(e.postData.contents);
+    
+    // 2. Security Check
+    if (data.password !== GAME_PASSWORD) {
+      return output.setContent(JSON.stringify({ error: "Unauthorized: Password Incorrect" }));
+    }
+
+    // 3. Construct the "Professional" System Prompt
+    // We use the 'fullTextMarked' strategy to ensure Context Logic works.
+    const systemPrompt = constructSystemPrompt(data.mode);
+    
+    // 4. Construct the User Payload
+    // If we have marked text (<<<SELECTION>>>), use it. Otherwise use full text.
+    const userContent = data.fullTextMarked || data.fullText || data.selection;
+
+    // 5. Call Gemini 2.0
+    const htmlResult = callGemini(systemPrompt, userContent);
+
+    // 6. Return Success
+    return output.setContent(JSON.stringify({ 
+      replacementHtml: htmlResult 
+    }));
+
+  } catch (err) {
+    return output.setContent(JSON.stringify({ 
+      error: err.toString() 
+    }));
+  }
+}
+
+// --- CORE LOGIC: THE BRAIN ---
+
+function constructSystemPrompt(mode) {
+  // A. MASTER INSTRUCTION (Always applied)
+  let prompt = `ROLE: You are a strict British English teacher marking engine.
+  
+CRITICAL RULES:
+1. You will receive text where the TARGET SELECTION is wrapped in <<<SELECTION_START>>> and <<<SELECTION_END>>>. (If missing, treat whole text as selection).
+2. You MUST analyse the text PRECEDING the selection to align tense, pronouns, and determiners.
+3. You MUST treat the selection as a reply/continuation of the preceding text.
+4. Output ONLY the inline HTML replacement for the content between the markers.
+5. NO markdown fences (\`\`\`). NO explanations. NO block tags (<p>, <div>).
+6. Use ONLY allowed classes: mk-punct-new, mk-wrong-tippex, mk-correct-green, mk-change-red, mk-order-wrong, mk-order-right, mk-insert-green-underline, mk-comment.
+
+MODE SPECIFIC TASK:
+`;
+
+  // B. MODE SWITCH (Matching your HTML buttons)
+  switch (mode) {
+    case 'punctuate_check':
+      prompt += `TASK: Insert missing punctuation/caps (British).
+      DO: Wrap ONLY newly inserted punctuation characters in <span class="mk-punct-new">.
+      DO NOT: Change words, spelling, or grammar. Existing punctuation stays plain.`;
+      break;
+
+    case 'punctuate_correct':
+      prompt += `TASK: Correct punctuation/caps (British).
+      DO: Return clean text with correct punctuation.
+      DO NOT: Highlight changes. DO NOT change words.`;
+      break;
+
+    case 'spell_check':
+      prompt += `TASK: Mark spelling errors (British).
+      DO: For errors, output <span class="mk-wrong-tippex">wrongWord</span> <span class="mk-correct-green">rightWord</span>.
+      DO NOT: Change grammar or punctuation.`;
+      break;
+
+    case 'spell_correct':
+      prompt += `TASK: Correct spelling errors (British).
+      DO: Output clean corrected text. Wrap changed words in <span class="mk-change-red">correctedWord</span>.
+      DO NOT: Show original errors. No strikethrough.`;
+      break;
+
+    case 'grammar_check':
+      prompt += `TASK: Mark grammar errors contextually.
+      DO:
+      - Local error: <span class="mk-wrong-tippex">wrong</span> <span class="mk-correct-green">right</span>
+      - Order error: <span class="mk-order-wrong">wrong place</span> ... <span class="mk-order-right">right place</span>
+      - Missing: <span class="mk-insert-green-underline">missing word</span>
+      - Redundant: <span class="mk-wrong-tippex">redundant</span>
+      DO NOT: Paraphrase or change style.`;
+      break;
+
+    case 'grammar_correct':
+      prompt += `TASK: Correct grammar contextually.
+      DO: Output clean text. Wrap changed/inserted words in <span class="mk-change-red">.
+      DO NOT: Show original errors. Keep punctuation clean.`;
+      break;
+
+    case 'spag_check':
+      prompt += `TASK: Check Spelling, Punctuation, Grammar combined.
+      DO: Use all CHECK markup conventions (mk-punct-new, mk-wrong-tippex/green pairs).`;
+      break;
+
+    case 'spag_correct':
+      prompt += `TASK: Correct SPAG combined.
+      DO: Output clean text. Wrap changed words in <span class="mk-change-red">.`;
+      break;
+
+    case 'spoken_grammar_check':
+      prompt += `TASK: Check Grammar (Spoken English rules).
+      DO: Allow fragments if they answer questions. Allow contractions. Mark genuine errors using Grammar CHECK markup.`;
+      break;
+
+    case 'spoken_grammar_correct':
+      prompt += `TASK: Correct Grammar (Spoken English rules).
+      DO: Output clean text. Prefer contractions. Allow fragments. Wrap changes in <span class="mk-change-red">.`;
+      break;
+
+    case 'comment':
+      prompt += `TASK: Write a teacher remark.
+      DO: Output <span class="mk-comment">Your encouraging, truthful remark here.</span>
+      DO NOT: Output the corrected text. Output ONLY the comment span.`;
+      break;
+
+    case 'paraphrase':
+      prompt += `TASK: Paraphrase the selection.
+      DO: Maintain meaning. Output plain inline text inside a <span> tag.`;
+      break;
+
+    default:
+      // Fallback for safety
+      prompt += `TASK: Correct the text (Standard British English). Output clean HTML.`;
+  }
+
+  return prompt;
+}
+
+// --- GEMINI API CALL ---
+
+function callGemini(system, user) {
+  // USING THE NEW GEMINI 2.0 FLASH MODEL
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-001:generateContent?key=${GEMINI_API_KEY}`;
+  
+  const payload = {
+    systemInstruction: { parts: [{ text: system }] },
+    contents: [{ parts: [{ text: user }] }],
+    generationConfig: {
+      temperature: 0.3, // Low temperature for precision
+      maxOutputTokens: 2000
+    }
+  };
+
+  const options = {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+
+  const response = UrlFetchApp.fetch(url, options);
+  const json = JSON.parse(response.getContentText());
+
+  if (json.error) throw new Error("Gemini API Error: " + json.error.message);
+  if (!json.candidates || !json.candidates[0].content) throw new Error("No content generated");
+
+  let rawText = json.candidates[0].content.parts[0].text;
+  
+  // Cleanup markdown fences if the AI adds them
+  rawText = rawText.replace(/```html/g, "").replace(/```/g, "").trim();
+  
+  // SAFETY: Remove leading "phantom" full stops that AI sometimes hallucinates at start of text
+  rawText = rawText.replace(/^(\s*<span[^>]*>)?\.(\s*<\/span>)?\s*/, "");
+
+  return rawText;
+}

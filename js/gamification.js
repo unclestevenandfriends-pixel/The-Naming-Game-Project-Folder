@@ -573,27 +573,27 @@ const GameEngine = {
         const healthPercent = (this.config.currentHealth / this.config.maxHealth) * 100;
         const healthState = this.getHealthState(healthPercent);
         const avatarUrl = this.getAssetUrl(this.config.characterId, healthState);
-        const nav = document.querySelector('nav');
-        if (!nav) return;
-        const barWidth = 200, avatarSize = 44;
+        const barWidth = 150, avatarSize = 36;
         const avatarPosition = Math.max(0, (healthPercent / 100) * (barWidth - avatarSize));
 
-        const hudHTML = `<div id="game-hud" class="absolute top-1/2 left-[260px] -translate-y-1/2 z-40 transition-all duration-300 opacity-0 pointer-events-auto flex items-center gap-4">
+        // HUD is injected INSIDE the nav bar, positioned after the module number
+        const nav = document.querySelector('nav');
+        if (!nav) return;
+
+        const hudHTML = `<div id="game-hud" class="absolute top-1/2 left-[180px] -translate-y-1/2 z-40 transition-all duration-300 opacity-0 pointer-events-auto flex items-center gap-3">
             <div class="relative">
-                <div class="relative w-[200px] h-8 bg-black/80 rounded-lg border-2 border-[#fbbf24] overflow-visible" style="box-shadow: 0 0 15px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(0,0,0,0.8);">
-                    <div id="hud-health-damage" class="absolute top-1 left-1 bottom-1 bg-red-600/80 rounded transition-all duration-500 ease-linear" style="width: calc(${healthPercent}% - 8px);"></div>
-                    <div id="hud-health-fill" class="absolute top-1 left-1 bottom-1 rounded transition-all duration-300 ease-out" style="width: calc(${healthPercent}% - 8px); background: linear-gradient(180deg, #facc15 0%, #eab308 50%, #ca8a04 51%, #a16207 100%); box-shadow: 0 0 8px rgba(250, 204, 21, 0.5);"></div>
-                    <div id="hud-avatar-container" class="absolute top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border-3 bg-black overflow-hidden z-20 transition-all duration-300 ease-out" style="left: ${avatarPosition}px; border-color: ${char.color}; box-shadow: 0 0 12px ${char.color}60;">
-                        <img id="hud-avatar-img" src="${avatarUrl}" alt="${char.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-xl bg-black/80\\'>${char.icon}</div>';">
+                <div class="relative w-[150px] h-6 bg-black/80 rounded-lg border-2 border-[#fbbf24] overflow-visible" style="box-shadow: 0 0 10px rgba(255, 215, 0, 0.3), inset 0 0 15px rgba(0,0,0,0.8);">
+                    <div id="hud-health-damage" class="absolute top-0.5 left-0.5 bottom-0.5 bg-red-600/80 rounded transition-all duration-500 ease-linear" style="width: calc(${healthPercent}% - 4px);"></div>
+                    <div id="hud-health-fill" class="absolute top-0.5 left-0.5 bottom-0.5 rounded transition-all duration-300 ease-out" style="width: calc(${healthPercent}% - 4px); background: linear-gradient(180deg, #facc15 0%, #eab308 50%, #ca8a04 51%, #a16207 100%); box-shadow: 0 0 6px rgba(250, 204, 21, 0.5);"></div>
+                    <div id="hud-avatar-container" class="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border-2 bg-black overflow-hidden z-20 transition-all duration-300 ease-out" style="left: ${avatarPosition}px; border-color: ${char.color}; box-shadow: 0 0 10px ${char.color}60;">
+                        <img id="hud-avatar-img" src="${avatarUrl}" alt="${char.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-lg bg-black/80\\'>${char.icon}</div>';">
                     </div>
-                    <div class="absolute -bottom-5 left-1 text-[9px] font-bold text-white/70"><span id="hud-health-current">${this.config.currentHealth}</span>/<span id="hud-health-max">${this.config.maxHealth}</span></div>
                 </div>
-                <div class="absolute -top-5 left-0"><span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded" style="background: ${char.color}30; color: ${char.color}; border: 1px solid ${char.color}40;">${char.name}</span></div>
             </div>
-            <div class="flex items-center gap-2 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
-                <span class="text-lg" id="hud-crystal-icon">💎</span>
-                <span id="hud-crystal-count" class="text-lg font-display font-bold text-white">${this.config.crystals}</span>
-                <div id="hud-combo" class="hidden ml-2 px-2 py-0.5 rounded-full bg-yellow-500/20 border border-yellow-500/30"><span class="text-xs font-bold text-yellow-400">🔥 x<span id="hud-combo-count">0</span></span></div>
+            <div class="flex items-center gap-1.5 bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
+                <span class="text-sm" id="hud-crystal-icon">💎</span>
+                <span id="hud-crystal-count" class="text-sm font-display font-bold text-white">${this.config.crystals}</span>
+                <div id="hud-combo" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-yellow-500/20 border border-yellow-500/30"><span class="text-[10px] font-bold text-yellow-400">🔥 x<span id="hud-combo-count">0</span></span></div>
             </div>
         </div>`;
         nav.insertAdjacentHTML('beforeend', hudHTML);
