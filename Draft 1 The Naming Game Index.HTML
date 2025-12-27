@@ -74,6 +74,8 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@300;400;500;600;700&family=Indie+Flower&family=Kalam:wght@400;700&family=Lexend:wght@300;400;500;700&family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Patrick+Hand&display=swap"
     rel="stylesheet">
+  <link rel="preload" as="image"
+    href="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-hero-page.jpeg">
 
   <script>
     tailwind.config = {
@@ -115,7 +117,7 @@
   <!-- BIBLE-APPROVED FONTS ONLY: Fredoka, Nunito Sans, Caveat Brush -->
 </head>
 
-<body class="">
+<body class="lobby-open">
   <!-- Global Background -->
   <div class="fixed inset-0 z-0 global-matte pointer-events-none"></div>
 
@@ -273,11 +275,11 @@
   </section>
 
   <section id="intro-overlay"
-    class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-3xl frosted-overlay transition-opacity duration-1000 flex flex-col items-center justify-center hidden">
+    class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-3xl frosted-overlay transition-opacity duration-1000 flex flex-col items-center justify-center hidden">
     <iframe id="intro-frame" src="00_Intro.html" style="width:100%; height:100%; border:0; display:block;"></iframe>
   </section>
 
-  <div id="viewport-frame" class="transition-opacity duration-1000">
+  <div id="viewport-frame">
 
     <!-- ANNOTATION CANVAS OVERLAY -->
     <canvas id="annotation-canvas" class="annotation-canvas"></canvas>
@@ -601,8 +603,8 @@
               class="glass-card w-[90%] lg:w-[30rem] h-[80%] rounded-[2rem] flex flex-col items-center justify-center relative z-10 overflow-hidden border-white/20 p-3">
               <img
                 src="https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-hero-page.jpeg"
-                loading="eager" decoding="async" class="w-full h-full object-cover rounded-[1.5rem]"
-                style="opacity: 0; transition: opacity 0.5s ease-in;" onload="this.style.opacity='1'">
+                loading="eager" decoding="async" fetchpriority="high" class="w-full h-full object-cover rounded-[1.5rem]"
+                style="opacity: 1;">
             </div>
           </div>
         </div>
@@ -2198,16 +2200,40 @@
     <script>
       window.dismissIntro = function () {
         const intro = document.getElementById('intro-overlay');
+        const viewport = document.getElementById('viewport-frame');
+        const nav = document.querySelector('nav.glass-command-deck');
+        const lobby = document.getElementById('lobby-screen');
         if (intro) {
           intro.style.opacity = '0';
           intro.style.pointerEvents = 'none';
-          setTimeout(() => intro.remove(), 1000);
-          document.body.classList.remove('intro-active');
-          if (typeof SoundFX !== 'undefined') {
-            SoundFX.init();
-            if (SoundFX.unlock) SoundFX.unlock();
-          }
+          setTimeout(() => {
+            intro.classList.add('hidden');
+            intro.style.opacity = '';
+            intro.style.pointerEvents = 'none';
+            document.body.classList.remove('intro-active');
+            if (viewport) {
+              viewport.classList.remove('opacity-0');
+              viewport.style.pointerEvents = 'auto';
+            }
+            if (nav) nav.classList.remove('opacity-0');
+            if (typeof SoundFX !== 'undefined') {
+              SoundFX.init();
+              if (SoundFX.unlock) SoundFX.unlock({ startMusic: false });
+            }
+
+            if (window.__pendingCharacterSelect && window.GameEngine) {
+              window.__pendingCharacterSelect = false;
+              window.__gcdIntroExit = true;
+              if (lobby) {
+                lobby.style.display = 'flex';
+                lobby.style.opacity = '1';
+              }
+              window.GameEngine.showCharacterSelect();
+            }
+          }, 1000);
+          return;
         }
+        document.body.classList.remove('intro-active');
       };
 
       window.addEventListener('message', (event) => {

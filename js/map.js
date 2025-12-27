@@ -10,6 +10,7 @@ const MapSystem = {
     initialized: false,
     isAnimating: false,
     audioInitialized: false,
+    _gcdEnergyManaged: true,
 
     getVisibleSlides() {
         return (window.SlideRegistry ? window.SlideRegistry.slides : []);
@@ -133,6 +134,7 @@ const MapSystem = {
         this.loadProgress();
         this.ensureN1Unlocked();
         this.updateMapCamera();
+        this.setupMapDisabledControls();
         this.initialized = true;
     },
 
@@ -142,11 +144,15 @@ const MapSystem = {
 
         const mapHTML = `
         <div id="world-map-overlay" class="fixed inset-0 z-[8000] bg-[#0B0C15] transition-transform duration-700 translate-y-full flex flex-col">
-            <div class="absolute top-0 left-0 w-full p-6 z-10 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-                <h1 class="font-display text-4xl text-brand-400 drop-shadow-lg">🗺️ World Map</h1>
+            <div class="absolute top-0 left-0 w-full p-6 z-10 flex justify-end items-center bg-gradient-to-b from-black/80 to-transparent">
                 <button onclick="MapSystem.hideMapOnly()" class="pointer-events-auto bg-white/5 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur-md transition-all cursor-pointer border border-white/10 hover-border-brand-400 relative z-10">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
                 </button>
+            </div>
+
+            <div id="map-title" class="absolute bottom-6 right-6 z-10 flex items-center gap-3 px-5 py-3 rounded-full bg-black/50 text-white/80 text-lg font-display tracking-wide shadow-[0_0_20px_rgba(0,0,0,0.45)]">
+                <span aria-hidden="true">🗺️</span>
+                <span>World Map</span>
             </div>
             
             <div id="map-instruction" class="absolute top-24 left-1/2 -translate-x-1/2 bg-black/80 text-white px-8 py-3 rounded-full border border-brand-500/30 shadow-[0_0_30px_rgba(34,211,238,0.3)] z-50 pointer-events-none transition-opacity duration-500" style="opacity: 0;">
@@ -373,15 +379,21 @@ const MapSystem = {
         const showMap = options.showMap !== undefined ? options.showMap : node.returnToMap !== false;
         const silent = options.silent === true;
 
+        const beforeCount = this.state.completedNodes.length;
         const wasCompleted = this.state.completedNodes.includes(nodeId);
         if (!wasCompleted) {
             this.state.completedNodes.push(nodeId);
+        }
+        const afterCount = this.state.completedNodes.length;
+        if (window.EnergyBarController && afterCount !== beforeCount && typeof EnergyBarController.queueGrowth === 'function') {
+            EnergyBarController.queueGrowth(nodeId, beforeCount, afterCount);
         }
         this.markNodeAccessed(nodeId);
 
         const params = new URLSearchParams(window.location.search);
         const isReportMode = params.get('mode') === 'report';
-        if (!silent && !wasCompleted && !isReportMode && typeof window.showStandardCompletionOverlay === 'function') {
+        const overlayActive = !silent && !wasCompleted && !isReportMode && typeof window.showStandardCompletionOverlay === 'function';
+        if (overlayActive) {
             window.showStandardCompletionOverlay({
                 title: 'Challenge Complete',
                 message: 'Return to Map to continue',
@@ -407,17 +419,56 @@ const MapSystem = {
             this.renderMap();
         }
 
-        setTimeout(() => {
-            this.positionTokenOnNode(nodeId, false);
-            // Branch Logic
-            if (node.type === 'branch' && node.returnTo) {
-                this.handleBranchReturn(node);
-            } else if (node.type === 'linear' || node.type === 'gate') {
-                this.handleLinearCompletion(node);
-            }
-            this.saveProgress();
-        }, 800);
+        const finalizeCompletion = () => {
+            setTimeout(() => {
+                this.positionTokenOnNode(nodeId, false);
+                // Branch Logic
+                if (node.type === 'branch' && node.returnTo) {
+                    this.handleBranchReturn(node);
+                } else if (node.type === 'linear' || node.type === 'gate') {
+                    this.handleLinearCompletion(node);
+                }
+                this.saveProgress();
+            }, 800);
+        };
+
+        if (typeof this.runEnergyGrowthCeremony === 'function') {
+            const overlayDelay = overlayActive ? 3000 : 0;
+            const growthDelay = showMap ? (overlayDelay || 900) : 200;
+            const growthDuration = showMap ? 2200 : 1600;
+            this.runEnergyGrowthCeremony(finalizeCompletion, { duration: growthDuration, delay: growthDelay });
+        } else {
+            finalizeCompletion();
+        }
         this.updateMapCamera();
+    },
+
+    runEnergyGrowthCeremony(callback, options = {}) {
+        const done = typeof callback === 'function' ? callback : () => {};
+        if (!window.EnergyBarController || !EnergyBarController.pendingGrowth) {
+            done();
+            return;
+        }
+
+        const duration = Number.isFinite(options.duration) ? options.duration : 1400;
+        const delay = Number.isFinite(options.delay) ? options.delay : 150;
+
+        setTimeout(() => {
+            if (typeof SoundFX !== 'undefined') {
+                if (SoundFX.playChime) {
+                    SoundFX.playChime();
+                } else if (SoundFX.playSuccess) {
+                    SoundFX.playSuccess();
+                } else if (SoundFX.playPop) {
+                    SoundFX.playPop();
+                }
+            }
+            if (typeof EnergyBarController.consumePendingGrowth === 'function') {
+                EnergyBarController.consumePendingGrowth({ duration, onComplete: done });
+            } else {
+                done();
+            }
+        }, delay);
     },
 
     handleBranchReturn(node) {
@@ -779,11 +830,13 @@ const MapSystem = {
         }
 
         if (!document.getElementById('world-map-overlay')) this.init();
+        this.setupMapDisabledControls();
         this.renderMap();
         const map = document.getElementById('world-map-overlay');
         if (map) {
             map.classList.remove('translate-y-full');
             this.active = true;
+            document.body.classList.add('map-open');
         }
         const viewport = document.getElementById('viewport-frame');
         if (viewport && typeof gsap !== 'undefined') gsap.to(viewport, { opacity: 0.3, duration: 0.5 });
@@ -812,6 +865,7 @@ const MapSystem = {
         if (map) {
             map.classList.add('translate-y-full');
             this.active = false;
+            document.body.classList.remove('map-open');
         }
         this.hideInstruction();
     },
@@ -825,6 +879,41 @@ const MapSystem = {
         this.hide();
         const viewport = document.getElementById('viewport-frame');
         if (viewport && typeof gsap !== 'undefined') gsap.to(viewport, { opacity: 1, duration: 0.3 });
+    },
+
+    setupMapDisabledControls() {
+        const selectors = [
+            '#gcd-markup',
+            '#gcd-projector',
+            '#pressure-clock-btn'
+        ];
+
+        const markTargets = () => {
+            selectors.forEach((selector) => {
+                document.querySelectorAll(selector).forEach((el) => {
+                    el.setAttribute('data-gcd-map-disabled', 'true');
+                });
+            });
+        };
+
+        markTargets();
+        if (this._gcdMapDisabledSetup) return;
+        this._gcdMapDisabledSetup = true;
+        document.addEventListener('click', (event) => {
+            if (!document.body.classList.contains('map-open')) return;
+            const target = event.target.closest('[data-gcd-map-disabled]');
+            if (!target) return;
+            event.preventDefault();
+            event.stopPropagation();
+
+            target.classList.remove('gcd-disabled-shake');
+            void target.offsetWidth;
+            target.classList.add('gcd-disabled-shake');
+
+            if (navigator.vibrate) {
+                navigator.vibrate(20);
+            }
+        }, true);
     },
 
     playIntro() {

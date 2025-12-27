@@ -51,11 +51,155 @@ body {
   max-width: 177.78vh;
   /* Force 16:9 */
   max-height: 56.25vw;
-  background: #0B0C15;
+  background: transparent;
   overflow: hidden;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
+}
+
+#viewport-frame.gcd-wipe-ready {
+  clip-path: circle(0% at 50% 50%);
+  pointer-events: none;
+}
+
+#viewport-frame.gcd-wipe-animate {
+  clip-path: circle(150% at 50% 50%);
+  /* No CSS transition - GSAP handles this animation */
+}
+
+:root {
+  --wipe-radius: 0px;
+}
+
+@supports ((-webkit-mask-image: radial-gradient(circle 10px at 50% 50%, #fff 0, transparent 100%)) or (mask-image: radial-gradient(circle 10px at 50% 50%, #fff 0, transparent 100%))) {
+  /* Shared hero wipe masks (single circle hides lobby outside + reveals hero inside) */
+  body.hero-wipe-active #viewport-frame {
+    -webkit-mask-image: radial-gradient(circle var(--wipe-radius) at 50% 50%, #fff 0 98%, transparent 100%);
+    mask-image: radial-gradient(circle var(--wipe-radius) at 50% 50%, #fff 0 98%, transparent 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+
+  body.hero-wipe-active #lobby-screen {
+    -webkit-mask-image: radial-gradient(circle var(--wipe-radius) at 50% 50%, transparent 0 98%, #fff 100%);
+    mask-image: radial-gradient(circle var(--wipe-radius) at 50% 50%, transparent 0 98%, #fff 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+}
+
+@supports not (clip-path: circle(0% at 50% 50%)) {
+  #viewport-frame.gcd-wipe-ready {
+    opacity: 0;
+  }
+
+  #viewport-frame.gcd-wipe-animate {
+    opacity: 1;
+    /* No CSS transition - GSAP handles this animation */
+  }
+}
+
+#lobby-screen {
+  transition: opacity 0.6s ease;
+  will-change: opacity;
+}
+
+#intro-overlay {
+  transition: opacity 1s ease;
+  will-change: opacity;
+}
+
+/* Hide viewport during intro overlay only, NOT during circle reveal */
+body.intro-active #viewport-frame {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* During lobby (before mission starts), viewport is hidden but ready for circle reveal */
+body.lobby-open:not(.hero-wipe-active) #viewport-frame {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* During circle reveal, viewport content is visible (clipped by circle) */
+body.hero-wipe-active #viewport-frame {
+  opacity: 1 !important;
+}
+
+/* Smooth wipe compositing without slowing the animation */
+body.hero-wipe-active #viewport-frame,
+body.hero-wipe-active #lobby-screen {
+  will-change: -webkit-mask-image, mask-image, clip-path;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+body.hero-wipe-active #viewport-frame {
+  box-shadow: none;
+}
+
+/* When hero slide is active, all content should be fully visible */
+#slide-0.active h1,
+#slide-0.active h2,
+#slide-0.active p,
+#slide-0.active .font-display,
+#slide-0.active .font-body,
+#slide-0.active .glass-panel,
+#slide-0.active button,
+#slide-0.active img,
+#slide-0.active .anim-entry,
+#slide-0 .anim-entry,
+#slide-0 .float-anim {
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+body.hero-wipe-active nav.glass-command-deck {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body.hero-header-delay nav.glass-command-deck {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+/* Sync powerup dock with header visibility */
+body.hero-wipe-active #powerup-dock,
+body.hero-header-delay #powerup-dock {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Hide ALL UI overlays during wipe to prevent graphical glitches */
+body.hero-wipe-active .marking-toolbar,
+body.hero-wipe-active #music-controls,
+body.hero-wipe-active .timer-container,
+body.hero-header-delay .marking-toolbar,
+body.hero-header-delay #music-controls,
+body.hero-header-delay .timer-container {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+#powerup-dock {
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#viewport-frame.gcd-wipe-layer {
+  z-index: 150;
 }
 
 .global-matte {
@@ -102,7 +246,7 @@ html.is-pseudo-fullscreen nav.glass-command-deck {
 }
 
 html.is-pseudo-fullscreen #world-map-overlay {
-  z-index: 12000;
+  z-index: 9000;
 }
 
 /* --- VISUALS --- */
@@ -343,7 +487,8 @@ button:disabled {
   background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(34, 211, 238, 0.4) 20%, transparent 70%);
   transform: translate(-50%, -50%);
   pointer-events: none;
-  z-index: 9999;
+  z-index: 9999 !important;
+  position: fixed !important;
   mix-blend-mode: screen;
   opacity: 1.0;
   transition: opacity 0.3s;
@@ -775,7 +920,7 @@ button:disabled {
   height: 300px;
   top: 60%;
   right: 20%;
-  animation-delay: -10s;
+  animation-delay: 0s;
   animation-duration: 40s;
 }
 
@@ -784,7 +929,7 @@ button:disabled {
   height: 200px;
   bottom: 20%;
   left: 40%;
-  animation-delay: -20s;
+  animation-delay: 0s;
   animation-duration: 30s;
 }
 
@@ -2375,7 +2520,7 @@ nav.glass-command-deck {
   align-items: center;
   gap: 16px;
   padding: 0 24px;
-  z-index: 1000 !important;
+  z-index: 9000 !important;
   background: rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -2383,6 +2528,7 @@ nav.glass-command-deck {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
   pointer-events: auto;
+  transition: opacity 0.9s ease, visibility 0.9s ease;
 }
 
 /* Fallback for browsers without backdrop-filter support */
@@ -2559,8 +2705,7 @@ nav.glass-command-deck>* {
   z-index: 1101;
 }
 
-.gcd-tools .gcd-audio-wrap:hover .gcd-audio-popover,
-.gcd-tools .gcd-audio-wrap:focus-within .gcd-audio-popover {
+.gcd-tools .gcd-audio-wrap:hover .gcd-audio-popover {
   opacity: 1;
   pointer-events: auto;
   transform: translate(-50%, 0);
@@ -2665,6 +2810,34 @@ nav.glass-command-deck>* {
     inset 0 -2px 6px rgba(0, 0, 0, 0.35),
     0 0 16px rgba(250, 204, 21, 0.25);
   border: 2px solid rgba(255, 204, 102, 0.85);
+}
+
+.gcd-power-core .gcd-bar-container.gcd-growth-active {
+  animation: gcd-growth-glow 2.2s ease-out;
+}
+
+@keyframes gcd-growth-glow {
+  0% {
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.45),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.35),
+      0 0 16px rgba(250, 204, 21, 0.25);
+  }
+
+  50% {
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.45),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.35),
+      0 0 32px rgba(250, 204, 21, 0.55),
+      0 0 48px rgba(250, 204, 21, 0.25);
+  }
+
+  100% {
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.45),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.35),
+      0 0 16px rgba(250, 204, 21, 0.25);
+  }
 }
 
 .gcd-power-core .gcd-bar-container::before {
@@ -2958,9 +3131,75 @@ body.lobby-open nav.glass-command-deck {
 }
 
 body.intro-active nav.glass-command-deck {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.map-open nav.glass-command-deck {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+body.map-open .gcd-identity,
+body.map-open .gcd-tools,
+body.map-open .gcd-energy-wrapper,
+body.map-open .gcd-crystals {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+
+body.map-open .gcd-bar-shell {
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.2);
+}
+
+body.map-open .gcd-right {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.map-open [data-gcd-map-disabled="true"] {
+  opacity: 0.35 !important;
+  filter: grayscale(0.6) saturate(0.6) hue-rotate(-20deg);
+  color: rgba(239, 68, 68, 0.9) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  cursor: not-allowed !important;
+  transition: opacity 150ms ease, filter 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.gcd-disabled-shake {
+  animation: gcd-disabled-shake 280ms ease-in-out;
+}
+
+@keyframes gcd-disabled-shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-4px);
+  }
+
+  40% {
+    transform: translateX(4px);
+  }
+
+  60% {
+    transform: translateX(-3px);
+  }
+
+  80% {
+    transform: translateX(3px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
 
 /* RESPONSIVE BREAKPOINTS */

@@ -56,6 +56,9 @@ function launchApp(mode, params) {
 window.launchApp = launchApp;
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Create particles immediately for background animation priority
+  createBackgroundParticles();
+
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode');
   launchApp(mode, params);
@@ -64,7 +67,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (legacyGroup) legacyGroup.remove();
   }
   syncMarkupButtonState();
+  preloadHeroAssets();
 });
+
+// Early background particle creation for immediate visibility
+function createBackgroundParticles() {
+  const particleContainer = document.getElementById('parallax-particles');
+  if (!particleContainer || particleContainer.children.length > 0) return;
+  for (let i = 0; i < 50; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.top = `${Math.random() * 100}vh`;
+    particle.style.animationDuration = `${15 + Math.random() * 20}s`;
+    particle.style.animationDelay = '0s';
+    particleContainer.appendChild(particle);
+  }
+}
+window.createBackgroundParticles = createBackgroundParticles;
 
 function initClassMode() {
   console.log("🎮 initClassMode() starting...");
@@ -125,7 +145,8 @@ function initClassMode() {
         </div>
       </div>`;
   } else if (typeof GameEngine !== 'undefined') {
-    setTimeout(() => GameEngine.showCharacterSelect(), 100);
+    window.__pendingCharacterSelect = true;
+    showOrientationOverlay();
   }
 
   const lobby = document.getElementById('lobby-screen');
@@ -136,6 +157,60 @@ function initClassMode() {
   // --- SCROLL HANDLING moved to js/navigation_guards.js to fix "Ghosting" ---
 }
 window.initClassMode = initClassMode;
+
+function showOrientationOverlay() {
+  const introOverlay = document.getElementById('intro-overlay');
+  if (!introOverlay) return;
+  document.body.classList.add('intro-active');
+  introOverlay.classList.remove('hidden');
+  introOverlay.style.opacity = '0';
+  introOverlay.style.pointerEvents = 'auto';
+  requestAnimationFrame(() => {
+    introOverlay.style.opacity = '1';
+  });
+}
+window.showOrientationOverlay = showOrientationOverlay;
+
+function preloadHeroAssets() {
+  const heroSlide = document.querySelector('[data-slide-key="hero"]') || document.getElementById('slide-0');
+  if (!heroSlide) {
+    window.__heroAssetsReady = Promise.resolve();
+    return;
+  }
+
+  const heroImages = Array.from(heroSlide.querySelectorAll('img'));
+  const assetPromises = [];
+
+  // Simple preload: just wait for existing images to load
+  // HTML already has loading="eager" and style="opacity: 1;"
+  // CSS already has #slide-0.active img { opacity: 1 !important; }
+  heroImages.forEach((img) => {
+    assetPromises.push(new Promise((resolve) => {
+      if (img.complete) return resolve();
+      img.addEventListener('load', resolve, { once: true });
+      img.addEventListener('error', resolve, { once: true });
+    }));
+  });
+
+  // Preload background image if exists
+  const bg = getComputedStyle(heroSlide).backgroundImage;
+  if (bg && bg.includes('url(')) {
+    const match = bg.match(/url\\([\"']?(.*?)[\"']?\\)/);
+    if (match && match[1]) {
+      const preload = new Image();
+      preload.src = match[1];
+      assetPromises.push(new Promise((resolve) => {
+        if (preload.complete) return resolve();
+        preload.onload = () => resolve();
+        preload.onerror = () => resolve();
+      }));
+    }
+  }
+
+  window.__heroAssetsReady = Promise.all(assetPromises).then(() => {
+    console.log('✅ Hero assets preloaded');
+  });
+}
 
 window.resumeSessionWithSound = function () {
   if (typeof SoundFX !== 'undefined') { SoundFX.init(); SoundFX.unlock(); }
@@ -560,8 +635,14 @@ if (frame && glow) {
 
 const slideObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
+    // CRITICAL: Never process slide-0 (hero slide) - it should appear instantly via preload
+    if (entry.target.id === 'slide-0' || entry.target.dataset.slideKey === 'hero') {
+      return;
+    }
+
     if (entry.isIntersecting) {
       entry.target.classList.add('active');
+
       const headings = entry.target.querySelectorAll('h1, h2, .font-display');
       if (headings.length > 0 && typeof gsap !== 'undefined') {
         headings.forEach((h, i) => { gsap.to(h, { opacity: 1, x: 0, y: 0, rotation: 0, duration: 1.2, delay: 0.3 + (i * 0.15), ease: "power2.out", overwrite: 'auto', force3D: true }); });
@@ -579,39 +660,48 @@ const slideObserver = new IntersectionObserver((entries) => {
     }
   });
 }, { root: null, threshold: 0.3 });
-document.querySelectorAll('.slide').forEach(slide => slideObserver.observe(slide));
+
+// Observe all slides EXCEPT slide-0 (hero slide)
+document.querySelectorAll('.slide').forEach(slide => {
+  if (slide.id !== 'slide-0' && slide.dataset.slideKey !== 'hero') {
+    slideObserver.observe(slide);
+  }
+});
+
+// Pre-mark slide-0 as active immediately - it will NEVER be observed by slideObserver
+const heroSlide = document.getElementById('slide-0');
+if (heroSlide) {
+  heroSlide.classList.add('active');
+}
 
 (function initParallax() {
-  const parallaxLayers = document.querySelectorAll('.parallax-layer');
-  const particleContainer = document.getElementById('parallax-particles');
   let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
-  function createParticles() {
-    if (!particleContainer) return;
-    for (let i = 0; i < 50; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      particle.style.left = `${Math.random() * 100}%`;
-      particle.style.top = `${Math.random() * 100}vh`;
-      particle.style.animationDuration = `${15 + Math.random() * 20}s`;
-      particle.style.animationDelay = `${Math.random() * 10}s`;
-      particleContainer.appendChild(particle);
-    }
-  }
+
+  // Particles are now created by createBackgroundParticles() at DOMContentLoaded
+
   function handleMouseMove(e) { mouseX = (e.clientX / window.innerWidth - 0.5) * 2; mouseY = (e.clientY / window.innerHeight - 0.5) * 2; }
   function updateParallax() {
+    // Query parallax layers dynamically - they're created inside slides
+    const parallaxLayers = document.querySelectorAll('.parallax-layer');
+
     const mapOverlay = document.getElementById('world-map-overlay');
     if (mapOverlay && !mapOverlay.classList.contains('translate-y-full')) {
       requestAnimationFrame(updateParallax);
       return;
     }
-    targetX += (mouseX - targetX) * 0.05; targetY += (mouseY - targetY) * 0.05;
-    parallaxLayers.forEach(layer => {
-      const speed = parseFloat(layer.dataset.speed || 1);
-      layer.style.transform = `translate(${targetX * 30 * speed}px, ${targetY * 30 * speed}px)`;
-    });
+
+    // Only animate if layers exist (skip silently if not)
+    if (parallaxLayers && parallaxLayers.length > 0) {
+      targetX += (mouseX - targetX) * 0.05; targetY += (mouseY - targetY) * 0.05;
+      parallaxLayers.forEach(layer => {
+        const speed = parseFloat(layer.dataset.speed || 1);
+        layer.style.transform = `translate(${targetX * 30 * speed}px, ${targetY * 30 * speed}px)`;
+      });
+    }
+
     requestAnimationFrame(updateParallax);
   }
-  createParticles(); document.addEventListener('mousemove', handleMouseMove); updateParallax();
+  document.addEventListener('mousemove', handleMouseMove); updateParallax();
 })();
 
 console.log("✅ main.js loaded - Stabilized");

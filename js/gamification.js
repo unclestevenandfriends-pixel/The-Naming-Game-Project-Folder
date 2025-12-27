@@ -145,10 +145,25 @@ const GameEngine = {
         return 'ko';
     },
 
+    preloadCharacterAssets() {
+        const urls = [];
+        Object.values(this.characters).forEach((char) => {
+            if (char?.assets?.select) urls.push(this.assetBase + char.assets.select);
+        });
+        urls.push('https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/norah-hero-page.jpeg');
+
+        urls.forEach((src) => {
+            const img = new Image();
+            img.decoding = 'async';
+            img.src = src;
+        });
+    },
+
     // === INITIALIZATION ===
     init() {
         if (this.initialized) return;
         this.setupEventListeners();
+        this.preloadCharacterAssets();
         this.initialized = true;
         console.log("💎 Gamification Engine v2.1.1 (Restored) Loaded");
     },
@@ -426,13 +441,17 @@ const GameEngine = {
                 container.style.opacity = '1';
                 container.style.transform = 'translateY(0)';
             } else {
+                const useSlowFade = !!window.__gcdIntroExit;
+                const duration = useSlowFade ? 1.2 : 0.6;
+                const delay = useSlowFade ? 80 : 50;
                 container.style.opacity = '0';
-                container.style.transform = 'translateY(20px)';
+                container.style.transform = 'translateY(14px)';
                 setTimeout(() => {
-                    container.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    container.style.transition = `opacity ${duration}s ease, transform ${duration}s ease`;
                     container.style.opacity = '1';
                     container.style.transform = 'translateY(0)';
-                }, 50);
+                }, delay);
+                if (useSlowFade) window.__gcdIntroExit = false;
             }
         }
     },
@@ -444,7 +463,7 @@ const GameEngine = {
             const isSelected = this.config.characterId === id;
             const selectUrl = this.getAssetUrl(id, 'select');
             html += `<div class="character-strip flex-1 relative cursor-pointer group transition-all duration-300 rounded-xl overflow-hidden ${isSelected ? 'ring-2 ring-offset-2 ring-offset-black scale-[1.02] z-10' : 'hover:scale-[1.01] opacity-80 hover:opacity-100'}" style="${isSelected ? 'ring-color: ' + char.color + ';' : ''}" onclick="GameEngine.selectCharacter('${id}')" data-character="${id}">
-                <div class="absolute inset-0 overflow-hidden"><img src="${selectUrl}" alt="${char.name}" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\\'w-full h-full bg-gradient-to-b from-gray-800 to-gray-900 flex items-center justify-center text-6xl\\'>${char.icon}</div>';"></div>
+                <div class="absolute inset-0 overflow-hidden"><img src="${selectUrl}" alt="${char.name}" loading="eager" decoding="async" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\\'w-full h-full bg-gradient-to-b from-gray-800 to-gray-900 flex items-center justify-center text-6xl\\'>${char.icon}</div>';"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent pointer-events-none"></div>
                 ${isSelected ? `<div class="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg z-20" style="background: ${char.color};"><svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>` : ''}
                 <div class="absolute bottom-0 left-0 right-0 p-3 md:p-4 z-10">
@@ -467,7 +486,7 @@ const GameEngine = {
 
     selectCharacter(id) {
         if (!this.characters[id]) return;
-        if (typeof SoundFX !== 'undefined') { SoundFX.init(); if (SoundFX.ctx && SoundFX.ctx.state === 'suspended') SoundFX.unlock(); if (SoundFX.playPop) SoundFX.playPop(); }
+        if (typeof SoundFX !== 'undefined') { SoundFX.init(); if (SoundFX.ctx && SoundFX.ctx.state === 'suspended') SoundFX.unlock({ startMusic: false }); if (SoundFX.playPop) SoundFX.playPop(); }
         const nameInput = document.getElementById('student-name');
         const dateInput = document.getElementById('class-date');
         const savedName = nameInput?.value || '';
@@ -484,7 +503,7 @@ const GameEngine = {
     },
 
     beginMission() {
-        if (typeof SoundFX !== 'undefined') SoundFX.unlock();
+        if (typeof SoundFX !== 'undefined') SoundFX.unlock({ startMusic: false });
         if (!this.config.characterId) return;
 
         const nameInput = document.getElementById('student-name');
@@ -526,21 +545,166 @@ const GameEngine = {
             EnergyBarController.updateHealth(100);
         }
 
-        // --- HIDE LOBBY & SHOW INTRO ---
+        // --- HIDE LOBBY (Character Select) ---
         const lobby = document.getElementById('lobby-screen');
-        if (lobby) lobby.style.display = 'none';
-        const introOverlay = document.getElementById('intro-overlay');
-        if (introOverlay) introOverlay.classList.remove('hidden');
-        document.body.classList.add('intro-active');
+        document.body.classList.remove('intro-active');
 
         const viewport = document.getElementById('viewport-frame');
         const nav = document.querySelector('nav');
 
-        if (viewport) {
-            viewport.classList.remove('opacity-0');
-            viewport.style.pointerEvents = 'auto';
+        const WIPE_DURATION_MS = 10000;
+        const HEADER_DELAY_MS = 0; // Header fades in immediately after wipe completes
+        const startHeroWipe = (onComplete) => {
+            const runWipe = () => {
+                const supportsMask = typeof CSS !== 'undefined'
+                    && (CSS.supports('mask-image', 'radial-gradient(circle 10px at 50% 50%, #fff 0, transparent 100%)')
+                        || CSS.supports('-webkit-mask-image', 'radial-gradient(circle 10px at 50% 50%, #fff 0, transparent 100%)'));
+
+                if (lobby) {
+                    lobby.style.pointerEvents = 'none';
+                    if (supportsMask) {
+                        lobby.style.opacity = '1';
+                    } else {
+                        lobby.style.opacity = '0';
+                        setTimeout(() => { lobby.style.display = 'none'; }, 650);
+                    }
+                }
+                document.body.classList.add('hero-wipe-active');
+                document.body.classList.add('hero-header-delay');
+                // ═══════════════════════════════════════════════════════════════════════
+                // Clear lobby lock only when we are ready to reveal the hero slide
+                // ═══════════════════════════════════════════════════════════════════════
+                window.LOBBY_ACTIVE = false;
+                document.body.removeAttribute('data-lobby-active');
+                document.body.classList.remove('lobby-open'); // GLASS COMMAND DECK V2.0
+                if (nav) {
+                    nav.classList.remove('opacity-0');
+                }
+
+                if (viewport) {
+                    viewport.classList.remove('opacity-0');
+                    viewport.style.pointerEvents = 'auto';
+                }
+                // Nav visibility is controlled by CSS classes (hero-wipe-active, hero-header-delay)
+                // Don't set inline styles here as they override the CSS
+                console.log("🔓 LOBBY_ACTIVE = false (navigation unlocked via beginMission)");
+
+                if (typeof SoundFX !== 'undefined') {
+                    SoundFX.init();
+                    SoundFX.unlock();
+                }
+                if (typeof initJukebox === 'function') {
+                    initJukebox();
+                }
+
+                if (viewport) {
+                    viewport.classList.remove('gcd-wipe-ready', 'gcd-wipe-animate', 'gcd-wipe-layer');
+                    // Force a reflow to ensure the reset is applied before starting.
+                    void viewport.offsetHeight;
+                    viewport.classList.add('gcd-wipe-layer');
+
+                    let wipeFinished = false;
+                    const finishWipe = () => {
+                        if (wipeFinished) return;
+                        wipeFinished = true;
+                        if (typeof onComplete === 'function') {
+                            onComplete();
+                        }
+                    };
+
+                    if (supportsMask) {
+                        const root = document.documentElement;
+                        const rect = viewport.getBoundingClientRect();
+                        const radius = Math.ceil(Math.sqrt(Math.pow(rect.width / 2, 2) + Math.pow(rect.height / 2, 2)));
+                        root.style.setProperty('--wipe-radius', '0px');
+
+                        if (window.gsap) {
+                            gsap.to(root, {
+                                '--wipe-radius': `${radius}px`,
+                                duration: WIPE_DURATION_MS / 1000,
+                                ease: 'none',
+                                onComplete: finishWipe,
+                            });
+                        } else {
+                            const start = performance.now();
+                            const animate = (now) => {
+                                const elapsed = now - start;
+                                const progress = Math.min(elapsed / WIPE_DURATION_MS, 1);
+                                root.style.setProperty('--wipe-radius', `${radius * progress}px`);
+                                if (progress < 1) {
+                                    requestAnimationFrame(animate);
+                                } else {
+                                    finishWipe();
+                                }
+                            };
+                            requestAnimationFrame(animate);
+                        }
+                    } else if (window.gsap) {
+                        gsap.set(viewport, { clipPath: 'circle(0% at 50% 50%)' });
+                        gsap.to(viewport, {
+                            clipPath: 'circle(150% at 50% 50%)',
+                            duration: WIPE_DURATION_MS / 1000,
+                            ease: 'none',
+                            onComplete: finishWipe,
+                        });
+                    } else {
+                        viewport.classList.add('gcd-wipe-ready');
+                        requestAnimationFrame(() => {
+                            viewport.classList.add('gcd-wipe-animate');
+                        });
+                        setTimeout(finishWipe, WIPE_DURATION_MS + 50);
+                    }
+                } else if (typeof onComplete === 'function') {
+                    onComplete();
+                }
+            };
+
+            const heroReady = window.__heroAssetsReady;
+            if (heroReady && typeof heroReady.then === 'function') {
+                heroReady.then(runWipe);
+            } else {
+                runWipe();
+            }
+        };
+
+        if (lobby) {
+            console.log('🎬 Starting hero wipe at', new Date().toISOString());
+            startHeroWipe(() => {
+                console.log('✅ Wipe complete at', new Date().toISOString(), '- starting 4.5s header delay');
+                lobby.style.display = 'none';
+                lobby.style.opacity = '';
+                lobby.style.pointerEvents = '';
+                if (viewport) {
+                    viewport.classList.remove('gcd-wipe-ready', 'gcd-wipe-animate', 'gcd-wipe-layer');
+                    if (window.gsap) {
+                        gsap.set(viewport, { clearProps: 'clipPath' });
+                    }
+                }
+                document.body.classList.remove('hero-wipe-active');
+
+                // Header fade-in after delay
+                setTimeout(() => {
+                    console.log('🎯 Header appearing at', new Date().toISOString());
+                    document.body.classList.remove('hero-header-delay');
+                    // CSS classes control nav visibility - no inline styles needed
+                }, HEADER_DELAY_MS);
+            });
+        } else {
+            startHeroWipe(() => {
+                if (viewport) {
+                    viewport.classList.remove('gcd-wipe-ready', 'gcd-wipe-animate', 'gcd-wipe-layer');
+                    if (window.gsap) {
+                        gsap.set(viewport, { clearProps: 'clipPath' });
+                    }
+                }
+                document.body.classList.remove('hero-wipe-active');
+
+                // AI: Move header delay into the onComplete callback
+                setTimeout(() => {
+                    document.body.classList.remove('hero-header-delay');
+                }, HEADER_DELAY_MS);
+            });
         }
-        if (nav) nav.classList.remove('opacity-0');
 
         // --- FORCE START AT SLIDE 0 (HERO SLIDE) ---
         const slider = document.getElementById('slider');
@@ -563,33 +727,11 @@ const GameEngine = {
             SafeStorage.setItem('nameGame_slide', '0');
         }
 
-        // ═══════════════════════════════════════════════════════════════════════════════
-        // CRITICAL: Clear lobby lock to allow navigation
-        // ═══════════════════════════════════════════════════════════════════════════════
-        window.LOBBY_ACTIVE = false;
-        document.body.removeAttribute('data-lobby-active');
-        document.body.classList.remove('lobby-open'); // GLASS COMMAND DECK V2.0
-        if (nav) {
-            nav.style.opacity = '1';
-            nav.style.visibility = 'visible';
-            nav.style.pointerEvents = 'auto';
-        }
-        console.log("🔓 LOBBY_ACTIVE = false (navigation unlocked via beginMission)");
-
         // --- MAP INTRO SEQUENCE DISABLED ---
         // The map should NOT auto-trigger. User must click "START JOURNEY" button.
         // MapSystem.init() is called on DOMContentLoaded in map.js
         if (typeof MapSystem !== 'undefined' && !MapSystem.initialized) {
             MapSystem.init(); // Just ensure it's ready, don't play intro
-        }
-
-        // --- AUDIO START ---
-        if (typeof SoundFX !== 'undefined') {
-            SoundFX.init();
-            SoundFX.unlock(); // Attempt unlock
-        }
-        if (typeof initJukebox === 'function') {
-            initJukebox(); // Force music start
         }
 
         console.log(`🚀 Mission started! Player: ${playerName}, Character: ${char.name}`);
@@ -634,6 +776,11 @@ const GameEngine = {
         const avatarImg = document.getElementById('avatar-img');
         const healthFill = document.getElementById('health-fill');
         const crystalCount = document.getElementById('crystal-count');
+        const gcdCharName = document.getElementById('gcd-char-name');
+
+        if (gcdCharName) {
+            gcdCharName.textContent = (char.name || '').toUpperCase();
+        }
 
         if (hudContainer) {
             // Show the HUD
@@ -706,12 +853,17 @@ const GameEngine = {
             EnergyBarController.refreshMetrics();
         }
 
+        const char = this.characters[this.config.characterId];
+        if (!char) return;
+
+        const gcdCharName = document.getElementById('gcd-char-name');
+        if (gcdCharName) {
+            gcdCharName.textContent = (char.name || '').toUpperCase();
+        }
+
         // GLASS COMMAND DECK: Update compact HUD elements
         const hudContainer = document.getElementById('player-hud-compact');
         if (!hudContainer) return;
-
-        const char = this.characters[this.config.characterId];
-        if (!char) return;
 
         // Update health fill
         const healthFill = document.getElementById('health-fill');
@@ -746,6 +898,7 @@ const GameEngine = {
         if (crystalCount) {
             crystalCount.textContent = this.config.crystals;
         }
+
 
     },
 
@@ -817,6 +970,7 @@ const EnergyBarController = {
                 powerCore: document.querySelector('.glass-command-deck .gcd-power-core'),
                 wrapper: document.querySelector('.glass-command-deck .gcd-energy-wrapper'),
                 barShell: document.querySelector('.glass-command-deck .gcd-bar-shell'),
+                barContainer: document.querySelector('.glass-command-deck .gcd-bar-container'),
                 gem: document.querySelector('.glass-command-deck .gcd-power-core .gcd-crystals')
             };
         }
@@ -877,6 +1031,24 @@ const EnergyBarController = {
         }
     },
 
+    queueGrowth(nodeId, beforeCount, afterCount) {
+        if (!Number.isFinite(beforeCount) || !Number.isFinite(afterCount) || afterCount === beforeCount) return;
+        this.refreshMetrics();
+        const newBarWidth = this.getBarWidthForNodes(afterCount);
+        const baseMax = this.baseMaxHealth || window.GameEngine?.config?.maxHealth || newBarWidth;
+        const minWidth = this.W_MIN || newBarWidth;
+        const newMaxHealth = Math.round(baseMax * (newBarWidth / minWidth));
+        const perf = getNodePerformance(nodeId);
+        const healPercent = getHealPercentFromPerformance(perf);
+        const healAmount = Math.round(newMaxHealth * healPercent);
+        this.pendingGrowth = {
+            from: beforeCount,
+            to: afterCount,
+            newMaxHealth,
+            healAmount
+        };
+    },
+
     updateBarWidth(completedNodes) {
         this.refreshMetrics();
         const width = this.getBarWidthForNodes(completedNodes);
@@ -920,10 +1092,11 @@ const EnergyBarController = {
         }
     },
 
-    animateGrowth(fromNodes, toNodes) {
+    animateGrowth(fromNodes, toNodes, options = {}) {
         this.refreshMetrics();
         const start = performance.now();
-        const duration = 600;
+        const duration = Number.isFinite(options.duration) ? options.duration : 600;
+        const onComplete = typeof options.onComplete === 'function' ? options.onComplete : null;
         const from = Number.isFinite(fromNodes) ? fromNodes : 0;
         const to = Number.isFinite(toNodes) ? toNodes : from;
 
@@ -937,13 +1110,15 @@ const EnergyBarController = {
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
+                return;
             }
+            if (onComplete) onComplete();
         };
 
         requestAnimationFrame(animate);
     },
 
-    consumePendingGrowth() {
+    consumePendingGrowth(options = {}) {
         if (!this.pendingGrowth) return;
         const { from, to, newMaxHealth, healAmount } = this.pendingGrowth;
         this.pendingGrowth = null;
@@ -954,7 +1129,17 @@ const EnergyBarController = {
             window.GameEngine.config.currentHealth = Math.min(window.GameEngine.config.maxHealth, current + healed);
             window.GameEngine.updateHUD();
         }
-        this.animateGrowth(from, to);
+        const duration = Number.isFinite(options.duration) ? options.duration : 600;
+        const onComplete = typeof options.onComplete === 'function' ? options.onComplete : null;
+        const barContainer = this._layout?.barContainer || document.querySelector('.glass-command-deck .gcd-bar-container');
+        if (barContainer) barContainer.classList.add('gcd-growth-active');
+        this.animateGrowth(from, to, {
+            duration,
+            onComplete: () => {
+                if (barContainer) barContainer.classList.remove('gcd-growth-active');
+                if (onComplete) onComplete();
+            }
+        });
     }
 };
 
@@ -996,6 +1181,12 @@ function getHealPercentFromPerformance(perf) {
 
 function hookEnergyBarToMapSystem() {
     if (!window.MapSystem || typeof MapSystem.triggerNodeCompletion !== 'function') return false;
+    if (MapSystem._gcdEnergyManaged) {
+        if (window.EnergyBarController) {
+            EnergyBarController.updateBarWidth(getCompletedNodeCount());
+        }
+        return true;
+    }
     if (MapSystem._gcdEnergyHooked) return true;
     MapSystem._gcdEnergyHooked = true;
 

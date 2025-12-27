@@ -21,14 +21,15 @@ const SoundFX = {
     }
   },
 
-  unlock() {
+  unlock(options = {}) {
+    const startMusic = options.startMusic !== false;
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().then(() => {
         if (typeof DEBUG_MODE !== 'undefined' && DEBUG_MODE) console.log("🔊 Audio Context Resumed");
       });
     }
     this.isUnlocked = true;
-    if (typeof initJukebox === 'function') {
+    if (startMusic && typeof initJukebox === 'function') {
       initJukebox();
     }
   },

@@ -4,7 +4,7 @@
 // Compliant with Aura Dark Mode v1.0 Laws
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const GuideSystem = (function() {
+const GuideSystem = (function () {
   'use strict';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -293,9 +293,9 @@ const GuideSystem = (function() {
       for (const direction of tryOrder) {
         const pos = positions[direction];
         const fitsHorizontally = pos.left >= EDGE_MARGIN &&
-                                 (pos.left + bubbleWidth) <= (viewportWidth - EDGE_MARGIN);
+          (pos.left + bubbleWidth) <= (viewportWidth - EDGE_MARGIN);
         const fitsVertically = pos.top >= VERTICAL_MARGIN &&
-                               (pos.top + bubbleHeight) <= (viewportHeight - VERTICAL_MARGIN);
+          (pos.top + bubbleHeight) <= (viewportHeight - VERTICAL_MARGIN);
 
         if (fitsHorizontally && fitsVertically) {
           finalPosition = pos;
