@@ -158,88 +158,92 @@
   <!-- Ambient Blobs Removed to match Draft 3 -->
 
   <!-- Navigation/Progress -->
-  <nav
-    class="fixed flex w-full z-50 border-b py-2 px-8 top-0 left-0 shadow-sm backdrop-blur-lg items-center justify-between bg-black/5 border-white/5">
-    <!-- Left: Module Number -->
-    <div class="flex items-center gap-3">
-      <div class="w-3 h-3 rounded-full animate-pulse bg-[#FFC69A]"></div>
-      <!-- Reduced size and opacity as requested -->
-      <span class="font-display text-xs font-bold uppercase tracking-[0.35em] text-[#FFC69A] opacity-50"
-        style="opacity: 0.5;">
-        EMSUSF1/1
-      </span>
-    </div>
+  <!-- ═══════════════════════════════════════════════════════════════════════════════
+       GLASS COMMAND DECK HEADER V2.0
+       Tripartite structure: Identity | Power Core | Navigation & Status
+       ═══════════════════════════════════════════════════════════════════════════════ -->
+  <nav class="glass-command-deck">
 
-    <!-- Right: Music Controls + Slide Counter -->
-    <div class="flex items-center gap-6">
-      <!-- Markup Mode Toggle -->
-      <button id="markup-toggle-btn" onclick="toggleMarkupMode()"
-        class="flex items-center gap-2 bg-black/30 backdrop-blur-sm p-1 pr-2 rounded-full border border-white/5 transition-all hover:bg-black/50 group mr-2"
-        title="Toggle Annotations">
-        <div id="markup-indicator"
-          class="w-6 h-6 flex items-center justify-center rounded-full bg-brand-500 text-black transition-all shadow-[0_0_10px_rgba(45,212,191,0.5)]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 6 9 17l-5-5" />
-          </svg>
+    <!-- ZONE 1: IDENTITY + TOOLS -->
+    <div class="gcd-left">
+      <div class="gcd-identity" id="gcd-identity">
+        <div class="gcd-dot"></div>
+        <div class="gcd-identity-text">
+          <span class="gcd-module-code">EMSUSF1/1</span>
+          <span class="gcd-module-title" title="The Naming Game">The Naming Game</span>
         </div>
-        <span
-          class="hidden lg:inline text-[10px] font-bold uppercase tracking-wider text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Markup</span>
-      </button>
+      </div>
 
-      <!-- Full Screen Toggle -->
-      <button id="fullscreen-btn" onclick="toggleFullScreen()"
-        class="flex items-center gap-2 bg-black/30 backdrop-blur-sm p-1 pr-2 rounded-full border border-white/5 transition-all hover:bg-black/50 group mr-2"
-        title="Toggle Full Screen">
-        <div
-          class="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-brand-500 group-hover:text-black text-[#FDFDFD] transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-          </svg>
-        </div>
-        <span
-          class="hidden lg:inline text-[10px] font-bold uppercase tracking-wider text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Full</span>
-      </button>
-
-      <!-- Music Controls (Integrated) -->
-
-      <div id="music-controls"
-        class="flex items-center gap-2 bg-black/30 backdrop-blur-sm p-1.5 rounded-full border border-white/5 transition-all hover:bg-black/50 group">
-        <button id="music-toggle" onclick="toggleMusic()"
-          class="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-[#FDFDFD]/70 hover:text-[#FDFDFD] transition-all">
-          <span id="music-icon" class="text-xs">🎵</span>
+      <!-- ZONE 2: TOOL DOCK (4 tools, no timer) -->
+      <div class="gcd-tools">
+        <button class="gcd-tool-btn" id="gcd-markup" onclick="toggleMarkupMode()" data-tooltip="Annotations"
+          aria-label="Annotations" aria-pressed="false">
+          <i data-lucide="pencil"></i>
         </button>
-        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5"
-          class="w-16 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-500/80 opacity-50 group-hover:opacity-100 transition-opacity"
-          oninput="setMusicVolume(this.value)">
-      </div>
-
-      <!-- TextBoard Toggle (Projector) -->
-      <button id="projector-toggle-btn" onclick="toggleTextBoard()"
-        class="flex items-center gap-2 bg-black/30 backdrop-blur-sm p-1 pr-2 rounded-full border border-white/5 transition-all hover:bg-black/50 group ml-2"
-        title="Toggle Projector">
-        <div
-          class="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-cyan-500 group-hover:text-black text-[#FDFDFD] transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 7 3 5" />
-            <path d="M9 6V3" />
-            <path d="m13 7 2-2" />
-            <circle cx="9" cy="13" r="3" />
-            <path d="M11.83 12H20a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2.17" />
-            <path d="M16 16h2" />
-          </svg>
+        <button class="gcd-tool-btn" id="gcd-fullscreen" onclick="toggleFullScreen()" data-tooltip="Fullscreen"
+          aria-label="Fullscreen" aria-pressed="false">
+          <i data-lucide="maximize-2"></i>
+        </button>
+        <div class="gcd-audio-wrap" id="gcd-audio-wrap">
+          <button class="gcd-tool-btn" id="gcd-audio" onclick="toggleMusic()" data-tooltip="Audio" aria-label="Audio"
+            aria-pressed="false">
+            <i data-lucide="volume-2"></i>
+          </button>
+          <div class="gcd-audio-popover" id="gcd-audio-popover" aria-hidden="true">
+            <span class="gcd-audio-label">VOL</span>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5"
+              oninput="setMusicVolume(this.value)" aria-label="Volume" />
+          </div>
         </div>
-        <span
-          class="hidden lg:inline text-[10px] font-bold uppercase tracking-wider text-brand-400 group-hover:text-[#FDFDFD] transition-colors">Proj</span>
-      </button>
-
-      <!-- Slide Counter -->
-      <div class="font-body text-xs md:text-sm text-brand-500 opacity-100" id="slide-counter" style="opacity: 1;">
-        01 / 30
+        <button class="gcd-tool-btn" id="gcd-projector" onclick="toggleTextBoard()" data-tooltip="TextBoard"
+          aria-label="TextBoard" aria-pressed="false">
+          <i data-lucide="monitor-up"></i>
+        </button>
       </div>
     </div>
+
+    <!-- ZONE 3: POWER CORE (Centered Energy Bar) -->
+    <div class="gcd-power-core">
+      <div class="gcd-energy-wrapper">
+        <div class="gcd-bar-shell" id="gcd-bar-shell">
+          <span class="gcd-char-name" id="gcd-char-name">DASH</span>
+          <div class="gcd-avatar" id="gcd-avatar">
+            <div class="gcd-avatar-img" id="gcd-avatar-img"
+              style="background-image: url('https://unclestevenandfriends-pixel.github.io/The-naming-game-noun-presentation-assets/assets/characters/rusty_healthy.jpeg');">
+            </div>
+          </div>
+          <div class="gcd-bar-container" id="gcd-bar-container">
+            <div class="gcd-bar-fill" id="gcd-bar-fill"></div>
+          </div>
+        </div>
+        <span class="gcd-health-readout" id="gcd-health-readout">80/80</span>
+        <div class="gcd-crystals">
+          <span class="gcd-gem">💎</span>
+          <span class="gcd-gem-count" id="gcd-gem-count">0</span>
+        </div>
+        <span class="gcd-bar-label">HP</span>
+      </div>
+    </div>
+
+    <!-- ZONE 4 + 5: NAVIGATION + STATUS -->
+    <div class="gcd-right">
+      <div class="gcd-nav">
+        <button class="gcd-nav-btn" id="gcd-prev" onclick="prevSlide()">
+          <i data-lucide="chevron-left"></i>
+        </button>
+        <button class="gcd-dynamic-cta" id="gcd-dynamic-cta" onclick="handleDynamicCTA()">
+          START <i data-lucide="play"></i>
+        </button>
+        <button class="gcd-nav-btn" id="gcd-next" onclick="nextSlide()">
+          <i data-lucide="chevron-right"></i>
+        </button>
+      </div>
+
+      <div class="gcd-status">
+        <span class="gcd-slide-counter" id="gcd-slide-counter">01 / 32</span>
+      </div>
+    </div>
+
   </nav>
 
   <!-- LOBBY SCREEN -->
@@ -1524,7 +1528,7 @@
         // For cleanliness, we will add the logic in the main script block below,
         // but we need to ensure these elements have IDs or are selectable.
         // I added IDs to the last row as an example, but let's use a class-based approach in the main script.
-        // Actually, let's just add the IDs to alhem now for safety.
+        // Actually, let's just add the IDs to alw for safety.
       </script>
 
       <!-- Slide 23: The Golden Rule Challenge -->
@@ -2190,6 +2194,7 @@
     <script src="js/reporting.js"></script>
     <script src="js/textboard.js"></script>
     <script src="js/main.js"></script>
+
     <script>
       window.dismissIntro = function () {
         const intro = document.getElementById('intro-overlay');
@@ -2197,6 +2202,7 @@
           intro.style.opacity = '0';
           intro.style.pointerEvents = 'none';
           setTimeout(() => intro.remove(), 1000);
+          document.body.classList.remove('intro-active');
           if (typeof SoundFX !== 'undefined') {
             SoundFX.init();
             if (SoundFX.unlock) SoundFX.unlock();

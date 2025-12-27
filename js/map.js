@@ -198,9 +198,18 @@ const MapSystem = {
     },
 
     injectMapButton() {
+        const header = document.querySelector('nav.glass-command-deck');
+        const dynamicCta = document.querySelector('.gcd-dynamic-cta');
+        const legacyGroup = document.getElementById('map-nav-group');
+        const gcdCounter = document.getElementById('gcd-slide-counter');
+        if (header || dynamicCta || gcdCounter) {
+            if (legacyGroup) legacyGroup.remove();
+            return;
+        }
+        if (document.getElementById('gcd-dynamic-cta')) return;
         const nav = document.querySelector('nav');
         if (nav && !document.getElementById('map-nav-group')) {
-            const counter = document.getElementById('slide-counter');
+            const counter = document.getElementById('gcd-slide-counter');
             const groupHTML = `
             <div id="map-nav-group" class="ml-3 flex items-center gap-2">
                 <button id="prev-arrow" data-nav="prev" onclick="if(window.prevSlide){window.prevSlide()}" type="button"
@@ -1000,7 +1009,7 @@ const MapSystem = {
             accessedNodes: this.state.accessedNodes,
             lastBranchByHub: this.state.lastBranchByHub
         };
-        localStorage.setItem('naming_game_map_v4', JSON.stringify(data));
+        SafeStorage.setItem('naming_game_map_v4', JSON.stringify(data));
     },
     // SURGICAL SAFETY NET: Ensures hub children are in unlockedNodes
     // Called ONLY when entering a hub - does not change unlock logic

@@ -11,6 +11,50 @@ const SECURITY_CONFIG = {
   IS_LOCALHOST: ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:'
 };
 
+// === SAFE STORAGE WRAPPER ===
+const SafeStorage = {
+  _warned: false,
+
+  setItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      if (e.name === 'QuotaExceededError' || e.code === 22) {
+        if (!this._warned) {
+          this._warned = true;
+          console.error('💾 Storage Full! Unable to save:', key);
+          // Show user-friendly warning (non-blocking)
+          this.showStorageWarning();
+        }
+      } else {
+        console.error('💾 Storage Error:', e);
+      }
+      return false;
+    }
+  },
+
+  showStorageWarning() {
+    const existing = document.getElementById('storage-warning');
+    if (existing) return;
+
+    const toast = document.createElement('div');
+    toast.id = 'storage-warning';
+    toast.className = 'fixed bottom-4 left-4 bg-red-500/90 text-white px-4 py-3 rounded-xl shadow-lg z-[9999] flex items-center gap-3 animate-pulse';
+    toast.innerHTML = `
+            <span class="text-2xl">💾</span>
+            <div>
+                <strong>Storage Full!</strong>
+                <p class="text-sm opacity-80">Your work may not be saved. Close some browser tabs.</p>
+            </div>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white/70 hover:text-white">✕</button>
+        `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 10000);
+  }
+};
+window.SafeStorage = SafeStorage;
+
 // --- GLOBAL STATE MANAGEMENT ---
 let classData = {
   studentName: "",
@@ -84,6 +128,18 @@ function setPseudoFullscreen(enabled) {
   document.documentElement.classList.toggle('is-pseudo-fullscreen', enabled);
   document.body.classList.toggle('is-pseudo-fullscreen', enabled);
   window.__pseudoFullscreen = enabled;
+
+  // Update Glass Command Deck button state
+  const toolBtn = document.getElementById('gcd-fullscreen');
+  if (toolBtn) {
+    if (enabled) {
+      toolBtn.classList.add('active');
+      toolBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      toolBtn.classList.remove('active');
+      toolBtn.setAttribute('aria-pressed', 'false');
+    }
+  }
 }
 
 async function requestNativeFullscreen() {
@@ -142,6 +198,18 @@ if (!window.__fullscreenKeyListenerAttached) {
 if (!window.__fullscreenChangeListenerAttached) {
   const handler = () => {
     if (window.__pseudoFullscreen && isNativeFullscreen()) setPseudoFullscreen(false);
+
+    // Update Glass Command Deck button state for native fullscreen
+    const toolBtn = document.getElementById('gcd-fullscreen');
+  if (toolBtn) {
+    if (isNativeFullscreen()) {
+      toolBtn.classList.add('active');
+      toolBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      toolBtn.classList.remove('active');
+      toolBtn.setAttribute('aria-pressed', 'false');
+    }
+  }
   };
   document.addEventListener('fullscreenchange', handler);
   document.addEventListener('webkitfullscreenchange', handler);
@@ -187,7 +255,7 @@ const MarkupCoordinator = {
   forceSave() {
     try {
       const json = JSON.stringify(this.state);
-      localStorage.setItem('nameGame_markup', json);
+      SafeStorage.setItem('nameGame_markup', json);
       if (DEBUG_MODE) console.log("💾 State Saved to Storage");
     } catch (e) {
       console.warn("❌ Storage Full or Error:", e);
@@ -480,7 +548,7 @@ function saveProgress() {
   }
 
   const json = JSON.stringify(classData);
-  localStorage.setItem('nameGame_data', json);
+  SafeStorage.setItem('nameGame_data', json);
   if (DEBUG_MODE) console.log("Progress Saved");
 }
 window.saveProgress = saveProgress;
@@ -551,7 +619,7 @@ function persistTeacherNote() {
   const el = document.getElementById('teacher-note-input');
   if (!el) return;
   try {
-    localStorage.setItem(`nameGame_teacher_note::${getSessionStorageId()}`, el.value || '');
+    SafeStorage.setItem(`nameGame_teacher_note::${getSessionStorageId()}`, el.value || '');
   } catch (e) { }
 }
 window.persistTeacherNote = persistTeacherNote;

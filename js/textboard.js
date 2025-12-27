@@ -243,6 +243,10 @@ const TB_VoiceSystem = {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
             TB_Debug.log('⚠️ Speech Recognition not supported', 'warn');
+            const micBtn = document.getElementById('tb-mic-btn');
+            const micSpagBtn = document.getElementById('tb-mic-spag-btn');
+            if (micBtn) micBtn.style.display = 'none';
+            if (micSpagBtn) micSpagBtn.style.display = 'none';
             return;
         }
 
@@ -747,6 +751,16 @@ const TextBoardSystem = {
         TB_VoiceSystem.init();
         TB_ImagePaste.init(this.editor);
         TB_Debug.log('✅ TextBoard V14 initialized', 'success');
+        this.syncHeaderButton();
+    },
+
+    syncHeaderButton() {
+        const toolBtn = document.getElementById('gcd-projector');
+        if (!toolBtn) return;
+        const overlayVisible = this.overlay && !this.overlay.classList.contains('hidden');
+        const isActive = this.isOpen && overlayVisible;
+        toolBtn.classList.toggle('active', isActive);
+        toolBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     },
 
     populateColorGrids() {
@@ -792,10 +806,10 @@ const TextBoardSystem = {
         modeBtn('btn-mode-blank', 'blank');
         modeBtn('btn-mode-convo', 'conversation');
         modeBtn('btn-mode-dynamic', 'dynamic');
-        
+
         document.getElementById('btn-undo').addEventListener('click', () => TB_History.undo());
         document.getElementById('btn-redo').addEventListener('click', () => TB_History.redo());
-        
+
         // ═══════════════════════════════════════════════════════════════════
         // FORMATTING BUTTONS - Use mousedown to preserve selection
         // ═══════════════════════════════════════════════════════════════════
@@ -810,7 +824,7 @@ const TextBoardSystem = {
         formatBtn('btn-italic', 'italic');
         formatBtn('btn-underline', 'underline');
         formatBtn('btn-strike', 'strikethrough');
-        
+
         // Alignment with image support
         const alignBtn = (id, align, justify) => {
             const btn = document.getElementById(id);
@@ -823,12 +837,12 @@ const TextBoardSystem = {
         alignBtn('btn-left', 'left', 'justifyLeft');
         alignBtn('btn-center', 'center', 'justifyCenter');
         alignBtn('btn-right', 'right', 'justifyRight');
-        
+
         formatBtn('btn-ul', 'insertUnorderedList');
         formatBtn('btn-ol', 'insertOrderedList');
         formatBtn('btn-indent', 'indent');
         formatBtn('btn-outdent', 'outdent');
-        
+
         document.getElementById('btn-clear').addEventListener('click', () => this.clear());
         document.getElementById('btn-close').addEventListener('click', () => this.close());
         document.getElementById('tb-mic-btn').addEventListener('click', () => TB_VoiceSystem.toggle(this.editor, { autoSpag: false }));
@@ -1047,7 +1061,7 @@ const TextBoardSystem = {
         this.editor.addEventListener('keydown', (e) => {
             // Stop propagation to prevent game navigation from intercepting
             e.stopPropagation();
-            
+
             if (e.key === 'Tab') {
                 e.preventDefault();
                 document.execCommand(e.shiftKey ? 'outdent' : 'indent', false, null);
@@ -1730,9 +1744,11 @@ const TextBoardSystem = {
         this.isOpen = true;
         this.editor.focus();
         TB_Debug.log('📋 TextBoard opened');
+        this.syncHeaderButton();
     },
 
     close() {
+        if (window.TB_SlideState) TB_SlideState.persistToStorage();
         this.overlay.classList.remove('active');
         setTimeout(() => this.overlay.classList.add('hidden'), 600);
         this.isOpen = false;
@@ -1742,6 +1758,7 @@ const TextBoardSystem = {
         }
 
         TB_Debug.log('📋 TextBoard closed');
+        this.syncHeaderButton();
     },
 
     clearBoard() {
@@ -1753,6 +1770,84 @@ const TextBoardSystem = {
         }
     }
 };
+
+// === SLIDE STATE SYSTEM (Fixes Ghosting & Persistence) ===
+const TB_SlideState = {
+    currentSlideIndex: 0,
+    boards: {},  // { slideIndex: { html: "", drawings: null } }
+
+    saveCurrentBoard() {
+        const editor = document.getElementById('textboard-editor');
+        const canvas = document.getElementById('drawing-canvas');
+        if (!editor) return;
+
+        this.boards[this.currentSlideIndex] = {
+            html: editor.innerHTML,
+            drawings: canvas ? canvas.toDataURL() : null
+        };
+    },
+
+    loadBoardForSlide(slideIndex) {
+        // Only switch if the index is valid
+        if (typeof slideIndex !== 'number' || isNaN(slideIndex)) return;
+
+        this.saveCurrentBoard();  // Save current before switching
+        this.currentSlideIndex = slideIndex;
+
+        const editor = document.getElementById('textboard-editor');
+        const canvas = document.getElementById('drawing-canvas');
+        const saved = this.boards[slideIndex];
+
+        if (editor) {
+            editor.innerHTML = saved?.html || '';
+        }
+
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (saved?.drawings) {
+                const img = new Image();
+                img.onload = () => ctx.drawImage(img, 0, 0);
+                img.src = saved.drawings;
+            }
+        }
+
+        // Reset history stacks on slide switch to prevent cross-slide undo
+        TB_History.undoStack = [];
+        TB_History.redoStack = [];
+        TB_History.saveState(true); // Initial state for the new slide
+    },
+
+    persistToStorage() {
+        this.saveCurrentBoard();
+        SafeStorage.setItem('NAMING_GAME_TEXTBOARD_STATES', JSON.stringify({
+            boards: this.boards,
+            currentSlideIndex: this.currentSlideIndex
+        }));
+    },
+
+    restoreFromStorage() {
+        const saved = localStorage.getItem('NAMING_GAME_TEXTBOARD_STATES');
+        if (!saved) return;
+        try {
+            const data = JSON.parse(saved);
+            this.boards = data.boards || {};
+            // Don't override currentSlideIndex here, wait for navigation hook
+
+            // Initial load for current slide if editor is already open (unlikely)
+            const activeSlide = (window.NavigationGuard ? NavigationGuard.getCurrentSlide() : 0);
+            const editor = document.getElementById('textboard-editor');
+            if (editor && editor.innerHTML === '') {
+                this.loadBoardForSlide(activeSlide);
+            }
+        } catch (e) {
+            console.error("TB State corrupt:", e);
+        }
+    }
+};
+
+// Expose to window for navigation hooks
+window.TB_SlideState = TB_SlideState;
 
 // ╔════════════════════════════════════════════════════════════════════════╗
 // ║  AI TEACHER INTEGRATION (GEMINI 2.0 FLASH)                             ║
@@ -2011,6 +2106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // === GLOBAL EXPOSURE FOR MAIN GAME INTEGRATION ===
 window.TextBoardSystem = TextBoardSystem;
-window.toggleTextBoard = function() {
+window.toggleTextBoard = function () {
     TextBoardSystem.toggle();
+    TextBoardSystem.syncHeaderButton();
 };

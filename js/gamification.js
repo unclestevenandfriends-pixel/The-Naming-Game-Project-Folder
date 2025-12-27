@@ -162,6 +162,12 @@ const GameEngine = {
                 if (this.config.characterId && this.characters[this.config.characterId]) {
                     this.active = true;
                     this.injectHUD();
+                    const maxHealth = this.config.maxHealth || 100;
+                    const currentHealth = this.config.currentHealth ?? maxHealth;
+                    const healthPercent = maxHealth ? (currentHealth / maxHealth) * 100 : 100;
+                    if (window.EnergyBarController) {
+                        EnergyBarController.updateHealth(healthPercent);
+                    }
                     console.log("🎮 Game Session Restored:", this.config.characterId);
                 }
             } catch (e) {
@@ -470,6 +476,9 @@ const GameEngine = {
         this.config.characterId = id;
         this.saveGameState();
         this.showCharacterSelect(true);
+        if (window.EnergyBarController) {
+            EnergyBarController.updateHealth(100);
+        }
         setTimeout(() => { const newNameInput = document.getElementById('student-name'); const newDateInput = document.getElementById('class-date'); if (newNameInput) newNameInput.value = savedName; if (newDateInput) newDateInput.value = savedDate; }, 50);
         console.log(`🎮 Selected: ${this.characters[id].name}`);
     },
@@ -505,15 +514,24 @@ const GameEngine = {
         this.config.powerups = { ...char.startingPowerups };
         this.slideProgress = {};
 
+        if (window.EnergyBarController) {
+            EnergyBarController.baseMaxHealth = this.config.maxHealth;
+            EnergyBarController.refreshMetrics();
+        }
+
         this.active = true;
         this.saveGameState();
         this.injectHUD();
+        if (window.EnergyBarController) {
+            EnergyBarController.updateHealth(100);
+        }
 
         // --- HIDE LOBBY & SHOW INTRO ---
         const lobby = document.getElementById('lobby-screen');
         if (lobby) lobby.style.display = 'none';
         const introOverlay = document.getElementById('intro-overlay');
         if (introOverlay) introOverlay.classList.remove('hidden');
+        document.body.classList.add('intro-active');
 
         const viewport = document.getElementById('viewport-frame');
         const nav = document.querySelector('nav');
@@ -538,9 +556,24 @@ const GameEngine = {
         }
 
         // ═══════════════════════════════════════════════════════════════════════════════
+        // CRITICAL: Clear saved slide position so new mission always starts at hero slide
+        // ═══════════════════════════════════════════════════════════════════════════════
+        if (typeof SafeStorage !== 'undefined') {
+            SafeStorage.setItem('nameGame_slide_key', 'hero');
+            SafeStorage.setItem('nameGame_slide', '0');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
         // CRITICAL: Clear lobby lock to allow navigation
         // ═══════════════════════════════════════════════════════════════════════════════
         window.LOBBY_ACTIVE = false;
+        document.body.removeAttribute('data-lobby-active');
+        document.body.classList.remove('lobby-open'); // GLASS COMMAND DECK V2.0
+        if (nav) {
+            nav.style.opacity = '1';
+            nav.style.visibility = 'visible';
+            nav.style.pointerEvents = 'auto';
+        }
         console.log("🔓 LOBBY_ACTIVE = false (navigation unlocked via beginMission)");
 
         // --- MAP INTRO SEQUENCE DISABLED ---
@@ -560,44 +593,71 @@ const GameEngine = {
         }
 
         console.log(`🚀 Mission started! Player: ${playerName}, Character: ${char.name}`);
+
+        // --- INITIALIZE FRIENDLY GUIDE SYSTEM ---
+        // Initialize guide system but DO NOT auto-start the tour
+        // Tour will be manually triggered when player reaches hero slide
+        setTimeout(() => {
+            if (window.GuideSystem && typeof window.GuideSystem.init === 'function') {
+                console.log('[GameEngine] Initializing Friendly Guide System (init only, no auto-start)...');
+                window.GuideSystem.init();
+
+                // Set flag to indicate guide is ready to start when player reaches hero slide
+                window.GUIDE_READY = true;
+
+                const currentKey = window.SlideRegistry && typeof window.SlideRegistry.getCurrentKey === 'function'
+                    ? window.SlideRegistry.getCurrentKey()
+                    : '';
+                if (currentKey === 'hero' && !window.LOBBY_ACTIVE && typeof window.GuideSystem.startHeroTour === 'function') {
+                    const started = window.GuideSystem.startHeroTour();
+                    console.log('[GameEngine] Hero Tour started from beginMission:', started);
+                    if (started) window.GUIDE_READY = false;
+                }
+            }
+        }, 2000);
     },
 
     // ═══════════════════════════════════════════════════════════════════════════════
     // HUD INJECTION
     // ═══════════════════════════════════════════════════════════════════════════════
+    // GLASS COMMAND DECK: Show and populate the compact HUD (already in HTML)
     injectHUD() {
-        const existingHUD = document.getElementById('game-hud');
-        if (existingHUD) existingHUD.remove();
         const char = this.characters[this.config.characterId];
         if (!char) return;
+
         const healthPercent = (this.config.currentHealth / this.config.maxHealth) * 100;
         const healthState = this.getHealthState(healthPercent);
         const avatarUrl = this.getAssetUrl(this.config.characterId, healthState);
-        const barWidth = 150, avatarSize = 36;
-        const avatarPosition = Math.max(0, (healthPercent / 100) * (barWidth - avatarSize));
 
-        // HUD is injected INSIDE the nav bar, positioned after the module number
-        const nav = document.querySelector('nav');
-        if (!nav) return;
+        // Get the compact HUD elements
+        const hudContainer = document.getElementById('player-hud-compact');
+        const avatarImg = document.getElementById('avatar-img');
+        const healthFill = document.getElementById('health-fill');
+        const crystalCount = document.getElementById('crystal-count');
 
-        const hudHTML = `<div id="game-hud" class="absolute top-1/2 left-[180px] -translate-y-1/2 z-40 transition-all duration-300 opacity-0 pointer-events-auto flex items-center gap-3">
-            <div class="relative">
-                <div class="relative w-[150px] h-6 bg-black/80 rounded-lg border-2 border-[#fbbf24] overflow-visible" style="box-shadow: 0 0 10px rgba(255, 215, 0, 0.3), inset 0 0 15px rgba(0,0,0,0.8);">
-                    <div id="hud-health-damage" class="absolute top-0.5 left-0.5 bottom-0.5 bg-red-600/80 rounded transition-all duration-500 ease-linear" style="width: calc(${healthPercent}% - 4px);"></div>
-                    <div id="hud-health-fill" class="absolute top-0.5 left-0.5 bottom-0.5 rounded transition-all duration-300 ease-out" style="width: calc(${healthPercent}% - 4px); background: linear-gradient(180deg, #facc15 0%, #eab308 50%, #ca8a04 51%, #a16207 100%); box-shadow: 0 0 6px rgba(250, 204, 21, 0.5);"></div>
-                    <div id="hud-avatar-container" class="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border-2 bg-black overflow-hidden z-20 transition-all duration-300 ease-out" style="left: ${avatarPosition}px; border-color: ${char.color}; box-shadow: 0 0 10px ${char.color}60;">
-                        <img id="hud-avatar-img" src="${avatarUrl}" alt="${char.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-lg bg-black/80\\'>${char.icon}</div>';">
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-1.5 bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
-                <span class="text-sm" id="hud-crystal-icon">💎</span>
-                <span id="hud-crystal-count" class="text-sm font-display font-bold text-white">${this.config.crystals}</span>
-                <div id="hud-combo" class="hidden ml-1 px-1.5 py-0.5 rounded-full bg-yellow-500/20 border border-yellow-500/30"><span class="text-[10px] font-bold text-yellow-400">🔥 x<span id="hud-combo-count">0</span></span></div>
-            </div>
-        </div>`;
-        nav.insertAdjacentHTML('beforeend', hudHTML);
-        setTimeout(() => { const hud = document.getElementById('game-hud'); if (hud) hud.style.opacity = '1'; }, 100);
+        if (hudContainer) {
+            // Show the HUD
+            hudContainer.style.display = 'flex';
+
+            // Set avatar image
+            if (avatarImg) {
+                avatarImg.src = avatarUrl;
+                avatarImg.alt = char.name;
+            }
+
+            // Set health bar width
+            if (healthFill) {
+                healthFill.style.width = `${healthPercent}%`;
+            }
+
+            // Set crystal count
+            if (crystalCount) {
+                crystalCount.textContent = this.config.crystals;
+            }
+
+            console.log('[GameEngine] Glass Command Deck HUD initialized');
+        }
+
         this.injectDock();
     },
 
@@ -627,23 +687,66 @@ const GameEngine = {
     takeDamage(amount) { this.config.currentHealth = Math.max(0, this.config.currentHealth - amount); this.updateHUD(); if (this.config.currentHealth <= 0) this.onGameOver(); },
 
     updateHUD() {
-        if (!document.getElementById('game-hud')) return;
+        const maxHealth = this.config.maxHealth || 100;
+        const healthPercentRaw = maxHealth ? (this.config.currentHealth / maxHealth) * 100 : 100;
+        const healthPercent = Math.max(0, Math.min(100, healthPercentRaw));
+        const healthState = this.getHealthState(healthPercent);
+
+        // GLASS COMMAND DECK V2.0: Update energy bar controller
+        if (window.EnergyBarController) {
+            EnergyBarController.updateHealth(healthPercent);
+        }
+
+        // GLASS COMMAND DECK V2.0: Update crystal display
+        const gcdCrystalCount = document.getElementById('gcd-gem-count');
+        if (gcdCrystalCount) {
+            gcdCrystalCount.textContent = this.config.crystals;
+        }
+        if (window.EnergyBarController && typeof EnergyBarController.refreshMetrics === 'function') {
+            EnergyBarController.refreshMetrics();
+        }
+
+        // GLASS COMMAND DECK: Update compact HUD elements
+        const hudContainer = document.getElementById('player-hud-compact');
+        if (!hudContainer) return;
+
         const char = this.characters[this.config.characterId];
         if (!char) return;
-        const healthPercent = (this.config.currentHealth / this.config.maxHealth) * 100;
-        const healthState = this.getHealthState(healthPercent);
-        const damageLayer = document.getElementById('hud-health-damage');
-        const fill = document.getElementById('hud-health-fill');
-        if (damageLayer) { setTimeout(() => { damageLayer.style.width = `calc(${healthPercent}% - 8px)`; }, 200); }
-        if (fill) { fill.style.width = `calc(${healthPercent}% - 8px)`; if (healthPercent <= 25) { fill.style.background = 'repeating-linear-gradient(45deg, #ef4444, #ef4444 10px, #ffffff 10px, #ffffff 20px)'; fill.classList.add('animate-pulse'); } else { fill.style.background = 'linear-gradient(180deg, #facc15 0%, #eab308 50%, #ca8a04 51%, #a16207 100%)'; fill.classList.remove('animate-pulse'); } }
-        const avatarContainer = document.getElementById('hud-avatar-container');
-        const avatarImg = document.getElementById('hud-avatar-img');
-        if (avatarContainer) { const barWidth = 200, avatarSize = 44; const avatarPosition = Math.max(0, (healthPercent / 100) * (barWidth - avatarSize)); avatarContainer.style.left = `${avatarPosition}px`; if (healthPercent <= 25) { avatarContainer.style.borderColor = '#ef4444'; avatarContainer.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.6)'; avatarContainer.classList.add('animate-pulse'); } else if (healthPercent <= 50) { avatarContainer.style.borderColor = '#facc15'; avatarContainer.style.boxShadow = '0 0 12px rgba(250, 204, 21, 0.6)'; avatarContainer.classList.remove('animate-pulse'); } else { avatarContainer.style.borderColor = char.color; avatarContainer.style.boxShadow = `0 0 12px ${char.color}60`; avatarContainer.classList.remove('animate-pulse'); } }
-        if (avatarImg) { const newAvatarUrl = this.getAssetUrl(this.config.characterId, healthState); if (avatarImg.src !== newAvatarUrl) { avatarImg.style.opacity = '0'; setTimeout(() => { avatarImg.src = newAvatarUrl; avatarImg.style.opacity = '1'; }, 150); } }
-        const healthText = document.getElementById('hud-health-current'); if (healthText) healthText.textContent = this.config.currentHealth;
-        const crystalCount = document.getElementById('hud-crystal-count'); if (crystalCount) crystalCount.textContent = this.config.crystals;
-        const comboEl = document.getElementById('hud-combo'); const comboCount = document.getElementById('hud-combo-count');
-        if (comboEl && comboCount) { if (this.config.comboCount >= 3) { comboEl.classList.remove('hidden'); comboCount.textContent = this.config.comboCount; } else { comboEl.classList.add('hidden'); } }
+
+        // Update health fill
+        const healthFill = document.getElementById('health-fill');
+        if (healthFill) {
+            healthFill.style.width = `${healthPercent}%`;
+
+            // Change color based on health level
+            if (healthPercent <= 25) {
+                healthFill.style.background = 'repeating-linear-gradient(45deg, #ef4444, #ef4444 8px, #ffffff 8px, #ffffff 16px)';
+                healthFill.classList.add('animate-pulse');
+            } else {
+                healthFill.style.background = 'linear-gradient(90deg, #facc15, #fbbf24)';
+                healthFill.classList.remove('animate-pulse');
+            }
+        }
+
+        // Update avatar image if health state changed
+        const avatarImg = document.getElementById('avatar-img');
+        if (avatarImg) {
+            const newAvatarUrl = this.getAssetUrl(this.config.characterId, healthState);
+            if (avatarImg.src !== newAvatarUrl) {
+                avatarImg.style.opacity = '0';
+                setTimeout(() => {
+                    avatarImg.src = newAvatarUrl;
+                    avatarImg.style.opacity = '1';
+                }, 150);
+            }
+        }
+
+        // Update crystal count
+        const crystalCount = document.getElementById('crystal-count');
+        if (crystalCount) {
+            crystalCount.textContent = this.config.crystals;
+        }
+
     },
 
     // === TIMER SYSTEM ===
@@ -664,11 +767,323 @@ const GameEngine = {
     onGameOver() { console.log('💀 Game Over - Health depleted'); this.showFloatingText("GAME OVER", "#ef4444", 2000); },
 
     // === STATE PERSISTENCE ===
-    saveGameState() { localStorage.setItem('nameGame_character', JSON.stringify({ characterId: this.config.characterId, maxHealth: this.config.maxHealth, currentHealth: this.config.currentHealth, crystals: this.config.crystals, comboCount: this.config.comboCount, crystalMultiplier: this.config.crystalMultiplier, powerups: this.config.powerups })); },
+    saveGameState() { SafeStorage.setItem('nameGame_character', JSON.stringify({ characterId: this.config.characterId, maxHealth: this.config.maxHealth, currentHealth: this.config.currentHealth, crystals: this.config.crystals, comboCount: this.config.comboCount, crystalMultiplier: this.config.crystalMultiplier, powerups: this.config.powerups })); },
 
     clearGameState() { localStorage.removeItem('nameGame_character'); this.config = { characterId: null, maxHealth: 100, currentHealth: 100, crystals: 0, comboCount: 0, damagePerWrong: 8, damagePerWrongTimed: 16, crystalsPerCorrect: 10, crystalMultiplier: 1, comboThresholds: { good: 3, excellent: 5, unstoppable: 10 }, powerups: { clues: 0, shields: 0, freezes: 0 } }; this.slideProgress = {}; this.active = false; }
 };
 
 window.GameEngine = GameEngine;
 document.addEventListener('DOMContentLoaded', () => { GameEngine.init(); });
-console.log("✅ gamification.js v2.1.1 loaded - RESTORED with Full Features");
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GLASS COMMAND DECK V2.0 - ENERGY BAR CONTROLLER
+// ═══════════════════════════════════════════════════════════════════════════════
+const EnergyBarController = {
+    W_MIN: null,
+    W_MAX: null,
+    TOTAL_NODES: 17,
+    pendingGrowth: null,
+    baseMaxHealth: null,
+    _measured: false,
+    _layout: null,
+
+    getTotalNodes() {
+        if (window.MapSystem && MapSystem.mapNodes) {
+            const nodes = Object.values(MapSystem.mapNodes)
+                .filter(node => Array.isArray(node.slideKeys) && node.slideKeys.length > 0);
+            if (nodes.length) return nodes.length;
+        }
+        return this.TOTAL_NODES;
+    },
+
+    getBarWidthForNodes(completedNodes) {
+        const totalNodes = this.getTotalNodes();
+        const nodes = Number.isFinite(completedNodes) ? completedNodes : 0;
+        const clamped = Math.max(0, Math.min(totalNodes, nodes));
+        const minWidth = Number.isFinite(this.W_MIN) ? this.W_MIN : 120;
+        const maxWidth = Number.isFinite(this.W_MAX) ? this.W_MAX : 360;
+        if (totalNodes <= 0 || maxWidth <= minWidth) return minWidth;
+        const progress = clamped / totalNodes;
+        const eased = Math.pow(progress, 0.7);
+        return minWidth + ((maxWidth - minWidth) * eased);
+    },
+
+    refreshMetrics() {
+        if (!this._layout) {
+            this._layout = {
+                nav: document.querySelector('nav.glass-command-deck'),
+                left: document.querySelector('.glass-command-deck .gcd-left'),
+                right: document.querySelector('.glass-command-deck .gcd-right'),
+                powerCore: document.querySelector('.glass-command-deck .gcd-power-core'),
+                wrapper: document.querySelector('.glass-command-deck .gcd-energy-wrapper'),
+                barShell: document.querySelector('.glass-command-deck .gcd-bar-shell'),
+                gem: document.querySelector('.glass-command-deck .gcd-power-core .gcd-crystals')
+            };
+        }
+
+        const { nav, left, right, powerCore, wrapper, barShell, gem } = this._layout;
+        if (!nav || !left || !right || !powerCore || !wrapper || !barShell) return;
+
+        if (!this._measured) {
+            const styles = getComputedStyle(barShell);
+            const minWidth = parseFloat(styles.minWidth || styles.width);
+            if (Number.isFinite(minWidth) && minWidth > 0) {
+                this.W_MIN = minWidth;
+                this._measured = true;
+            }
+        }
+
+        const navStyles = getComputedStyle(nav);
+        const gap = parseFloat(navStyles.columnGap || navStyles.gap || 0) || 0;
+        const paddingLeft = parseFloat(navStyles.paddingLeft || 0) || 0;
+        const paddingRight = parseFloat(navStyles.paddingRight || 0) || 0;
+
+        const leftStyles = getComputedStyle(left);
+        const rightStyles = getComputedStyle(right);
+        const leftGap = parseFloat(leftStyles.columnGap || leftStyles.gap || 0) || 0;
+        const rightGap = parseFloat(rightStyles.columnGap || rightStyles.gap || 0) || 0;
+
+        const sumChildWidths = (container, gap) => {
+            const children = Array.from(container.children || []);
+            if (!children.length) return container.getBoundingClientRect().width;
+            const widths = children.map(child => child.getBoundingClientRect().width);
+            const sum = widths.reduce((acc, width) => acc + width, 0);
+            return sum + (gap * Math.max(0, children.length - 1));
+        };
+
+        const leftWidth = sumChildWidths(left, leftGap);
+        const rightWidth = sumChildWidths(right, rightGap);
+        nav.style.removeProperty('--gcd-side-width');
+
+        const reservedLeft = leftWidth;
+        const reservedRight = rightWidth;
+        const safeBuffer = 0;
+        const availableWidth = nav.clientWidth - paddingLeft - paddingRight - reservedLeft - reservedRight - (gap * 2) - safeBuffer;
+        if (!Number.isFinite(availableWidth) || availableWidth <= 0) return;
+
+        const wrapperStyles = getComputedStyle(wrapper);
+        const wrapperPadding = (parseFloat(wrapperStyles.paddingLeft || 0) || 0) + (parseFloat(wrapperStyles.paddingRight || 0) || 0);
+        const gemGap = parseFloat(wrapperStyles.getPropertyValue('--gcd-gem-gap') || 0) || 0;
+        const gemWidth = gem ? gem.getBoundingClientRect().width : 0;
+        const gemReserve = gemWidth > 0 ? gemWidth + gemGap : 0;
+        const breathing = 0;
+        const maxWidth = Math.max(this.W_MIN || 0, Math.floor(availableWidth - wrapperPadding - (breathing * 2) - gemReserve));
+
+        if (Number.isFinite(maxWidth) && maxWidth > 0) {
+            this.W_MAX = maxWidth;
+            powerCore.style.width = `${availableWidth}px`;
+            powerCore.style.minWidth = `${availableWidth}px`;
+            powerCore.style.maxWidth = `${availableWidth}px`;
+        }
+    },
+
+    updateBarWidth(completedNodes) {
+        this.refreshMetrics();
+        const width = this.getBarWidthForNodes(completedNodes);
+        document.documentElement.style.setProperty('--energy-bar-width', `${width}px`);
+        const barShell = this._layout?.barShell || document.querySelector('.glass-command-deck .gcd-bar-shell');
+        if (barShell) {
+            barShell.style.width = `${width}px`;
+        }
+        const wrapper = this._layout?.wrapper || document.querySelector('.glass-command-deck .gcd-energy-wrapper');
+        if (wrapper) {
+            const styles = getComputedStyle(wrapper);
+            const padLeft = parseFloat(styles.paddingLeft || 0) || 0;
+            const padRight = parseFloat(styles.paddingRight || 0) || 0;
+            wrapper.style.width = `${width + padLeft + padRight}px`;
+        }
+        return width;
+    },
+
+    updateHealth(healthPercent) {
+        const pct = Number.isFinite(healthPercent) ? Math.max(0, Math.min(100, healthPercent)) : 100;
+        document.documentElement.style.setProperty('--health-percent', `${pct}`);
+        const barFill = document.getElementById('gcd-bar-fill');
+        if (barFill) barFill.style.width = `${pct}%`;
+        const avatar = document.getElementById('gcd-avatar-img');
+        if (avatar && window.GameEngine) {
+            const state = window.GameEngine.getHealthState(pct);
+            const url = window.GameEngine.getAssetUrl(window.GameEngine.config.characterId, state);
+            if (url) {
+                avatar.style.backgroundImage = `url("${url}")`;
+            } else {
+                const fallbackUrl = window.GameEngine.getAssetUrl(window.GameEngine.config.characterId, 'select');
+                if (fallbackUrl) avatar.style.backgroundImage = `url("${fallbackUrl}")`;
+            }
+        }
+
+        const readout = document.getElementById('gcd-health-readout');
+        if (readout && window.GameEngine) {
+            const maxHealth = window.GameEngine.config.maxHealth || 0;
+            const current = Math.round((maxHealth * pct) / 100);
+            readout.textContent = `${current}/${Math.round(maxHealth)}`;
+        }
+    },
+
+    animateGrowth(fromNodes, toNodes) {
+        this.refreshMetrics();
+        const start = performance.now();
+        const duration = 600;
+        const from = Number.isFinite(fromNodes) ? fromNodes : 0;
+        const to = Number.isFinite(toNodes) ? toNodes : from;
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+
+            const currentNodes = from + (to - from) * eased;
+            this.updateBarWidth(currentNodes);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
+    },
+
+    consumePendingGrowth() {
+        if (!this.pendingGrowth) return;
+        const { from, to, newMaxHealth, healAmount } = this.pendingGrowth;
+        this.pendingGrowth = null;
+        if (window.GameEngine && Number.isFinite(newMaxHealth)) {
+            const current = window.GameEngine.config.currentHealth ?? newMaxHealth;
+            const healed = Math.max(0, Number.isFinite(healAmount) ? healAmount : 0);
+            window.GameEngine.config.maxHealth = Math.round(newMaxHealth);
+            window.GameEngine.config.currentHealth = Math.min(window.GameEngine.config.maxHealth, current + healed);
+            window.GameEngine.updateHUD();
+        }
+        this.animateGrowth(from, to);
+    }
+};
+
+window.EnergyBarController = EnergyBarController;
+
+function getCompletedNodeCount() {
+    if (!window.MapSystem || !MapSystem.state || !Array.isArray(MapSystem.state.completedNodes)) return 0;
+    return MapSystem.state.completedNodes.length;
+}
+
+function getNodePerformance(nodeId) {
+    if (!window.MapSystem || !MapSystem.mapNodes || !window.GameEngine || !window.SlideRegistry) {
+        return { correct: 0, wrong: 0, attempts: 0 };
+    }
+    const node = MapSystem.mapNodes[nodeId];
+    if (!node || !Array.isArray(node.slideKeys)) return { correct: 0, wrong: 0, attempts: 0 };
+
+    let correct = 0;
+    let wrong = 0;
+    node.slideKeys.forEach((key) => {
+        const idx = window.SlideRegistry.indexByKey?.get(key);
+        if (typeof idx !== 'number') return;
+        const state = window.GameEngine.slideProgress?.[idx];
+        if (!state) return;
+        correct += state.correct || 0;
+        wrong += state.wrong || 0;
+    });
+
+    return { correct, wrong, attempts: correct + wrong };
+}
+
+function getHealPercentFromPerformance(perf) {
+    if (!perf || !perf.attempts) return 0;
+    const base = 0.08;
+    const penaltyPerWrong = 0.03;
+    const pct = base - (perf.wrong * penaltyPerWrong);
+    return Math.max(0, pct);
+}
+
+function hookEnergyBarToMapSystem() {
+    if (!window.MapSystem || typeof MapSystem.triggerNodeCompletion !== 'function') return false;
+    if (MapSystem._gcdEnergyHooked) return true;
+    MapSystem._gcdEnergyHooked = true;
+
+    const originalTrigger = MapSystem.triggerNodeCompletion.bind(MapSystem);
+    MapSystem.triggerNodeCompletion = function (nodeId, options = {}) {
+        const before = getCompletedNodeCount();
+        const result = originalTrigger(nodeId, options);
+        const after = getCompletedNodeCount();
+        if (window.EnergyBarController && after !== before) {
+            EnergyBarController.refreshMetrics();
+            const newBarWidth = EnergyBarController.getBarWidthForNodes(after);
+            const baseMax = EnergyBarController.baseMaxHealth || window.GameEngine?.config?.maxHealth || newBarWidth;
+            const minWidth = EnergyBarController.W_MIN || newBarWidth;
+            const newMaxHealth = Math.round(baseMax * (newBarWidth / minWidth));
+            const perf = getNodePerformance(nodeId);
+            const healPercent = getHealPercentFromPerformance(perf);
+            const healAmount = Math.round(newMaxHealth * healPercent);
+            EnergyBarController.pendingGrowth = {
+                from: before,
+                to: after,
+                newMaxHealth,
+                healAmount
+            };
+            if (MapSystem.active) {
+                EnergyBarController.consumePendingGrowth();
+            }
+        }
+        return result;
+    };
+
+    if (typeof MapSystem.show === 'function') {
+        const originalShow = MapSystem.show.bind(MapSystem);
+        MapSystem.show = function (...args) {
+            const result = originalShow(...args);
+            if (window.EnergyBarController) {
+                setTimeout(() => EnergyBarController.consumePendingGrowth(), 200);
+            }
+            return result;
+        };
+    }
+
+    if (window.EnergyBarController) {
+        EnergyBarController.updateBarWidth(getCompletedNodeCount());
+    }
+
+    return true;
+}
+
+function initEnergyBarController() {
+    if (!window.EnergyBarController) return;
+    EnergyBarController.refreshMetrics();
+    if (window.GameEngine && EnergyBarController.baseMaxHealth == null) {
+        EnergyBarController.baseMaxHealth = window.GameEngine.config.maxHealth || 100;
+    }
+    const maxHealth = window.GameEngine?.config?.maxHealth || 100;
+    const currentHealth = window.GameEngine?.config?.currentHealth ?? maxHealth;
+    const healthPercent = maxHealth ? (currentHealth / maxHealth) * 100 : 100;
+    EnergyBarController.updateHealth(healthPercent);
+    EnergyBarController.updateBarWidth(getCompletedNodeCount());
+}
+
+function scheduleEnergyBarInit() {
+    const init = () => { initEnergyBarController(); };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (window.EnergyBarController) {
+                EnergyBarController.refreshMetrics();
+                EnergyBarController.updateBarWidth(getCompletedNodeCount());
+            }
+        }, 150);
+    });
+
+    let attempts = 0;
+    const tryHook = () => {
+        if (hookEnergyBarToMapSystem()) return;
+        if (attempts >= 10) return;
+        attempts += 1;
+        setTimeout(tryHook, 200);
+    };
+    tryHook();
+}
+
+scheduleEnergyBarInit();

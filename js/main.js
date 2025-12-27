@@ -22,7 +22,28 @@ window.toggleMarkupMode = function () {
       indicator.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
     }
   }
+
+  // Update Glass Command Deck button state
+  const toolBtn = document.getElementById('gcd-markup');
+  if (toolBtn) {
+    if (!isHidden) {
+      toolBtn.classList.add('active');
+      toolBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      toolBtn.classList.remove('active');
+      toolBtn.setAttribute('aria-pressed', 'false');
+    }
+  }
 };
+
+function syncMarkupButtonState() {
+  const toolBtn = document.getElementById('gcd-markup');
+  if (!toolBtn) return;
+  const isHidden = document.body.classList.contains('markup-hidden');
+  toolBtn.classList.toggle('active', !isHidden);
+  toolBtn.setAttribute('aria-pressed', isHidden ? 'false' : 'true');
+}
+window.syncMarkupButtonState = syncMarkupButtonState;
 
 function launchApp(mode, params) {
   if (mode === 'report') {
@@ -38,6 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode');
   launchApp(mode, params);
+  if (document.querySelector('nav.glass-command-deck')) {
+    const legacyGroup = document.getElementById('map-nav-group');
+    if (legacyGroup) legacyGroup.remove();
+  }
+  syncMarkupButtonState();
 });
 
 function initClassMode() {
@@ -50,6 +76,9 @@ function initClassMode() {
   }
 
   window.LOBBY_ACTIVE = true;
+  document.body.setAttribute('data-lobby-active', 'true');
+  document.body.classList.add('lobby-open'); // GLASS COMMAND DECK V2.0
+  document.body.classList.remove('intro-active');
   const _lobby = document.getElementById('lobby-screen');
   const _viewport = document.getElementById('viewport-frame');
   const _slider = document.getElementById('slider');
@@ -70,6 +99,7 @@ function initClassMode() {
   if (typeof MarkupCoordinator !== 'undefined') MarkupCoordinator.init();
   if (typeof AnnotationSystem !== 'undefined') AnnotationSystem.init();
   if (typeof StickyNotesSystem !== 'undefined') StickyNotesSystem.loadNotesForSlide(0);
+  // NOTE: GuideSystem.init() is NOT called here - it's called when player reaches Slide 0
 
   const savedData = localStorage.getItem('nameGame_data');
   const savedCharacter = localStorage.getItem('nameGame_character');
@@ -132,6 +162,8 @@ function resumeSession() {
     gsap.to(lobby, {
       opacity: 0, duration: 0.8, onComplete: () => {
         window.LOBBY_ACTIVE = false;
+        document.body.removeAttribute('data-lobby-active');
+        document.body.classList.remove('lobby-open'); // GLASS COMMAND DECK V2.0
         if (lobby) lobby.style.display = 'none';
         if (viewport) { viewport.classList.remove('opacity-0'); viewport.style.pointerEvents = 'auto'; }
         if (nav) nav.classList.remove('opacity-0');
@@ -157,6 +189,9 @@ function resumeSession() {
         if (typeof StickyNotesSystem !== 'undefined' && typeof StickyNotesSystem.loadNotesForSlide === 'function') {
           StickyNotesSystem.loadNotesForSlide(currentIdx);
         }
+        if (window.TB_SlideState && typeof window.TB_SlideState.restoreFromStorage === 'function') {
+          window.TB_SlideState.restoreFromStorage();
+        }
       }
     });
   } else {
@@ -169,7 +204,7 @@ window.resumeSession = resumeSession;
 function startNewClass() {
   if (confirm("Are you sure? This will delete ALL progress.")) {
     window.__skipSessionFlush = true;
-    const keysToRemove = ['nameGame_data', 'nameGame_slide', 'nameGame_character', 'map_data', 'naming_game_map_v4', 'stickyNotes', 'annotations', 'nameGame_markup', 'gameEngine_state', 'classData'];
+    const keysToRemove = ['nameGame_data', 'nameGame_slide', 'nameGame_slide_key', 'nameGame_musicMuted', 'nameGame_character', 'map_data', 'naming_game_map_v4', 'stickyNotes', 'annotations', 'nameGame_markup', 'gameEngine_state', 'classData', 'NAMING_GAME_TEXTBOARD_STATES'];
     keysToRemove.forEach(key => localStorage.removeItem(key));
     try {
       Object.keys(localStorage).forEach((k) => {
@@ -180,6 +215,8 @@ function startNewClass() {
     if (typeof MarkupCoordinator !== 'undefined') try { MarkupCoordinator.clearAll(); } catch (e) { }
     if (typeof MapSystem !== 'undefined') try { MapSystem.resetProgress(); } catch (e) { }
     if (typeof GameEngine !== 'undefined') try { GameEngine.active = false; GameEngine.config = { characterId: null, currentHealth: 100, maxHealth: 100, crystals: 0, comboCount: 0, powerups: {} }; } catch (e) { }
+    // Reset Friendly Guide hints for new class
+    if (typeof SafeStorage !== 'undefined') try { SafeStorage.removeItem('guide_hintsSeen'); } catch (e) { }
     if (window.location.hash) history.replaceState(null, '', window.location.pathname);
     location.href = location.pathname + '?reset=' + Date.now();
   }
@@ -200,7 +237,7 @@ function startClass() {
 
   classData.studentName = nameInput.value;
   classData.classDate = dateInput.value;
-  localStorage.removeItem('stickyNotes'); localStorage.removeItem('annotations'); localStorage.removeItem('nameGame_markup'); localStorage.removeItem('nameGame_slide'); localStorage.removeItem('NAMING_GAME_TEXTBOARD_V1');
+  localStorage.removeItem('stickyNotes'); localStorage.removeItem('annotations'); localStorage.removeItem('nameGame_markup'); localStorage.removeItem('nameGame_slide'); localStorage.removeItem('nameGame_slide_key'); localStorage.removeItem('nameGame_musicMuted'); localStorage.removeItem('map_data'); localStorage.removeItem('naming_game_map_v4'); localStorage.removeItem('gameEngine_state'); localStorage.removeItem('NAMING_GAME_TEXTBOARD_V1');
   try {
     Object.keys(localStorage).forEach((k) => {
       if (k.startsWith('nameGame_iframe_')) localStorage.removeItem(k);
@@ -220,6 +257,8 @@ function startClass() {
   gsap.to(lobby, {
     opacity: 0, duration: 0.8, onComplete: () => {
       window.LOBBY_ACTIVE = false;
+      document.body.removeAttribute('data-lobby-active');
+      document.body.classList.remove('lobby-open'); // GLASS COMMAND DECK V2.0
       lobby.style.display = 'none';
       viewport.classList.remove('opacity-0'); viewport.style.pointerEvents = 'auto';
       nav.classList.remove('opacity-0');
@@ -244,11 +283,11 @@ function startClass() {
 window.startClass = startClass;
 
 const slider = document.getElementById('slider');
-const counter = document.getElementById('slide-counter');
+const counter = document.getElementById('gcd-slide-counter') || document.getElementById('slide-counter');
 const DISPLAY_TOTAL = 32;
 
 function updateCounter() {
-  if (!slider || !counter) return;
+  if (!slider) return;
 
   const currentIndex = (window.SlideRegistry ? window.SlideRegistry.getCurrentIndex() : 0);
   const slides = (window.SlideRegistry ? window.SlideRegistry.getSlides() : []);
@@ -270,17 +309,90 @@ function updateCounter() {
     displayLabel = (label === "—") ? label : String(label).padStart(2, "0");
   }
 
-  counter.innerText = `${displayLabel} / ${window.SlideRegistry?.DISPLAY_TOTAL ?? 32}`;
+  if (counter) {
+    counter.innerText = `${displayLabel} / ${window.SlideRegistry?.DISPLAY_TOTAL ?? 32}`;
+  }
 
   saveCurrentSlideKey();
+
+  if (typeof updateDynamicCTAState === 'function') updateDynamicCTAState();
 }
 
 function saveCurrentSlideKey() {
   if (!window.SlideRegistry) return;
 
   const key = window.SlideRegistry.getCurrentKey();
-  if (key) localStorage.setItem("nameGame_slide_key", key);
+  if (key) SafeStorage.setItem("nameGame_slide_key", key);
 }
+
+function startJourney() {
+  if (window.MapSystem && typeof MapSystem.handleMapButtonClick === 'function') {
+    MapSystem.handleMapButtonClick();
+    return;
+  }
+  if (window.MapSystem && typeof MapSystem.showMapForViewing === 'function') {
+    MapSystem.showMapForViewing();
+  }
+}
+
+function openMissionMap() {
+  if (window.MapSystem && typeof MapSystem.showMapForViewing === 'function') {
+    MapSystem.showMapForViewing();
+  }
+}
+
+function handleDynamicCTA() {
+  const currentKey = window.SlideRegistry?.getCurrentKey() || '';
+
+  if (currentKey === 'hero' || !window.GameEngine?.active) {
+    startJourney();
+  } else if (window.MapSystem?.active) {
+    window.MapSystem.hideMapOnly();
+  } else if (window.MapSystem?.handleMapButtonClick) {
+    window.MapSystem.handleMapButtonClick();
+  } else {
+    openMissionMap();
+  }
+
+  setTimeout(() => {
+    if (typeof updateDynamicCTAState === 'function') updateDynamicCTAState();
+  }, 50);
+}
+
+function updateDynamicCTAState() {
+  const btn = document.getElementById('gcd-dynamic-cta');
+  if (!btn) return;
+
+  const currentKey = window.SlideRegistry?.getCurrentKey() || '';
+  const currentIndex = window.MapSystem?.getCurrentSlideIndex?.() ?? window.SlideRegistry?.getCurrentIndex?.();
+  const node = window.MapSystem?.findNodeByKey?.(currentKey);
+  const exitSlide = node ? window.MapSystem?.resolveExitSlide?.(node) : null;
+  const isExitSlide = typeof exitSlide === 'number' && typeof currentIndex === 'number' && currentIndex === exitSlide;
+  const needsCompletion = isExitSlide && node && !window.MapSystem?.state?.completedNodes?.includes(node.id);
+
+  if (currentKey === 'hero' || !window.GameEngine?.active) {
+    btn.innerHTML = 'START <i data-lucide="play"></i>';
+  } else if (window.MapSystem?.active) {
+    btn.innerHTML = 'CONTINUE <i data-lucide="arrow-right"></i>';
+  } else if (needsCompletion) {
+    btn.innerHTML = 'CONTINUE <i data-lucide="arrow-right"></i>';
+  } else {
+    btn.innerHTML = 'MAP <i data-lucide="map"></i>';
+  }
+
+  if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+    lucide.createIcons();
+  }
+
+  if (window.EnergyBarController && typeof EnergyBarController.refreshMetrics === 'function') {
+    EnergyBarController.refreshMetrics();
+  }
+}
+
+window.startJourney = startJourney;
+window.openMissionMap = openMissionMap;
+window.handleDynamicCTA = handleDynamicCTA;
+window.updateDynamicCTAState = updateDynamicCTAState;
 
 function restoreBySlideKey() {
   const key = localStorage.getItem("nameGame_slide_key");
@@ -298,6 +410,11 @@ function restoreBySlideKey() {
 }
 if (slider) slider.addEventListener('scroll', () => window.requestAnimationFrame(updateCounter));
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if (typeof updateDynamicCTAState === 'function') updateDynamicCTAState();
+  }, 150);
+});
 
 function restoreSlideFromHash() {
   if (window.LOBBY_ACTIVE) return;
@@ -417,16 +534,16 @@ document.addEventListener('keydown', (e) => {
     if (activeEl.getAttribute('contenteditable') === 'true') return;
     if (activeEl.isContentEditable) return;
   }
-  
+
   // Check if TextBoard overlay is open
   const textboardOverlay = document.getElementById('textboard-overlay');
   if (textboardOverlay && textboardOverlay.classList.contains('active')) return;
-  
+
   // Check if map is open
-  const isMapOpen = document.getElementById('world-map-overlay') && 
-                    !document.getElementById('world-map-overlay').classList.contains('translate-y-full');
+  const isMapOpen = document.getElementById('world-map-overlay') &&
+    !document.getElementById('world-map-overlay').classList.contains('translate-y-full');
   if (isMapOpen) return;
-  
+
   if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') nextSlide();
   else if (e.key === 'ArrowLeft') prevSlide();
 });

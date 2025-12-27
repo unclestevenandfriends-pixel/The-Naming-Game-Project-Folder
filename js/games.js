@@ -141,6 +141,7 @@ function initSpotNounGrid() {
   if (!gameGrid || gameGrid.dataset.initialized === "true") return; // Prevent double init
   gameGrid.dataset.initialized = "true";
 
+
   const nouns = [
     { word: 'fox', isNoun: true }, { word: 'small', isNoun: false },
     { word: 'bus', isNoun: true }, { word: 'lovely', isNoun: false },
@@ -194,6 +195,15 @@ function initInteractiveSentences() {
   const slide9Container = document.getElementById('slide-9-sentences');
   if (!slide9Container || slide9Container.dataset.initialized === "true") return;
   slide9Container.dataset.initialized = "true";
+
+  // Friendly Guide: Show hint for Sentence Spotting challenge
+  if (typeof GuideSystem !== 'undefined') {
+    GuideSystem.showIfNeeded('sentencing', {
+      target: '#slide-9-sentences',
+      content: "Click on the nouns in each sentence! Remember, nouns are people, places, or things.",
+      buttonText: 'Got it!'
+    });
+  }
 
   const sentences = [
     { text: "The fox is tired.", nouns: ["fox"] },
@@ -264,6 +274,15 @@ function initCommonCheck() {
   const checkContainer = document.getElementById('common-check-container');
   if (!checkContainer || checkContainer.dataset.initialized === "true") return;
   checkContainer.dataset.initialized = "true";
+
+  // Friendly Guide: Show hint for Common Check challenge
+  if (typeof GuideSystem !== 'undefined') {
+    GuideSystem.showIfNeeded('common_check', {
+      target: '#common-check-container',
+      content: "Tick the boxes for common nouns only! Remember, common nouns are general names (not specific people, places, or brands).",
+      buttonText: 'Got it!'
+    });
+  }
 
   const checkHint = document.getElementById('common-check-hint');
   let checkCount = 0; // Local Scope
@@ -359,7 +378,7 @@ function initDetective() {
 
   function setSentenceIdx(idx) {
     sentenceIdx = idx;
-    localStorage.setItem('muddle_idx', String(sentenceIdx));
+    SafeStorage.setItem('muddle_idx', String(sentenceIdx));
   }
 
   // Initial Render
@@ -389,6 +408,7 @@ function initDetective() {
   }
 
   function renderSentence() {
+
     const data = detectiveSentences[sentenceIdx];
     if (!data) {
       finishDetective();
@@ -450,6 +470,15 @@ function initMuddle() {
   const containerA = document.getElementById('muddle-evidence-a');
   const containerB = document.getElementById('muddle-evidence-b');
 
+  // Friendly Guide: Show hint for Muddle Fix challenges (shared across A and B)
+  if ((containerA || containerB) && typeof GuideSystem !== 'undefined') {
+    GuideSystem.showIfNeeded('muddle_fix', {
+      target: containerA ? '#muddle-evidence-a' : '#muddle-evidence-b',
+      content: "Detective work! Find the words that should start with capital letters and click them to fix Miss Muddle's mistakes.",
+      buttonText: 'Start Investigating!'
+    });
+  }
+
   // Data internal to simplify scope
   const muddleWords = {
     "blue avenue": "Blue Avenue", "muddleton": "Muddleton", "asia": "Asia",
@@ -479,6 +508,8 @@ function initMuddle() {
   function renderMuddle(container, text) {
     if (!container || container.dataset.initialized === "true") return; // Prevent double render
     container.dataset.initialized = "true";
+
+
     container.innerHTML = "";
     const p = document.createElement('p');
     p.className = "leading-relaxed";
@@ -565,9 +596,9 @@ function initAllQuizzes() {
       { text: "Last year, I took a holiday to scotland.", nouns: ["scotland"] }
     ],
     q3: [
+      { text: "On july 4th, we watched fireworks.", nouns: ["july"] },
       { text: "Mum and I sometimes play badminton on mondays.", nouns: ["mondays"] },
-      { text: "I am going to holiday this sunday.", nouns: ["sunday"] },
-      { text: "On july 4th, we watched fireworks.", nouns: ["july"] }
+      { text: "I am going to holiday this sunday.", nouns: ["sunday"] }
     ]
   };
 
@@ -579,6 +610,15 @@ function initAllQuizzes() {
     const container = document.getElementById(containerId);
     if (!container || container.dataset.initialized === "true") return;
     container.dataset.initialized = "true";
+
+    // Friendly Guide: Show hint for Quiz challenges (shared across all 3 quizzes)
+    if (typeof GuideSystem !== 'undefined') {
+      GuideSystem.showIfNeeded('quiz', {
+        target: `#${containerId}`,
+        content: "Quiz time! Find the words that need capital letters in each sentence. Click them to fix the mistakes!",
+        buttonText: 'Start Quiz!'
+      });
+    }
 
     function capitalizeTargets(token, nouns) {
       let updated = token;
@@ -679,11 +719,22 @@ function initAllQuizzes() {
 // 7. EXIT TICKET RIDDLES (Slide 30)
 // ═════════════════════════════════════════════════════════════════════
 function initRiddles() {
+  const container = document.getElementById('riddles-container');
+  if (!container || container.dataset.initialized === "true") return;
+  container.dataset.initialized = "true";
+
+  // Friendly Guide: Show hint for Riddles challenge
+  if (typeof GuideSystem !== 'undefined') {
+    GuideSystem.showIfNeeded('riddles', {
+      target: '#riddles-container',
+      content: "Final challenge! Drag each answer to match its riddle. All these answers are proper nouns!",
+      buttonText: 'Let\'s solve them!'
+    });
+  }
+
   const qContainer = document.getElementById('riddle-questions');
   const aContainer = document.getElementById('riddle-answers');
-  if (!qContainer || !aContainer || qContainer.dataset.initialized === "true") return;
-  qContainer.dataset.initialized = "true";
-  aContainer.dataset.initialized = "true";
+  if (!qContainer || !aContainer) return; // Ensure both exist after container check
 
   const riddles = [
     { q: "You can use me to write a story.", a: "Crayon", id: "r1" },
@@ -785,6 +836,20 @@ function initRiddles() {
 // 8. QUICK CHECK (Slide 20 - Improved Logic)
 // ═════════════════════════════════════════════════════════════════════
 function initQuickCheck() {
+  const container = document.getElementById('quick-check-grid');
+  if (!container || container.dataset.initialized === "true") return;
+  container.dataset.initialized = "true";
+
+  // Friendly Guide: Show hint for Quick Check challenge
+  if (typeof GuideSystem !== 'undefined') {
+    GuideSystem.showIfNeeded('quick_check', {
+      target: '#quick-check-grid',
+      content: "Tick the boxes for proper nouns! Remember, proper nouns start with capital letters and name specific people, places, or things.",
+      buttonText: 'Got it!'
+    });
+  }
+
+
   // Fix: Use filter to find ALL matching slides, not just first
   const qcSlides = Array.from(document.querySelectorAll('.slide')).filter(s => s.innerHTML.includes('Quick Check'));
   const selected = getQuickCheckSelections();
@@ -845,6 +910,15 @@ function initThingsHuntGrid() {
   const grid = document.getElementById('things-hunt-grid');
   if (!grid || grid.dataset.init) return;
   grid.dataset.init = 'true';
+
+  // Friendly Guide: Show hint for Hunt Grid challenges (shared across all 3 hunts)
+  if (typeof GuideSystem !== 'undefined') {
+    GuideSystem.showIfNeeded('hunt_grid', {
+      target: '#things-hunt-grid',
+      content: "Find the correct nouns! Click on 5 cards that match the category. Watch out for tricky words!",
+      buttonText: 'Start Hunting!'
+    });
+  }
 
   const cards = [
     // CORRECT: Things & Animals (5)
@@ -919,6 +993,15 @@ function initPeopleHuntGrid() {
   if (!grid || grid.dataset.init) return;
   grid.dataset.init = 'true';
 
+  // Friendly Guide: Show hint for Hunt Grid challenges (shared across all 3 hunts)
+  if (typeof GuideSystem !== 'undefined') {
+    GuideSystem.showIfNeeded('hunt_grid', {
+      target: '#people-hunt-grid',
+      content: "Find the correct nouns! Click on 5 cards that match the category. Watch out for tricky words!",
+      buttonText: 'Start Hunting!'
+    });
+  }
+
   const cards = [
     // CORRECT: People nouns (5)
     { word: 'teacher', correct: true },
@@ -991,6 +1074,15 @@ function initPlacesHuntGrid() {
   const grid = document.getElementById('places-hunt-grid');
   if (!grid || grid.dataset.init) return;
   grid.dataset.init = 'true';
+
+  // Friendly Guide: Show hint for Hunt Grid challenges (shared across all 3 hunts)
+  if (typeof GuideSystem !== 'undefined') {
+    GuideSystem.showIfNeeded('hunt_grid', {
+      target: '#places-hunt-grid',
+      content: "Find the correct nouns! Click on 5 cards that match the category. Watch out for tricky words!",
+      buttonText: 'Start Hunting!'
+    });
+  }
 
   const cards = [
     // CORRECT: Place nouns (5)

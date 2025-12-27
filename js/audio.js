@@ -225,14 +225,55 @@ let musicIndex = 0;
 let musicPlayer = new Audio();
 musicPlayer.crossOrigin = "anonymous";
 let isMusicPlaying = false;
+let musicMuted = false;
+
+function loadMusicMuteState() {
+  const saved = localStorage.getItem('nameGame_musicMuted');
+  musicMuted = (saved === 'true');
+  return musicMuted;
+}
+
+function saveMusicMuteState() {
+  SafeStorage.setItem('nameGame_musicMuted', String(musicMuted));
+}
+
+function updateMuteUI(muted) {
+  const icon = document.getElementById('music-icon');
+  if (icon) {
+    icon.innerText = muted ? '🔇' : '🎵';
+    icon.style.opacity = muted ? '0.5' : '1';
+  }
+}
+
+function syncAudioButtonState() {
+  const toolBtn = document.getElementById('gcd-audio');
+  if (!toolBtn) return;
+  const isActive = !musicPlayer.paused && !musicMuted;
+  toolBtn.classList.toggle('active', isActive);
+  toolBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+}
 
 function initJukebox() {
+  // Load saved mute preference
+  loadMusicMuteState();
+
   if (isMusicPlaying && !musicPlayer.paused) return;
+
+  // If user had music muted, respect that and don't auto-start
+  if (musicMuted) {
+    updateMuteUI(true);
+    isMusicPlaying = false;
+    syncAudioButtonState();
+    return;
+  }
+
   isMusicPlaying = true;
   const volElem = document.getElementById('volume-slider');
   const vol = volElem ? parseFloat(volElem.value) : 0.5;
   musicPlayer.volume = isNaN(vol) ? 0.5 : vol;
   playNextTrack();
+  updateMuteUI(false);
+  syncAudioButtonState();
 }
 
 function playNextTrack() {
@@ -254,20 +295,30 @@ function playNextTrack() {
 
 function toggleMusic() {
   if (musicPlayer.paused) {
-    musicPlayer.play();
-    document.getElementById('music-icon').innerText = '🎵';
-    document.getElementById('music-icon').style.opacity = '1';
+    musicMuted = false;
+    if (!musicPlayer.src) {
+      playNextTrack();
+    } else {
+      musicPlayer.play();
+    }
+    updateMuteUI(false);
   } else {
+    musicMuted = true;
     musicPlayer.pause();
-    document.getElementById('music-icon').innerText = '🔇';
-    document.getElementById('music-icon').style.opacity = '0.5';
+    updateMuteUI(true);
   }
+  saveMusicMuteState();
+  syncAudioButtonState();
 }
 
 function setMusicVolume(val) {
-  musicPlayer.volume = val;
+musicPlayer.volume = val;
 }
+
+musicPlayer.addEventListener('play', syncAudioButtonState);
+musicPlayer.addEventListener('pause', syncAudioButtonState);
 
 window.initJukebox = initJukebox;
 window.toggleMusic = toggleMusic;
 window.setMusicVolume = setMusicVolume;
+window.openAudioPopover = toggleMusic;

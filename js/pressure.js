@@ -96,18 +96,23 @@ const PressureSystem = {
 
     // --- 2. HEADER CLOCK BUTTON ---
     injectClockButton() {
-        const slideCounter = document.getElementById('slide-counter');
-        if (!slideCounter || document.getElementById('pressure-clock-btn')) return;
+        const toolDock = document.querySelector('.gcd-tools');
+        if (!toolDock || document.getElementById('pressure-clock-btn')) return;
 
         const clockHTML = `
-        <button id="pressure-clock-btn" 
+        <button id="pressure-clock-btn"
             title="Start Timer"
-            class="flex items-center gap-1 bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/5 transition-all hover:bg-black/50 hover:border-brand-500/50 group cursor-pointer mr-2">
-            <span id="pressure-clock-icon" class="text-lg group-hover:scale-110">⏱️</span>
-            <span class="hidden md:inline text-xs font-bold uppercase tracking-widest text-secondary group-hover:text-brand-400">Timer</span>
+            data-tooltip="Timer"
+            aria-label="Timer"
+            aria-pressed="false"
+            class="gcd-tool-btn gcd-tool-btn--timer">
+            <span id="pressure-clock-icon" aria-hidden="true">⏱️</span>
         </button>`;
 
-        slideCounter.insertAdjacentHTML('beforebegin', clockHTML);
+        toolDock.insertAdjacentHTML('beforeend', clockHTML);
+        if (window.EnergyBarController && typeof EnergyBarController.refreshMetrics === 'function') {
+            setTimeout(() => EnergyBarController.refreshMetrics(), 0);
+        }
 
         document.getElementById('pressure-clock-btn').addEventListener('click', () => {
             if (this.active) this.stopTimer();
@@ -136,6 +141,7 @@ const PressureSystem = {
         const shadow = document.getElementById('pressure-shadow');
         const villain = document.getElementById('pressure-villain');
         const warning = document.getElementById('pressure-warning');
+        const clockBtn = document.getElementById('pressure-clock-btn');
         const clockIcon = document.getElementById('pressure-clock-icon');
 
         // Initial UI State
@@ -147,6 +153,11 @@ const PressureSystem = {
         if (villain) villain.style.right = '0%';
         if (shadow) shadow.style.opacity = '0'; // Start invisible
         if (warning) warning.style.opacity = '0'; // Start invisible
+        if (clockBtn) {
+            clockBtn.classList.add('active');
+            clockBtn.setAttribute('aria-pressed', 'true');
+            clockBtn.setAttribute('title', 'Stop Timer');
+        }
         if (clockIcon) clockIcon.textContent = '⏳';
 
         // THE LOOP
@@ -210,7 +221,13 @@ const PressureSystem = {
             if (el) el.style.opacity = '0';
         });
 
+        const clockBtn = document.getElementById('pressure-clock-btn');
         const clockIcon = document.getElementById('pressure-clock-icon');
+        if (clockBtn) {
+            clockBtn.classList.remove('active');
+            clockBtn.setAttribute('aria-pressed', 'false');
+            clockBtn.setAttribute('title', 'Start Timer');
+        }
         if (clockIcon) clockIcon.textContent = '⏱️';
     },
 

@@ -1,0 +1,1640 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\fnil\fcharset0 AppleColorEmoji;\f2\froman\fcharset0 Times-Bold;
+\f3\fmodern\fcharset0 Courier;\f4\fnil\fcharset0 Menlo-Regular;\f5\froman\fcharset0 TimesNewRomanPSMT;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red109\green109\blue109;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c50196\c50196\c50196;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid1\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid101\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid2}
+{\list\listtemplateid3\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid201\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid3}
+{\list\listtemplateid4\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat4\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid301\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid4}
+{\list\listtemplateid5\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat6\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid401\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid5}
+{\list\listtemplateid6\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat9\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid501\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid6}
+{\list\listtemplateid7\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat13\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid601\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid7}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}{\listoverride\listid5\listoverridecount0\ls5}{\listoverride\listid6\listoverridecount0\ls6}{\listoverride\listid7\listoverridecount0\ls7}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 I'll carefully analyze this complex situation. Let me start by reading the project files to understand the current state, then provide a comprehensive solution for the header bar design that addresses all the historical issues and your new requirements.Now let me look at the images you've provided and the slide registry to understand the complete picture:Now let me read the slide_registry to understand the total slide count for calculations:Now I have a complete picture. Let me create a comprehensive solution document that addresses all historical issues and your new requirements.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\fs48 \cf0 \strokec2 \uc0\u55356 \u57263 
+\f2\b  GLASS COMMAND DECK V2.0: COMPREHENSIVE HEADER REDESIGN\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\fs36 \cf0 The Naming Game - Header Implementation Master Plan\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 GOVERNING SAFETY PROTOCOLS (READ BEFORE EVERY PHASE)\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 1) Fix blocking JS errors before any UI work (canvas.js syntax error stops everything).\
+\line 2) Make one change per step, then reload and check the console before moving on.\
+\line 3) Replace header markup; never append new header UI to old DOM.\
+\line 4) Any renamed IDs/classes must be updated in HTML, CSS, JS, and guide targets in the same step.\
+\line 5) Keep header CSS namespaced and remove/disable old generic rules to prevent bleeding.\
+\line 6) Re-run lucide.createIcons() after any nav HTML change so icons render.\
+\line 7) Verify header visibility by checking lobby state (body.lobby-open or data-lobby-active) after each flow.\
+\line 8) If a step causes unexpected layout/behavior, stop and roll back that step before continuing.\
+\pard\pardeftab720\partightenfactor0
+
+\f0\b0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 1: CRITICAL ANALYSIS OF CURRENT STATE\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Claude Opus 4.5 (deep analysis, long-context reasoning).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: DENIED (analysis only; no file edits).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Review current state only; no solutions or code changes in this part.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Issues Identified from Screenshots (The "Deadly Dozen"):\
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+
+\fs24 \cf0 #\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Issue\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Severity\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Root Cause\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f0\b0 \cf0 1\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Duplicate Timer
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 CRITICAL\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Clock icon in tool dock AND separate "TIMER" pill\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Split Navigation Arrows
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 CRITICAL\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Left arrow is to the left of TIMER, right arrow is elsewhere\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Identity Text Overflow
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 HIGH\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 "The Naming..." truncated, 180px fixed width too narrow\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 4\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 CTA Not Dynamic
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 HIGH\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Shows "START JOURNEY" even on slide 04\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 5\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Missing Backdrop Blur
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 MEDIUM\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Glassmorphism effect not rendering\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 6\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Energy Bar Not Centered
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 HIGH\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Currently on far right, not the visual anchor\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 7\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Inconsistent Spacing
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 MEDIUM\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Elements not evenly distributed\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 8\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 No Growth Animation System
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 CRITICAL\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Energy bar cannot grow with progress\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 9\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Wrong Z-Index Layering
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 MEDIUM\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Tooltips may clip\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 10\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 CSS Bleeding
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 HIGH\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Header styles affecting markup drawer\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 11\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Guide Tour Trigger
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 HIGH\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Starting on wrong slide\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth240\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth3095\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth1106\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth5718\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 12\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Lobby Hide Mechanism
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 MEDIUM\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Using fragile :has() selector\cell \lastrow\row
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Console Error Blocking Everything:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 canvas.js:851 Uncaught SyntaxError: Missing initializer in const declaration\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This syntax error is halting all JavaScript execution.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 2: TECHNICAL SPECIFICATIONS\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Gemini 3 Pro (spec synthesis, calculations, large context).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: DENIED (spec reference only; no file edits).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Use specs for planning; do not implement or modify code in this part.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Screen Dimensions (16:9 Standard):\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 Reference Resolution: 1920 \'d7 1080 pixels\
+Header Height: 72px (fixed)\
+Header Width: 100vw (full viewport width)\
+Safe Padding: 24px left/right\
+Available Content Width: 1920 - 48 = 1872px (at 1080p)\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Node Progression Data:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 Total Completable Nodes: 17\
+
+\f4 \uc0\u9500 \u9472 \u9472 
+\f3  Linear Nodes: 6 (N1, N2, N5, N6, N7, N12)\
+
+\f4 \uc0\u9500 \u9472 \u9472 
+\f3  Branch Nodes: 8 (N3A, N3B, N3C, N9A, N9B, N10A, N10B, N10C)\
+
+\f4 \uc0\u9492 \u9472 \u9472 
+\f3  Gate/Boss Nodes: 3 (N4, DetectiveBoss, N11)\
+\
+Hub Nodes (non-completable): 3 (HubA, HubB, HubC)\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Energy Bar Growth Formula:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 const BAR_CONFIG = \{\
+    W_MIN: 120,      // Starting width (pixels)\
+    W_MAX: 360,      // Maximum width (pixels)\
+    TOTAL_NODES: 17  // Total completable nodes\
+\};\
+\
+// Width grows per node completion:\
+const growthPerNode = (W_MAX - W_MIN) / TOTAL_NODES; // \uc0\u8776  14.12px per node\
+\
+// Current bar visible width:\
+function getBarWidth(completedNodes) \{\
+    return W_MIN + (growthPerNode * completedNodes);\
+\}\
+\
+// Example states:\
+// Start: 120px (0 nodes)\
+// After 8 nodes: 120 + (14.12 * 8) \uc0\u8776  233px\
+// After 17 nodes: 360px (maximum)\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 3: NEW LAYOUT ARCHITECTURE\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Claude Opus 4.5 (layout architecture reasoning, design consistency).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: DENIED (architecture planning only; no file edits).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Discuss layout zones only; no HTML/CSS/JS changes in this part.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 5-Zone Grid System (Horizontal):\
+\pard\pardeftab720\partightenfactor0
+
+\f4\b0\fs26 \cf0 \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3  [IDENTITY]   [TOOLS]   [
+\f4 \uc0\u9552 \u9552 \u9552 
+\f3  POWER CORE 
+\f4 \uc0\u9552 \u9552 \u9552 
+\f3 ]   [NAVIGATION]   [CTA]        
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3    200px       200px          400px               200px        180px        
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3   (fixed)     (fixed)    (reserved max)         (fixed)      (fixed)       
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 
+\f3 \
+         
+\f4 \uc0\u8593 
+\f3                       
+\f4 \uc0\u8593 
+\f3                       
+\f4 \uc0\u8593 
+\f3 \
+     flex-shrink: 0        CENTERED ANCHOR        flex-shrink: 0\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Zone Breakdown:\
+\pard\pardeftab720\sa319\partightenfactor0
+
+\fs24 \cf0 Zone 1: Identity Badge (200px fixed)\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 Layout: [Cyan Dot] [Code: Title]\
+Content: "EMSUSF1-1: The Naming Game" (single line)\
+Overflow: ellipsis truncation\
+Interaction: Click opens version/settings menu\
+\pard\pardeftab720\sa319\partightenfactor0
+
+\f2\b\fs24 \cf0 Zone 2: Tool Dock (200px fixed)\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 Layout: 4 icon buttons in pill container\
+Tools: [Markup] [Fullscreen] [Audio] [Projector]\
+Timer: REMOVED from dock (merged into popover or footer)\
+Each Button: 40\'d740px with 4px gap\
+Volume: Click to open popover (not hover)\
+\pard\pardeftab720\sa319\partightenfactor0
+
+\f2\b\fs24 \cf0 Zone 3: Power Core - Central Energy Bar (400px reserved)\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 Layout: Avatar | Growing Bar | Label\
+Container: Always 400px (reserved space, never changes)\
+Bar Min Width: 120px (game start)\
+Bar Max Width: 360px (game end)\
+Avatar: 36\'d736px, anchored to left of bar\
+Growth: Animates from center outward (pinned to center)\
+Label: "HP" or level indicator to the right\
+\pard\pardeftab720\sa319\partightenfactor0
+
+\f2\b\fs24 \cf0 Zone 4: Navigation Sandwich (200px fixed)\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 Layout: [
+\f4 \uc0\u9664 
+\f3 ] [DYNAMIC CTA] [
+\f4 \uc0\u9654 
+\f3 ]\
+Arrows: 36\'d736px circular buttons\
+Dynamic CTA: Changes based on state:\
+  - "START" (on hero slide)\
+  - "MAP" (during gameplay)\
+  - "CONTINUE" (after returning from map)\
+Slide Counter: Small text below or as tooltip\
+\pard\pardeftab720\sa319\partightenfactor0
+
+\f2\b\fs24 \cf0 Zone 5: CTA/Status (180px fixed)\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 Contains: Crystal counter + Optional secondary action\
+Crystal Display: 
+\f1 \uc0\u55357 \u56462 
+\f3  count (gems earned)\
+Secondary: Timer toggle (if needed)\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 4: THE CENTERED ENERGY BAR SOLUTION\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Gemini 3 Pro (formula plus CSS/JS coordination).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: DENIED (design solution only; no file edits).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Use formula/approach for planning; do not implement in this part.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Why Centering Works:\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 When the energy bar is centered:\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	1	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 It becomes the 
+\f2\b visual anchor
+\f0\b0  of the entire header\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	2	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Growth animation expands 
+\f2\b symmetrically
+\f0\b0  (left AND right from center)\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	3	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Other zones 
+\f2\b never move
+\f0\b0  - they have fixed positions\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	4	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Empty space at game start feels 
+\f2\b intentional
+\f0\b0  (like an unfilled progress meter)\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 CSS Architecture:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 /* The Power Core bay - ALWAYS 400px, centered */\
+.power-core-bay \{\
+    width: 400px;\
+    min-width: 400px;\
+    max-width: 400px;\
+    display: flex;\
+    justify-content: center;\
+    align-items: center;\
+    position: relative;\
+\}\
+\
+/* The visible bar grows inside the bay */\
+.energy-bar-visible \{\
+    height: 10px;\
+    min-width: 120px;\
+    max-width: 360px;\
+    width: var(--bar-width, 120px); /* CSS variable updated by JS */\
+    background: linear-gradient(90deg, #facc15, #fbbf24);\
+    border-radius: 5px;\
+    transition: width 600ms cubic-bezier(0.34, 1.56, 0.64, 1);\
+\}\
+\
+/* Avatar anchored to left edge of visible bar */\
+.avatar-anchor \{\
+    position: absolute;\
+    left: calc(50% - var(--bar-width, 120px) / 2 - 40px);\
+    transition: left 600ms cubic-bezier(0.34, 1.56, 0.64, 1);\
+\}\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 JavaScript Growth Logic:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 // Called when node is completed\
+function growEnergyBar(completedNodes) \{\
+    const newWidth = 120 + (14.12 * completedNodes);\
+    document.documentElement.style.setProperty('--bar-width', `$\{newWidth\}px`);\
+    \
+    // Play satisfying growth animation\
+    playGrowthSFX();\
+    \
+    // Optional: Particle burst from bar\
+    triggerPowerUpEffect();\
+\}\
+\
+// Called when health depletes (separate from growth)\
+function updateHealthFill(healthPercent) \{\
+    const fill = document.getElementById('health-fill');\
+    if (fill) fill.style.width = `$\{healthPercent\}%`;\
+    \
+    // Update avatar expression based on health\
+    updateAvatarState(healthPercent);\
+\}\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Visual States at Different Progression:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 GAME START (0 nodes):\
+
+\f4 \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3  [ID]   [TOOLS]   [
+\f1 \uc0\u55357 \u56420 
+\f4 \uc0\u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 
+\f3 ]   [
+\f4 \uc0\u9664 
+\f3  START 
+\f4 \uc0\u9654 
+\f3 ]   [
+\f1 \uc0\u55357 \u56462 
+\f3  0]        
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3                   
+\f4 \uc0\u8593 
+\f3  120px bar                                   
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 
+\f3 \
+\
+MID GAME (8 nodes):\
+
+\f4 \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3  [ID]   [TOOLS]   [
+\f1 \uc0\u55357 \u56420 
+\f4 \uc0\u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 
+\f3 ]   [
+\f4 \uc0\u9664 
+\f3  MAP 
+\f4 \uc0\u9654 
+\f3 ]  [
+\f1 \uc0\u55357 \u56462 
+\f3  250]
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3                   
+\f4 \uc0\u8593 
+\f3  ~233px bar                                   
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 
+\f3 \
+\
+END GAME (17 nodes):\
+
+\f4 \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3  [ID]   [TOOLS]   [
+\f1 \uc0\u55357 \u56420 
+\f4 \uc0\u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 
+\f3 ]  [
+\f4 \uc0\u9664 
+\f3  MAP 
+\f4 \uc0\u9654 
+\f3 ]
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9474 
+\f3                   
+\f4 \uc0\u8593 
+\f3  360px bar (maximum)                          
+\f4 \uc0\u9474 
+\f3 \
+
+\f4 \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 
+\f3 \
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 5: FIXING THE HISTORICAL ISSUES\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - ChatGPT (issue-by-issue remediation planning, dependency awareness).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: DENIED (planning only; implement via Part 10 steps).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Identify fixes only; do not apply changes in this part.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Issue 1 & 2: Duplicate Timer + Split Navigation\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\fs24 \cf0 Fix:
+\f0\b0 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls2\ilvl0
+\f2\b \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Remove
+\f0\b0  the separate "TIMER" pill entirely\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls2\ilvl0\cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Timer functionality lives as a 
+\f2\b popover
+\f0\b0  from a discrete icon (or moved to footer)\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Navigation becomes a unified module: 
+\f3\fs26 [
+\f4 \uc0\u9664 
+\f3 ] [DYNAMIC_BUTTON] [
+\f4 \uc0\u9654 
+\f3 ]
+\f0\fs24 \
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Issue 3: Identity Text Overflow\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\fs24 \cf0 Fix:
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 #identity-badge \{\
+    min-width: 200px;\
+    max-width: 220px; /* Slightly flexible */\
+\}\
+\
+.identity-text-single \{\
+    white-space: nowrap;\
+    overflow: hidden;\
+    text-overflow: ellipsis;\
+    max-width: 160px;\
+\}\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f2\b\fs24 \cf0 HTML Structure Change:
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 <!-- OLD (two lines, wastes space) -->\
+<div id="module-code">EMSUSF1/1</div>\
+<div id="module-title">The Naming Game</div>\
+\
+<!-- NEW (single line, efficient) -->\
+<div class="identity-text-single" title="EMSUSF1-1: The Naming Game">\
+    EMSUSF1-1: The Naming Game\
+</div>\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Issue 4: CTA Not Dynamic\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\fs24 \cf0 Fix in JavaScript:
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 function updateCTAState() \{\
+    const btn = document.getElementById('dynamic-cta');\
+    const currentKey = SlideRegistry.getCurrentKey();\
+    \
+    if (currentKey === 'hero' || !GameEngine.active) \{\
+        btn.innerHTML = 'START <i data-lucide="play"></i>';\
+        btn.onclick = startJourney;\
+    \} else if (MapSystem.active) \{\
+        btn.innerHTML = 'CONTINUE <i data-lucide="arrow-right"></i>';\
+        btn.onclick = continueFromMap;\
+    \} else \{\
+        btn.innerHTML = 'MAP <i data-lucide="map"></i>';\
+        btn.onclick = openMissionMap;\
+    \}\
+    lucide.createIcons();\
+\}\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Issue 5: Missing Backdrop Blur\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\fs24 \cf0 Fix - Ensure backdrop-filter is supported:
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 nav \{\
+    background: rgba(11, 12, 21, 0.85); /* Fallback */\
+    backdrop-filter: blur(20px);\
+    -webkit-backdrop-filter: blur(20px);\
+\}\
+\
+/* Fallback for browsers without backdrop-filter */\
+@supports not (backdrop-filter: blur(20px)) \{\
+    nav \{\
+        background: rgba(11, 12, 21, 0.95);\
+    \}\
+\}\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Issue 10: CSS Bleeding Into Markup Drawer\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\fs24 \cf0 Fix - Namespace all header styles:
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 /* WRONG - Generic class names */\
+.tool-btn \{ ... \}\
+\
+/* CORRECT - Namespaced */\
+nav .hdr-tool-btn \{ ... \}\
+#tool-dock .hdr-tool-btn \{ ... \}\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Issue 12: Fragile Lobby Hide\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\fs24 \cf0 Fix - JavaScript-controlled body class:
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 // In beginMission():\
+document.body.classList.remove('lobby-open');\
+\
+// In showLobby():\
+document.body.classList.add('lobby-open');\
+/* Simple, reliable CSS */\
+body.lobby-open nav \{\
+    display: none !important;\
+\}\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 6: IMPLEMENTATION COMMANDS\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: VS Code + Codex (precise, surgical command sequencing).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: APPROVED (execute only the commands in this part).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Follow listed file/line actions exactly; no extra refactors or scope creep.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 For Google Antigravity (Claude Opus 4.5 / Gemini 3 Pro):\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\fs24 \cf0 Strengths:
+\f0\b0  Best for complex, multi-file refactoring with reasoning 
+\f2\b Token Allocation:
+\f0\b0  ~100k context, efficient for batched operations\
+
+\f2\b Command Structure:
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 TASK: Implement Glass Command Deck V2.0 Header\
+\
+PHASE 1 - FIX CRITICAL ERROR:\
+File: canvas.js\
+Action: Find and fix syntax error at line 851 (missing initializer in const declaration)\
+\
+PHASE 2 - HTML RESTRUCTURE:\
+File: Draft 1 The Naming Game Index.HTML\
+Lines: 166-244\
+Action: Replace entire <nav> block with new structure (provided below)\
+\
+PHASE 3 - CSS OVERHAUL:\
+File: css/styles.css\
+Lines: 2373-2839\
+Action: Replace header CSS section with namespaced version (provided below)\
+\
+PHASE 4 - JAVASCRIPT UPDATES:\
+Files: gamification.js, main.js\
+Actions: \
+- Add energy bar growth function\
+- Add dynamic CTA state management\
+- Fix lobby toggle mechanism\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 For VS Code + Codex 5.2:\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\fs24 \cf0 Strengths:
+\f0\b0  Best for targeted, surgical edits with line precision 
+\f2\b Limitation:
+\f0\b0  Smaller context window, needs more specific commands\
+
+\f2\b Command Example:
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 EDIT canvas.js LINE 851:\
+Replace malformed const declaration with valid syntax.\
+Expected pattern: const VoiceSystem = \{ ... \};\
+Find the missing initializer and add proper value or remove dangling const.\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 7: PRECISE CSS SPECIFICATIONS\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Claude Opus 4.5 (CSS specificity, style-system reasoning).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: APPROVED (CSS edits allowed for header only).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Apply only to namespaced header styles; no unrelated selectors.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Complete Header CSS (Brand Compliant):\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 /* 
+\f4 \uc0\u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 
+\f3 \
+   GLASS COMMAND DECK V2.0 - NAMESPACED HEADER STYLES\
+   Brand Colors: #0B0C15 (void), #22d3ee (cyan), #FFC69A (peach)\
+   
+\f4 \uc0\u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 
+\f3  */\
+\
+/* MAIN CONTAINER */\
+nav.glass-command-deck \{\
+    position: fixed;\
+    top: 0;\
+    left: 0;\
+    right: 0;\
+    width: 100%;\
+    height: 72px;\
+    display: flex;\
+    justify-content: space-between;\
+    align-items: center;\
+    padding: 0 24px;\
+    gap: 16px;\
+    z-index: 1000;\
+    background: rgba(11, 12, 21, 0.88);\
+    backdrop-filter: blur(20px);\
+    -webkit-backdrop-filter: blur(20px);\
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);\
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);\
+    box-sizing: border-box;\
+\}\
+\
+/* ZONE 1: IDENTITY (200px) */\
+.glass-command-deck .gcd-identity \{\
+    width: 200px;\
+    min-width: 200px;\
+    height: 40px;\
+    display: flex;\
+    align-items: center;\
+    gap: 10px;\
+    padding: 0 14px;\
+    background: rgba(255, 255, 255, 0.04);\
+    border: 1px solid rgba(255, 255, 255, 0.08);\
+    border-radius: 20px;\
+    flex-shrink: 0;\
+\}\
+\
+.gcd-identity .gcd-dot \{\
+    width: 10px;\
+    height: 10px;\
+    border-radius: 50%;\
+    background: #22d3ee;\
+    flex-shrink: 0;\
+\}\
+\
+.gcd-identity .gcd-text \{\
+    font-family: 'Nunito Sans', sans-serif;\
+    font-size: 12px;\
+    font-weight: 600;\
+    color: rgba(255, 255, 255, 0.75);\
+    white-space: nowrap;\
+    overflow: hidden;\
+    text-overflow: ellipsis;\
+    max-width: 150px;\
+\}\
+\
+/* ZONE 2: TOOL DOCK (200px) */\
+.glass-command-deck .gcd-tools \{\
+    width: 200px;\
+    height: 44px;\
+    display: flex;\
+    align-items: center;\
+    justify-content: center;\
+    gap: 4px;\
+    padding: 0 6px;\
+    background: rgba(255, 255, 255, 0.04);\
+    border: 1px solid rgba(255, 255, 255, 0.08);\
+    border-radius: 22px;\
+    flex-shrink: 0;\
+\}\
+\
+.gcd-tools .gcd-tool-btn \{\
+    width: 36px;\
+    height: 36px;\
+    display: flex;\
+    align-items: center;\
+    justify-content: center;\
+    border-radius: 10px;\
+    background: transparent;\
+    border: none;\
+    color: rgba(255, 255, 255, 0.4);\
+    cursor: pointer;\
+    transition: all 200ms ease;\
+\}\
+\
+.gcd-tools .gcd-tool-btn:hover \{\
+    background: rgba(255, 255, 255, 0.08);\
+    color: rgba(255, 255, 255, 0.7);\
+\}\
+\
+.gcd-tools .gcd-tool-btn.active \{\
+    background: rgba(255, 198, 154, 0.12);\
+    border: 1px solid rgba(255, 198, 154, 0.4);\
+    color: #FFC69A;\
+\}\
+\
+.gcd-tools .gcd-tool-btn svg \{\
+    width: 18px;\
+    height: 18px;\
+\}\
+\
+/* ZONE 3: POWER CORE (400px reserved) */\
+.glass-command-deck .gcd-power-core \{\
+    width: 400px;\
+    min-width: 400px;\
+    max-width: 400px;\
+    height: 48px;\
+    display: flex;\
+    justify-content: center;\
+    align-items: center;\
+    position: relative;\
+    flex-shrink: 0;\
+\}\
+\
+.gcd-power-core .gcd-energy-wrapper \{\
+    display: flex;\
+    align-items: center;\
+    gap: 10px;\
+    height: 40px;\
+    padding: 4px 12px 4px 4px;\
+    background: rgba(0, 0, 0, 0.3);\
+    border: 1px solid rgba(255, 255, 255, 0.08);\
+    border-radius: 20px;\
+\}\
+\
+.gcd-power-core .gcd-avatar \{\
+    width: 32px;\
+    height: 32px;\
+    border-radius: 50%;\
+    border: 2px solid #fbbf24;\
+    overflow: hidden;\
+    flex-shrink: 0;\
+\}\
+\
+.gcd-power-core .gcd-avatar img \{\
+    width: 100%;\
+    height: 100%;\
+    object-fit: cover;\
+\}\
+\
+.gcd-power-core .gcd-bar-container \{\
+    width: var(--energy-bar-width, 120px);\
+    min-width: 120px;\
+    max-width: 360px;\
+    height: 10px;\
+    background: rgba(107, 114, 128, 0.4);\
+    border-radius: 5px;\
+    overflow: hidden;\
+    transition: width 600ms cubic-bezier(0.34, 1.56, 0.64, 1);\
+\}\
+\
+.gcd-power-core .gcd-bar-fill \{\
+    height: 100%;\
+    width: var(--health-percent, 100%);\
+    background: linear-gradient(90deg, #facc15, #fbbf24);\
+    border-radius: 5px;\
+    transition: width 300ms ease;\
+\}\
+\
+.gcd-power-core .gcd-bar-label \{\
+    font-family: 'Nunito Sans', sans-serif;\
+    font-size: 10px;\
+    font-weight: 700;\
+    color: rgba(255, 255, 255, 0.5);\
+    text-transform: uppercase;\
+    letter-spacing: 0.05em;\
+\}\
+\
+/* ZONE 4: NAVIGATION SANDWICH (200px) */\
+.glass-command-deck .gcd-nav \{\
+    width: 200px;\
+    min-width: 200px;\
+    height: 44px;\
+    display: flex;\
+    align-items: center;\
+    justify-content: center;\
+    gap: 8px;\
+    flex-shrink: 0;\
+\}\
+\
+.gcd-nav .gcd-nav-btn \{\
+    width: 36px;\
+    height: 36px;\
+    border-radius: 50%;\
+    display: flex;\
+    align-items: center;\
+    justify-content: center;\
+    background: rgba(255, 255, 255, 0.04);\
+    border: 1px solid rgba(255, 255, 255, 0.08);\
+    color: rgba(255, 255, 255, 0.6);\
+    cursor: pointer;\
+    transition: all 200ms ease;\
+\}\
+\
+.gcd-nav .gcd-nav-btn:hover \{\
+    background: rgba(255, 255, 255, 0.1);\
+    color: rgba(255, 255, 255, 0.9);\
+\}\
+\
+.gcd-nav .gcd-nav-btn:disabled \{\
+    opacity: 0.3;\
+    cursor: not-allowed;\
+\}\
+\
+.gcd-nav .gcd-nav-btn svg \{\
+    width: 18px;\
+    height: 18px;\
+\}\
+\
+.gcd-nav .gcd-dynamic-cta \{\
+    height: 36px;\
+    padding: 0 16px;\
+    border-radius: 18px;\
+    display: flex;\
+    align-items: center;\
+    gap: 6px;\
+    background: linear-gradient(135deg, #FFC69A, #FF9A5C);\
+    border: none;\
+    color: #0B0C15;\
+    font-family: 'Fredoka', sans-serif;\
+    font-size: 12px;\
+    font-weight: 700;\
+    text-transform: uppercase;\
+    letter-spacing: 0.03em;\
+    cursor: pointer;\
+    transition: all 200ms ease;\
+    white-space: nowrap;\
+\}\
+\
+.gcd-nav .gcd-dynamic-cta:hover \{\
+    transform: scale(1.03);\
+    box-shadow: 0 0 16px rgba(255, 165, 0, 0.35);\
+\}\
+\
+.gcd-nav .gcd-dynamic-cta svg \{\
+    width: 14px;\
+    height: 14px;\
+\}\
+\
+/* ZONE 5: STATUS (180px) */\
+.glass-command-deck .gcd-status \{\
+    width: 180px;\
+    min-width: 180px;\
+    display: flex;\
+    align-items: center;\
+    justify-content: flex-end;\
+    gap: 16px;\
+    flex-shrink: 0;\
+\}\
+\
+.gcd-status .gcd-crystals \{\
+    display: flex;\
+    align-items: center;\
+    gap: 6px;\
+    padding: 6px 12px;\
+    background: rgba(255, 255, 255, 0.04);\
+    border: 1px solid rgba(255, 255, 255, 0.08);\
+    border-radius: 16px;\
+\}\
+\
+.gcd-status .gcd-crystals .gcd-gem \{\
+    font-size: 14px;\
+\}\
+\
+.gcd-status .gcd-crystals .gcd-gem-count \{\
+    font-family: 'Fredoka', sans-serif;\
+    font-size: 14px;\
+    font-weight: 700;\
+    color: #22d3ee;\
+\}\
+\
+.gcd-status .gcd-slide-counter \{\
+    font-family: 'Fredoka', sans-serif;\
+    font-size: 12px;\
+    font-weight: 600;\
+    color: rgba(255, 255, 255, 0.5);\
+    min-width: 60px;\
+    text-align: center;\
+\}\
+\
+/* LOBBY HIDE - SIMPLE & RELIABLE */\
+body.lobby-open nav.glass-command-deck \{\
+    opacity: 0;\
+    visibility: hidden;\
+    pointer-events: none;\
+\}\
+\
+/* RESPONSIVE BREAKPOINTS */\
+@media (max-width: 1280px) \{\
+    .glass-command-deck .gcd-power-core \{\
+        width: 300px;\
+        min-width: 300px;\
+        max-width: 300px;\
+    \}\
+\}\
+\
+@media (max-width: 1024px) \{\
+    .glass-command-deck .gcd-identity \{\
+        width: 160px;\
+        min-width: 160px;\
+    \}\
+    \
+    .glass-command-deck .gcd-tools \{\
+        width: auto;\
+        min-width: auto;\
+    \}\
+    \
+    .glass-command-deck .gcd-power-core \{\
+        width: 250px;\
+        min-width: 250px;\
+        max-width: 250px;\
+    \}\
+\}\
+\
+@media (max-width: 768px) \{\
+    .glass-command-deck .gcd-identity,\
+    .glass-command-deck .gcd-tools,\
+    .glass-command-deck .gcd-status \{\
+        display: none;\
+    \}\
+    \
+    .glass-command-deck .gcd-power-core \{\
+        width: auto;\
+        min-width: 150px;\
+        max-width: 200px;\
+    \}\
+\}\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 8: HTML STRUCTURE (New Nav Block)\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Gemini 3 Pro (large HTML block replacement, structural accuracy).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: APPROVED (HTML edits allowed for nav only).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Replace only the <nav> block; no CSS/JS edits in this part.\\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 <!-- 
+\f4 \uc0\u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 
+\f3 \
+     GLASS COMMAND DECK V2.0 - HEADER\
+     
+\f4 \uc0\u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 \u9552 
+\f3  -->\
+<nav class="glass-command-deck">\
+\
+    <!-- ZONE 1: IDENTITY -->\
+    <div class="gcd-identity">\
+        <div class="gcd-dot"></div>\
+        <span class="gcd-text" title="EMSUSF1-1: The Naming Game">EMSUSF1-1: The Naming Game</span>\
+    </div>\
+\
+    <!-- ZONE 2: TOOL DOCK (4 tools, no timer) -->\
+    <div class="gcd-tools">\
+        <button class="gcd-tool-btn" id="gcd-markup" onclick="toggleMarkupMode()" title="Annotations">\
+            <i data-lucide="pencil"></i>\
+        </button>\
+        <button class="gcd-tool-btn" id="gcd-fullscreen" onclick="toggleFullScreen()" title="Fullscreen">\
+            <i data-lucide="maximize-2"></i>\
+        </button>\
+        <button class="gcd-tool-btn" id="gcd-audio" onclick="openAudioPopover()" title="Audio">\
+            <i data-lucide="volume-2"></i>\
+        </button>\
+        <button class="gcd-tool-btn" id="gcd-projector" onclick="toggleTextBoard()" title="TextBoard">\
+            <i data-lucide="monitor-up"></i>\
+        </button>\
+    </div>\
+\
+    <!-- ZONE 3: POWER CORE (Centered Energy Bar) -->\
+    <div class="gcd-power-core">\
+        <div class="gcd-energy-wrapper">\
+            <div class="gcd-avatar" id="gcd-avatar">\
+                <img src="" alt="Avatar" id="gcd-avatar-img">\
+            </div>\
+            <div class="gcd-bar-container" id="gcd-bar-container">\
+                <div class="gcd-bar-fill" id="gcd-bar-fill"></div>\
+            </div>\
+            <span class="gcd-bar-label">HP</span>\
+        </div>\
+    </div>\
+\
+    <!-- ZONE 4: NAVIGATION SANDWICH -->\
+    <div class="gcd-nav">\
+        <button class="gcd-nav-btn" id="gcd-prev" onclick="prevSlide()">\
+            <i data-lucide="chevron-left"></i>\
+        </button>\
+        <button class="gcd-dynamic-cta" id="gcd-dynamic-cta" onclick="handleDynamicCTA()">\
+            START <i data-lucide="play"></i>\
+        </button>\
+        <button class="gcd-nav-btn" id="gcd-next" onclick="nextSlide()">\
+            <i data-lucide="chevron-right"></i>\
+        </button>\
+    </div>\
+\
+    <!-- ZONE 5: STATUS -->\
+    <div class="gcd-status">\
+        <div class="gcd-crystals">\
+            <span class="gcd-gem">
+\f1 \uc0\u55357 \u56462 
+\f3 </span>\
+            <span class="gcd-gem-count" id="gcd-gem-count">0</span>\
+        </div>\
+        <span class="gcd-slide-counter" id="gcd-slide-counter">01 / 32</span>\
+    </div>\
+\
+</nav>\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 9: JAVASCRIPT INTEGRATION\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Gemini 3 Pro (multi-file JS integration, state mapping).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: APPROVED (JS edits allowed for specified integration).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Add only the described controllers/handlers; no other logic changes.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Energy Bar Growth Controller:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 // Add to gamification.js\
+const EnergyBarController = \{\
+    W_MIN: 120,\
+    W_MAX: 360,\
+    TOTAL_NODES: 17,\
+    \
+    updateBarWidth(completedNodes) \{\
+        const width = this.W_MIN + ((this.W_MAX - this.W_MIN) / this.TOTAL_NODES) * completedNodes;\
+        document.documentElement.style.setProperty('--energy-bar-width', `$\{width\}px`);\
+    \},\
+    \
+    updateHealth(healthPercent) \{\
+        document.documentElement.style.setProperty('--health-percent', `$\{healthPercent\}%`);\
+        const avatar = document.getElementById('gcd-avatar-img');\
+        if (avatar && window.GameEngine) \{\
+            const state = window.GameEngine.getHealthState(healthPercent);\
+            const url = window.GameEngine.getAssetUrl(window.GameEngine.config.characterId, state);\
+            if (url) avatar.src = url;\
+        \}\
+    \},\
+    \
+    animateGrowth(fromNodes, toNodes) \{\
+        // Animate with easing for satisfying visual\
+        const start = performance.now();\
+        const duration = 600;\
+        \
+        const animate = (currentTime) => \{\
+            const elapsed = currentTime - start;\
+            const progress = Math.min(elapsed / duration, 1);\
+            const eased = 1 - Math.pow(1 - progress, 3); // Ease out cubic\
+            \
+            const currentNodes = fromNodes + (toNodes - fromNodes) * eased;\
+            this.updateBarWidth(currentNodes);\
+            \
+            if (progress < 1) \{\
+                requestAnimationFrame(animate);\
+            \}\
+        \};\
+        \
+        requestAnimationFrame(animate);\
+    \}\
+\};\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Dynamic CTA Handler:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 function handleDynamicCTA() \{\
+    const currentKey = window.SlideRegistry?.getCurrentKey() || '';\
+    \
+    if (currentKey === 'hero' || !window.GameEngine?.active) \{\
+        startJourney();\
+    \} else if (window.MapSystem?.active) \{\
+        window.MapSystem.hideMapOnly();\
+    \} else \{\
+        openMissionMap();\
+    \}\
+\}\
+\
+function updateDynamicCTAState() \{\
+    const btn = document.getElementById('gcd-dynamic-cta');\
+    if (!btn) return;\
+    \
+    const currentKey = window.SlideRegistry?.getCurrentKey() || '';\
+    \
+    if (currentKey === 'hero' || !window.GameEngine?.active) \{\
+        btn.innerHTML = 'START <i data-lucide="play"></i>';\
+    \} else if (window.MapSystem?.active) \{\
+        btn.innerHTML = 'CONTINUE <i data-lucide="arrow-right"></i>';\
+    \} else \{\
+        btn.innerHTML = 'MAP <i data-lucide="map"></i>';\
+    \}\
+    \
+    if (typeof lucide !== 'undefined') lucide.createIcons();\
+\}\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 10: IMPLEMENTATION PRIORITY ORDER\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - ChatGPT (execution sequencing, risk tracking).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: APPROVED (one step at a time).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Execute only the current step; do not advance or bundle steps.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Phase 1: Critical Fixes (Do First)\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls3\ilvl0
+\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	1	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Fix canvas.js syntax error
+\f0\b0  at line 851\line \f0\b0\fs22 \cf0 SAFETY: Edit only the broken const line; avoid reformatting; reload and confirm the console is clean.\line \f0\b0\fs22 \cf0 TARGETING NOTE (VS Code + Codex): Open canvas.js at the exact line and change only the malformed const statement. Keep the diff to a single line.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): const VoiceSystem = \{ /* ... */ \};\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only fix the single syntax error line in canvas.js; no refactors or formatting changes.\
+\ls3\ilvl0
+\f2\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	2	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Fix lobby hide mechanism
+\f0\b0  - switch to body class approach\line \f0\b0\fs22 \cf0 SAFETY: Ensure the class is toggled in all entry/exit flows (start, resume, report); keep the old mechanism until the new one proves stable.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Gemini 3 Pro): Add body class toggles in showLobby(), beginMission(), and resume flows; avoid global CSS selectors.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): document.body.classList.add('lobby-open'); / document.body.classList.remove('lobby-open');\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only add/remove lobby-open class and the matching CSS rule; no other UI logic changes.\
+\ls3\ilvl0
+\f2\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	3	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Remove duplicate timer
+\f0\b0  from HTML\line \f0\b0\fs22 \cf0 SAFETY: Confirm timer control is still reachable elsewhere; update any JS or guide selectors that referenced the removed element.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Gemini 3 Pro): Remove only the duplicate timer element; keep the remaining timer hook intact.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): delete the extra <button id="tool-timer">... block so only one timer control remains.\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only remove the duplicate timer element in HTML; do not change timer behavior or add new UI.\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Phase 2: HTML Restructure\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls4\ilvl0
+\f0\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	4	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Replace entire 
+\f3\fs26 <nav>
+\f0\fs24  block with new 5-zone structure\line \f0\b0\fs22 \cf0 SAFETY: Delete the old nav completely before inserting the new one; verify only one nav exists in the DOM.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Gemini 3 Pro): Replace the full nav block in-place; do not append; ensure nav has class glass-command-deck.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): <nav class="glass-command-deck"> ... </nav>\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only replace the nav markup block; do not touch CSS or JS in this step.\
+\ls4\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	5	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Update element IDs to new namespaced versions\line \f0\b0\fs22 \cf0 SAFETY: Search all HTML/CSS/JS/guide targets for old IDs and update them together to avoid broken handlers.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Gemini 3 Pro): Update IDs in HTML, CSS, JS, and guide selectors in one pass; use search/replace to avoid misses.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): querySelector('#gcd-dynamic-cta') or id="gcd-dynamic-cta".\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only rename IDs and update references; do not alter layout or styles.\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Phase 3: CSS Overhaul\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls5\ilvl0
+\f0\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	6	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Replace header CSS with namespaced version\line \f0\b0\fs22 \cf0 SAFETY: Remove or disable old generic nav/tool rules to prevent specificity conflicts and UI bleed.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Claude Opus 4.5): Scope all header rules under nav.glass-command-deck and .gcd-*; remove old generic nav/tool styles.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): nav.glass-command-deck \{ ... \} .glass-command-deck .gcd-tool-btn \{ ... \}\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only replace header CSS rules; do not edit unrelated styles or selectors.\
+\ls5\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	7	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Add CSS variables for energy bar\line \f0\b0\fs22 \cf0 SAFETY: Provide safe defaults (min width and health percent) so the header renders even if JS fails.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Claude Opus 4.5): Define CSS variables with safe defaults and consume via var() in the bar width/fill.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): :root \{ --energy-bar-width: 120px; --health-percent: 100%; \}\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only add CSS variables and wire them in header CSS; do not modify JS.\
+\ls5\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	8	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Add responsive breakpoints\line \f0\b0\fs22 \cf0 SAFETY: Confirm CTA and navigation remain accessible at 1280/1024/768 widths before proceeding.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Claude Opus 4.5): Apply breakpoints only to .glass-command-deck; keep nav/CTA visible on smaller screens.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): @media (max-width: 768px) \{ .glass-command-deck .gcd-tools \{ display: none; \} \}\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only adjust header breakpoints; do not hide navigation or CTA on mobile.\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Phase 4: JavaScript Updates\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls6\ilvl0
+\f0\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	9	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Add EnergyBarController\line \f0\b0\fs22 \cf0 SAFETY: Guard null references and avoid clashing with existing GameEngine state; ensure the controller only initializes once.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Gemini 3 Pro): Add EnergyBarController in gamification.js and update CSS vars via documentElement; guard missing elements.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): document.documentElement.style.setProperty('--energy-bar-width', width + 'px');\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only add EnergyBarController and minimal wiring; do not change game rules or data.\
+\ls6\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	10	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Add dynamic CTA handler\line \f0\b0\fs22 \cf0 SAFETY: Guard missing SlideRegistry/MapSystem and refresh lucide icons after innerHTML changes.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Gemini 3 Pro): Update CTA label/action based on SlideRegistry/MapSystem; refresh lucide icons after innerHTML.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): btn.innerHTML = 'MAP <i data-lucide="map"></i>'; if (window.lucide) lucide.createIcons();\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only add dynamic CTA handler and hook; do not alter map or guide logic.\
+\ls6\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	11	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Wire up node completion 
+\f5 \uc0\u8594 
+\f0  bar growth\line \f0\b0\fs22 \cf0 SAFETY: Connect to a single source of completion truth to avoid double increments; persist count if needed.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Gemini 3 Pro): Hook bar growth to a single completion event to avoid double increments.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): EnergyBarController.animateGrowth(prevNodes, nextNodes);\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only connect bar growth to existing completion events; do not create new completion paths.\
+\ls6\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	12	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Fix guide tour trigger timing\line \f0\b0\fs22 \cf0 SAFETY: Trigger only after GuideSystem is initialized and by slide key (not index) to prevent misfires.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Antigravity - Gemini 3 Pro): Trigger only when slideKey === 'hero' and GuideSystem is ready; avoid index checks.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): if (slideKey === 'hero' && window.GUIDE_READY) GuideSystem.startHeroTour();\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: APPROVED (file edits allowed for this step).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Only adjust guide trigger conditions; do not edit tour steps or content.\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Phase 5: Testing\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls7\ilvl0
+\f0\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	13	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Verify header appears/hides correctly\line \f0\b0\fs22 \cf0 SAFETY: Test fresh start, resume, report mode, and map return; confirm lobby state toggles as expected.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Claude Web): Validate header visibility across fresh start, resume, report, and map return flows.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): console.log(document.body.classList.contains('lobby-open'));\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: DENIED (verification only; no file edits).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Verification only; no file edits or new code.\
+\ls7\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	14	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Test energy bar growth animation\line \f0\b0\fs22 \cf0 SAFETY: Validate min/max widths and ensure avatar alignment stays centered during animation.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Claude Web): Manually set widths to verify min/mid/max bar positioning and avatar alignment.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): document.documentElement.style.setProperty('--energy-bar-width', '233px');\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: DENIED (verification only; no file edits).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Verification only; no file edits or new code.\
+\ls7\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	15	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Test dynamic CTA state changes\line \f0\b0\fs22 \cf0 SAFETY: Verify hero, map, and return states; confirm label matches action at each state.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Claude Web): Force CTA states to verify label/action match (START/MAP/CONTINUE).\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): updateDynamicCTAState();\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: DENIED (verification only; no file edits).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Verification only; no file edits or new code.\
+\ls7\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	16	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Verify no CSS bleeding to other components\line \f0\b0\fs22 \cf0 SAFETY: Inspect markup toolbar, textboard, and map overlays for z-index and class collisions.\line \f0\b0\fs22 \cf0 TARGETING NOTE (Claude Web): Inspect unrelated UI (marking toolbar, textboard, map) for unintended header styles.\line \f0\b0\fs22 \cf0 SUGGESTION ONLY (for consideration): getComputedStyle(document.querySelector('.marking-toolbar'));\line \f0\b0\fs22 \cf0 IMPLEMENTATION STATUS: DENIED (verification only; no file edits).\line \f0\b0\fs22 \cf0 SCOPE LIMIT: Verification only; no file edits or new code.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 11: WHICH AI AGENT TO USE\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Claude Opus 4.5 (agent comparison, token tradeoffs).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: DENIED (reference only; no file edits).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Use for tool choice only; do not change code in this part.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Recommendation by Task:\
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth2466\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2880
+\clvertalc \clshdrawnil \clwWidth3886\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx5760
+\clvertalc \clshdrawnil \clwWidth4892\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+
+\fs24 \cf0 Task\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Best Agent\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Why\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth2466\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2880
+\clvertalc \clshdrawnil \clwWidth3886\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx5760
+\clvertalc \clshdrawnil \clwWidth4892\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f0\b0 \cf0 Fix canvas.js syntax error\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 VS Code + Codex 5.2
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Surgical single-line fix, precise control\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth2466\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2880
+\clvertalc \clshdrawnil \clwWidth3886\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx5760
+\clvertalc \clshdrawnil \clwWidth4892\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 HTML restructure\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Google Antigravity (Gemini 3 Pro)
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Large block replacement, good context\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth2466\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2880
+\clvertalc \clshdrawnil \clwWidth3886\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx5760
+\clvertalc \clshdrawnil \clwWidth4892\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 CSS overhaul\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Google Antigravity (Claude Opus 4.5)
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Complex styling, needs reasoning about specificity\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth2466\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2880
+\clvertalc \clshdrawnil \clwWidth3886\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx5760
+\clvertalc \clshdrawnil \clwWidth4892\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 JavaScript updates\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Google Antigravity (Gemini 3 Pro)
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Multi-file changes, good at patterns\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth2466\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2880
+\clvertalc \clshdrawnil \clwWidth3886\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx5760
+\clvertalc \clshdrawnil \clwWidth4892\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Testing guidance\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2\b \cf0 Claude Web (current)
+\f0\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Debugging strategy, console interpretation\cell \lastrow\row
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 Antigravity Command Template:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs26 \cf0 CONTEXT: The Naming Game - Educational web app with glassmorphism design\
+TARGET: Header bar redesign ("Glass Command Deck V2.0")\
+\
+CRITICAL CONSTRAINT: Do NOT use full CSS/JS replacement. Use surgical edits.\
+\
+TASK 1: [Specific task description]\
+FILE: [exact file path]\
+LOCATION: [line numbers or unique selector]\
+ACTION: [Replace/Insert/Delete]\
+CODE: [minimal code snippet]\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f2\b\fs36 \cf0 \strokec2 PART 12: SUMMARY CHECKLIST\
+\pard\pardeftab720\sa200\partightenfactor0
+\f0\b0\fs24 \cf0 Recommended Environment & Model: Google Antigravity - Gemini 3 Flash (fast checklist verification).\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SAFETY PROTOCOLS:\line 1) Stay within this part only; do not move to other parts.\line 2) No file edits unless SECTION IMPLEMENTATION STATUS approves.\line 3) One change/concept at a time; verify before proceeding.\line 4) If unsure, stop and confirm before editing.\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION IMPLEMENTATION STATUS: DENIED (verification only; no file edits).\\
+\pard\pardeftab720\sa160\partightenfactor0
+\f0\b0\fs24 \cf0 SECTION SCOPE LIMIT: Checklist use only; no implementation in this part.\\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 What This Plan Delivers:\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 \uc0\u9989 
+\f0  Centered energy bar that grows with node completion\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  No duplicate elements (single timer, single CTA, single nav pair)\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Proper glassmorphism with backdrop blur\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Dynamic CTA that changes based on game state\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Brand-compliant colors (Void Blue, Cyan, Peach)\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Fixed identity badge overflow\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Namespaced CSS (no bleeding to other components)\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Responsive breakpoints for tablets/mobile\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Reliable lobby hide mechanism\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Growth animation for satisfying visual feedback\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Avatar expression changes with health state\uc0\u8232 
+\f1 \uc0\u9989 
+\f0  Precise pixel specifications for 16:9 screens\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f2\b\fs28 \cf0 What's NOT Included (Explicitly Out of Scope):\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 \uc0\u10060 
+\f0  Full code files (per your request)\uc0\u8232 
+\f1 \uc0\u10060 
+\f0  Timer popover UI details\uc0\u8232 
+\f1 \uc0\u10060 
+\f0  Volume slider popover UI details\uc0\u8232 
+\f1 \uc0\u10060 
+\f0  Guide tour fixes (separate system)\uc0\u8232 
+\f1 \uc0\u10060 
+\f0  Map system changes\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 \strokec2 Shall I elaborate on any specific section, provide more detailed code snippets for a particular component, or help you formulate the exact commands for your AI coding agents?\
+}

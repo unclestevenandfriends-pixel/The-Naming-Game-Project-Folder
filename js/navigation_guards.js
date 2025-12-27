@@ -145,8 +145,92 @@ const NavigationGuard = {
                 window.AnnotationSystem.redrawCurrentSlide();
             }
 
+            // --- TEXTBOARD PER-SLIDE LOADING (Ghosting Fix) ---
+            if (window.TB_SlideState && typeof window.TB_SlideState.loadBoardForSlide === 'function') {
+                window.TB_SlideState.loadBoardForSlide(newIndex);
+            }
+
+            // --- GAME SLIDE RESET HOOK ---
+            const slideKey = (window.SlideRegistry ? window.SlideRegistry.getCurrentKey() : '');
+            console.log('[Navigation] Current slideKey:', slideKey, 'GuideSystem available:', !!window.GuideSystem);
+
+            if (['people_hunt', 'places_hunt', 'things_hunt'].includes(slideKey)) {
+                if (slideKey === 'people_hunt') window.initPeopleHuntGrid?.();
+                if (slideKey === 'places_hunt') window.initPlacesHuntGrid?.();
+                if (slideKey === 'things_hunt') window.initThingsHuntGrid?.();
+            }
+
+            // --- FRIENDLY GUIDE: Start tour when player navigates TO hero slide ---
+            // CRITICAL: Only when guide is ready and lobby is fully dismissed
+            if (slideKey === 'hero' && window.GUIDE_READY && window.GuideSystem) {
+                // Check we're not in lobby anymore
+                const lobby = document.getElementById('lobby-screen');
+                const lobbyVisible = lobby && getComputedStyle(lobby).display !== 'none';
+
+                if (!lobbyVisible && !window.LOBBY_ACTIVE) {
+                    console.log('[Navigation] Player reached hero slide (slide 1) - starting guide tour');
+
+                    // Start the tour after a short delay to let slide render
+                    setTimeout(() => {
+                        if (typeof window.GuideSystem.startHeroTour === 'function') {
+                            const started = window.GuideSystem.startHeroTour();
+                            console.log('[Navigation] Hero Tour started:', started);
+
+                            // Clear flag so tour doesn't restart if player goes back/forward
+                            window.GUIDE_READY = false;
+                        }
+                    }, 800);
+                } else {
+                    console.log('[Navigation] Skipping guide - lobby still active or visible');
+                }
+            }
+
+            // --- FRIENDLY GUIDE: IFRAME & STATIC SLIDE HINTS ---
+            if (window.GuideSystem && typeof window.GuideSystem.showIfNeeded === 'function') {
+                // N1: Exit Challenge (Iframe)
+                if (slideKey === 'node_n1_exit') {
+                    window.GuideSystem.showIfNeeded('node_n1_exit', {
+                        target: null, // Centered overlay for iframe
+                        content: "Your first Exit Ticket! Use what you've learned to identify the nouns in the passage.",
+                        buttonText: 'Start Challenge!'
+                    });
+                }
+                // N4: Mega Mix Boss (Iframe)
+                else if (slideKey === 'mega_mix_boss') {
+                    window.GuideSystem.showIfNeeded('mega_mix_boss', {
+                        target: null, // Centered overlay for iframe
+                        content: "Boss Battle! This mega challenge combines everything you've learned. Good luck, Agent!",
+                        buttonText: 'Face the Boss!'
+                    });
+                }
+                // Detective Boss: Case Closed (Iframe)
+                else if (slideKey === 'case_closed') {
+                    window.GuideSystem.showIfNeeded('case_closed', {
+                        target: null, // Centered overlay for iframe
+                        content: "The final showdown! Help Detective Norah solve the ultimate proper noun mystery. Case closed!",
+                        buttonText: 'Solve the Case!'
+                    });
+                }
+                // N7: Detective Brief (Static slide)
+                else if (slideKey === 'mr_muddle_intro') {
+                    window.GuideSystem.showIfNeeded('detective_brief', {
+                        target: null, // Centered overlay
+                        content: "Detective briefing! Read Miss Muddle's letter carefully. You'll need to fix capitalization errors soon!",
+                        buttonText: 'Read Briefing'
+                    });
+                }
+                // N12: Victory Summary (Static slide)
+                else if (slideKey === 'mission_complete') {
+                    window.GuideSystem.showIfNeeded('victory_summary', {
+                        target: null, // Centered overlay
+                        content: "Congratulations, Agent! You've mastered common and proper nouns. Mission accomplished!",
+                        buttonText: 'Celebrate! 🎉'
+                    });
+                }
+            }
+
             // 5. PERSISTENCE & SYNC (Bridge Logic)
-            localStorage.setItem('nameGame_slide', newIndex);
+            SafeStorage.setItem('nameGame_slide', newIndex);
 
             // Update URL Hash (Moved from main.js)
             if (typeof window.setURLHash === "function") {

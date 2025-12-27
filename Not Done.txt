@@ -1,0 +1,37 @@
+# Things Still To Do! 📝
+
+Here is a list of the things we still need to fix and add to make the game perfect. I've explained them in a simple way so everyone can understand!
+
+---
+
+## 🔴 The Most Important Stuff (Tier 0)
+*These are the things we must do first to make sure the game doesn't break.*
+
+1.  **Short Secret Links**: Making the special "Magic Links" shorter so they don't get broken when you send them to friends or teachers.
+2.  **Memory Guard**: Making sure the game stays safe and doesn't crash, even if your computer or tablet is almost full of other pictures and toys.
+3.  **Microphone Check**: Only showing the "Voice" button if your computer is actually able to listen to you, so you don't click it and nothing happens.
+4.  **Bumpy Game Fixes**: Fixing little glitches in the slides (like Slide 7) so you can play the games again and again without any trouble.
+5.  **Perfect Pictures**: Fixing the "Download" button so it always takes a perfect picture of your work, even if you are moving the page while it's working.
+6.  **Secret Code Safety**: Hiding the teacher's secret "PIN" code better so students can't accidentally find it in the background.
+
+---
+
+## 🟠 Making it Comfy (Tier 1)
+*These things will make the game easier and nicer to use.*
+
+1.  **Friendly Guide**: Adding a quick tour at the start to show you how to move slides, draw, and play the games.
+2.  **Learning Bar**: Adding a progress bar (like a loading bar) that shows you how close you are to finishing your Noun Mission!
+3.  **Trace-Paper Whiteboard**: Making the whiteboard see-through so you can trace over the pictures on the slides.
+4.  **Tiny Notes**: Making sticky notes that you can fold up into small squares when they are in your way.
+5.  **Steady Drawing**: Making sure that when you draw with your finger, the whole page doesn't accidentally slide around.
+6.  **Bigger Buttons**: Making the buttons a bit bigger so they are much easier to tap with your finger on a tablet.
+
+---
+
+## 🟢 Extra Fun and Fair Bits (Tier 2 & 3)
+*These are the "cherry on top" things to make the game exciting and accessible for everyone.*
+
+1.  **Helper Tools**: Adding buttons to make the words bigger or easier to read for children who find small text tricky.
+2.  **Happy Wiggles**: Making the screen do a "happy wiggle" when you get a streak of right answers, or a "oops shake" when you get something wrong.
+3.  **Game Sounds**: Adding a "whoosh" sound when you start a class and other fun noises while you play.
+4.  **Winning Streaks**: Adding a counter that says "WOW! You got 5 in a row!" to cheer you on.

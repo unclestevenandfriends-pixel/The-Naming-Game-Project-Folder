@@ -804,43 +804,47 @@ const VoiceSystem = {
 
   init() {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRec) {
-      this.recognition = new SpeechRec();
-      this.recognition.continuous = true;
-      this.recognition.interimResults = true;
-      this.recognition.lang = 'en-GB';
-
-      this.recognition.onstart = () => {
-        this.isRecording = true;
-        this.updateUI(true);
-      };
-
-      this.recognition.onend = () => {
-        this.isRecording = false;
-        this.updateUI(false);
-        // Don't clear targetInput immediately to allow final tokens
-      };
-
-      this.recognition.onerror = (e) => {
-        console.error("VoiceSystem error:", e.error);
-        this.isRecording = false;
-        this.updateUI(false);
-      };
-
-      this.recognition.onresult = (event) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          }
-        }
-        if (finalTranscript) {
-          this.insertText(finalTranscript);
-        }
-      };
-    } else {
-      console.warn("Speech Recognition not supported in this browser.");
+    if (!SpeechRec) {
+      TB_Debug.log('⚠️ Speech Recognition not supported', 'warn');
+      document.querySelectorAll('.note-mic-btn').forEach(btn => {
+        btn.style.display = 'none';
+      });
+      return;
     }
+
+    this.recognition = new SpeechRec();
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+    this.recognition.lang = 'en-GB';
+
+    this.recognition.onstart = () => {
+      this.isRecording = true;
+      this.updateUI(true);
+    };
+
+    this.recognition.onend = () => {
+      this.isRecording = false;
+      this.updateUI(false);
+      // Don't clear targetInput immediately to allow final tokens
+    };
+
+    this.recognition.onerror = (e) => {
+      console.error("VoiceSystem error:", e.error);
+      this.isRecording = false;
+      this.updateUI(false);
+    };
+
+    this.recognition.onresult = (event) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      if (finalTranscript) {
+        this.insertText(finalTranscript);
+      }
+    };
   },
 
   toggle(inputElement) {
